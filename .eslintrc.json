@@ -1,3 +1,14 @@
 {
-  "extends": "airbnb-base"
+  "extends": "airbnb-base",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "rules": {
+    // 禁用或調整與 `await` 使用相關的 ESLint 警告
+    "no-await-in-loop": "off"
+  },
+  "env": {
+    "es2022": true
+  }
 }

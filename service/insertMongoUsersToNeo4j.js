@@ -13,8 +13,10 @@ const session = driver.session();
 
 mongoose.connect('mongodb://127.0.0.1:27017/fridgeChef');
 const db = mongoose.connection;
+// eslint-disable-next-line no-console
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
+  // eslint-disable-next-line no-console
   console.log('Database connected');
 });
 
@@ -29,14 +31,8 @@ function getRecipes(allUsers) {
   return Array.from(recipeSet);
 }
 
-const allUsers = await User.find().populate({
-  path: 'liked_recipes',
-  select: 'title tags ingredients',
-});
-
-async function insertAllRecipesToNeo4j(users) {
+async function insertAllRecipes(users) {
   const allRecipes = getRecipes(users);
-  // console.log(Array.isArray(allRecipeNodes[0].title));
 
   const query = `
         UNWIND $params AS param
@@ -51,7 +47,30 @@ async function insertAllRecipesToNeo4j(users) {
   const params = { params: allParams };
 
   await session.run(query, params);
-  console.log('Data created successfully!');
+  console.log('Recipes created successfully!');
 }
 
-await insertAllRecipesToNeo4j(allUsers);
+async function insertAllUsers(users) {
+  const query = `
+        UNWIND $params AS param
+        CREATE (user:User { name: param.name, email: param.email, preference: param.preference, omit: param.omit})
+      `;
+
+  const allParams = users.map((u) => {
+    const { name, email, preference, omit } = u;
+    return { name, email, preference, omit };
+  });
+
+  const params = { params: allParams };
+
+  await session.run(query, params);
+  console.log('Recipes created successfully!');
+}
+
+const allUsers = await User.find().populate({
+  path: 'liked_recipes',
+  select: 'title tags ingredients',
+});
+
+// await insertAllRecipes(allUsers);
+await insertAllUsers(allUsers);

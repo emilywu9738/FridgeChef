@@ -1,7 +1,12 @@
-const axios = require('axios');
-const cheerio = require('cheerio');
-const fs = require('fs-extra');
-const path = require('path');
+import axios from 'axios';
+import cheerio from 'cheerio';
+import fs from 'fs-extra';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const BASE_URL = 'https://icook.tw'; // 替換成你的網站基礎URL
 const BREAKFAST_LIST_URL = `${BASE_URL}/categories/8`; // 替換成你的列表頁面URL

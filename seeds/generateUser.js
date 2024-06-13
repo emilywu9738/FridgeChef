@@ -7,6 +7,7 @@ import User from '../models/user.js';
 
 mongoose.connect('mongodb://127.0.0.1:27017/fridgeChef');
 
+const NUM_OF_NEW_USERS = 10;
 const category = ['無', '全素', '奶蛋素'];
 const dislikedIngredients = [
   '香菜',
@@ -15,7 +16,6 @@ const dislikedIngredients = [
   '番茄',
   '苦瓜',
   '秋葵',
-  '芹菜',
   '青椒',
   '芋頭',
   '南瓜',
@@ -45,8 +45,11 @@ function getOmit(num) {
   return Array.from(selectedIngredients);
 }
 
-async function getLikedRecipes() {
-  const recipes = await Recipe.find();
+async function getLikedRecipes(userCategory) {
+  const recipes =
+    userCategory === '無'
+      ? await Recipe.find()
+      : await Recipe.find({ tags: userCategory });
   const recipeIds = recipes.map((recipe) => recipe._id);
   const likedRecipesNum = Math.floor(Math.random() * 130) + 20; // 20 到 130 之間的數字
   const likedRecipes = new Set();
@@ -58,13 +61,14 @@ async function getLikedRecipes() {
 }
 
 async function generateUsers(userNum) {
+  await User.deleteMany({});
   for (let i = 0; i < userNum; i++) {
     const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email(randomName);
     const hashedPassword = await bcrypt.hash(process.env.USER_PASSWORD, 12);
     const randomNum = Math.floor(Math.random() * 5);
-    const likedRecipes = await getLikedRecipes();
     const preference = getPreference(randomNum);
+    const likedRecipes = await getLikedRecipes(preference);
     const omit = getOmit(randomNum);
 
     const user = new User({
@@ -80,7 +84,9 @@ async function generateUsers(userNum) {
   }
 }
 
-generateUsers(10).then(() => {
-  mongoose.connection.close();
-  console.log('New user added successfully!');
-});
+generateUsers(NUM_OF_NEW_USERS)
+  .then(() => {
+    mongoose.connection.close();
+    console.log(`${NUM_OF_NEW_USERS} new users added successfully!`);
+  })
+  .catch((err) => console.error(err));

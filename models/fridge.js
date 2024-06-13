@@ -1,5 +1,6 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose';
+
+const { Schema } = mongoose;
 
 const fridgeSchema = new Schema({
   name: { type: String, required: true },
@@ -17,4 +18,4 @@ const fridgeSchema = new Schema({
   ],
 });
 
-module.exports = mongoose.model('Fridge', fridgeSchema);
+export default mongoose.model('Fridge', fridgeSchema);

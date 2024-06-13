@@ -67,10 +67,28 @@ async function insertAllUsers(users) {
   console.log('Recipes created successfully!');
 }
 
+async function createRelationShips(users) {
+  const query = `
+      UNWIND $rels as rel
+      MATCH (user:User {name: rel.userName}),(recipe:Recipe {name: rel.recipeTitle})
+      MERGE (user)-[:LIKES]->(recipe)
+      RETURN user.name as userName, recipe.title as recipeTitle
+  `;
+
+  const relationships = users.flatMap((u) =>
+    u.liked_recipes.map((r) => ({ userName: u.name, recipeTitle: r.title })),
+  );
+  const rels = { rels: relationships };
+
+  const result = await session.run(query, rels);
+  console.log('Relationships created successfully!');
+}
+
 const allUsers = await User.find().populate({
   path: 'liked_recipes',
   select: 'title tags ingredients',
 });
 
 // await insertAllRecipes(allUsers);
-await insertAllUsers(allUsers);
+// await insertAllUsers(allUsers);
+// await createRelationShips(allUsers);

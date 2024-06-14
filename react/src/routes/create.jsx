@@ -11,21 +11,31 @@ import {
   Select,
   TextField,
   Typography,
+  List,
+  ListItem,
+  ListItemText,
 } from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 
 export default function Create() {
+  const [name, setName] = React.useState('');
+  const [expired, setExpired] = React.useState('');
   const [category, setCategory] = React.useState('');
+  const [previewList, setPreviewList] = React.useState([]);
 
-  const handleSubmit = (event) => {
+  const handleAddPreview = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      name: data.get('name'),
-      expired: data.get('expired'),
-      category: category,
-    });
+    setPreviewList([...previewList, { name, expired, category }]);
+    setName('');
+    setExpired('');
+    setCategory('');
+  };
+
+  const handleSubmit = () => {
+    // 在這裡提交數據到你的數據庫
+    console.log('送出更新: ', previewList);
+    // 清空預覽列表
+    setPreviewList([]);
   };
 
   const handleCategoryChange = (event) => {
@@ -33,98 +43,119 @@ export default function Create() {
   };
 
   return (
-    <Box
+    <Container
+      component='main'
+      maxWidth='md'
       sx={{
         display: 'flex',
+        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'flex-start',
         minHeight: '100vh',
-        bgcolor: '#f5f5f5',
+        padding: 4,
       }}
     >
-      <Container component='main' maxWidth='xs'>
-        <CssBaseline />
+      <CssBaseline />
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          marginRight: 4,
+        }}
+      >
+        <Avatar sx={{ m: 1, bgcolor: '#CCD5AE' }}>
+          <LibraryAddIcon />
+        </Avatar>
+        <Typography component='h1' variant='h5'>
+          新增食材
+        </Typography>
         <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
+          component='form'
+          onSubmit={handleAddPreview}
+          noValidate
+          sx={{ mt: 1 }}
         >
-          <Avatar sx={{ m: 1, bgcolor: '#CCD5AE' }}>
-            <LibraryAddIcon />
-          </Avatar>
-          <Typography component='h1' variant='h5'>
-            新增食材
-          </Typography>
-          <Box
-            component='form'
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{ mt: 1 }}
+          <TextField
+            margin='normal'
+            required
+            fullWidth
+            id='name'
+            label='食材名稱'
+            name='name'
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoFocus
+            color='success'
+          />
+          <TextField
+            margin='normal'
+            required
+            fullWidth
+            name='expired'
+            label='過期時間'
+            type='date'
+            id='expired'
+            value={expired}
+            onChange={(e) => setExpired(e.target.value)}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            color='success'
+          />
+          <FormControl fullWidth margin='normal'>
+            <InputLabel id='category-label' color='success' required>
+              類別
+            </InputLabel>
+            <Select
+              labelId='category-label'
+              id='category'
+              value={category}
+              onChange={handleCategoryChange}
+              label='類別'
+              color='success'
+            >
+              <MenuItem value='蔬菜'>蔬菜</MenuItem>
+              <MenuItem value='肉品'>肉品</MenuItem>
+              <MenuItem value='海鮮'>海鮮</MenuItem>
+            </Select>
+          </FormControl>
+          <Button
+            type='submit'
+            fullWidth
+            variant='contained'
+            sx={{ mt: 3, mb: 2, bgcolor: '#D4A373' }}
           >
-            <TextField
-              margin='normal'
-              required
-              fullWidth
-              id='name'
-              label='食材名稱'
-              name='name'
-              color='success'
-              autoFocus
-            />
-
-            <FormControl fullWidth sx={{ mt: 1 }}>
-              <InputLabel id='category-label' color='success' required>
-                類別
-              </InputLabel>
-              <Select
-                color='success'
-                required
-                labelId='category-label'
-                id='category'
-                label='Age'
-                value={category}
-                onChange={handleCategoryChange}
-              >
-                <MenuItem value={'蔬菜'}>蔬菜</MenuItem>
-                <MenuItem value={'肉品'}>肉品</MenuItem>
-                <MenuItem value={'海鮮'}>海鮮</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField
-              margin='normal'
-              required
-              fullWidth
-              name='expired'
-              label='過期時間'
-              type='date'
-              id='expired'
-              color='success'
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-            <Button
-              type='submit'
-              fullWidth
-              variant='contained'
-              sx={{ mt: 3, bgcolor: '#D4A373' }}
-            >
-              新增
-            </Button>
-            <Button
-              type='submit'
-              fullWidth
-              variant='contained'
-              sx={{ mt: 2, mb: 2, bgcolor: '#bc6c25' }}
-            >
-              送出
-            </Button>
-          </Box>
+            加到預覽列表
+          </Button>
         </Box>
-      </Container>
-    </Box>
+      </Box>
+      <Box sx={{ flex: 1, ml: 4 }}>
+        <Typography component='h1' variant='h5'>
+          新增預覽
+        </Typography>
+        <List>
+          {previewList.map((item, index) => (
+            <ListItem key={index}>
+              <ListItemText
+                primary={`${item.name} (${item.category}類)`}
+                secondary={`過期時間: ${item.expired}`}
+              />
+            </ListItem>
+          ))}
+        </List>
+        {previewList.length > 0 && (
+          <Button
+            onClick={handleSubmit}
+            fullWidth
+            variant='contained'
+            sx={{ mt: 3, mb: 2, bgcolor: '#bc6c25' }}
+          >
+            送出更新
+          </Button>
+        )}
+      </Box>
+    </Container>
   );
 }

@@ -48,4 +48,5 @@ export const createIngredients = async (req, res) => {
       }
     }),
   );
+  res.status(200).send('食材已成功新增');
 };

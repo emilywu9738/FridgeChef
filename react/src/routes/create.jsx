@@ -14,8 +14,10 @@ import {
   List,
   ListItem,
   ListItemText,
+  IconButton,
 } from '@mui/material';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Create() {
   const [name, setName] = React.useState('');
@@ -40,6 +42,11 @@ export default function Create() {
 
   const handleCategoryChange = (event) => {
     setCategory(event.target.value);
+  };
+
+  const handleDelete = (index) => {
+    const newList = previewList.filter((_, i) => i !== index);
+    setPreviewList(newList);
   };
 
   return (
@@ -137,11 +144,21 @@ export default function Create() {
         </Typography>
         <List>
           {previewList.map((item, index) => (
-            <ListItem key={index}>
+            <ListItem
+              key={index}
+              sx={{ bgcolor: '#f0f0f0', marginBottom: 1, borderRadius: 1 }}
+            >
               <ListItemText
                 primary={`${item.name} (${item.category}類)`}
                 secondary={`過期時間: ${item.expired}`}
               />
+              <IconButton
+                edge='end'
+                aria-label='delete'
+                onClick={() => handleDelete(index)}
+              >
+                <DeleteIcon />
+              </IconButton>
             </ListItem>
           ))}
         </List>

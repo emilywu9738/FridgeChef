@@ -1,4 +1,5 @@
 import * as React from 'react';
+import axios from 'axios';
 import {
   Avatar,
   Box,
@@ -34,8 +35,14 @@ export default function Create() {
   };
 
   const handleSubmit = () => {
-    // 在這裡提交數據到你的數據庫
-    console.log('送出更新: ', previewList);
+    axios
+      .post('http://localhost:8080/fridge/create', previewList)
+      .then((response) => {
+        alert(response.data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
     // 清空預覽列表
     setPreviewList([]);
   };

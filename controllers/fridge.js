@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-import Fridge from '../models/fridge.js'; // 確保你正確引入 Fridge 模型
+import Fridge from '../models/fridge.js';
+import User from '../models/user.js';
 
 mongoose.connect('mongodb://127.0.0.1:27017/fridgeChef');
 
@@ -58,6 +59,9 @@ export const createIngredients = async (req, res) => {
 
 export const renderFridgeById = async (req, res) => {
   const { id } = req.query;
-  const foundFridge = await Fridge.findById(id);
+  const foundFridge = await Fridge.findById(id).populate({
+    path: 'members',
+    select: 'name preference omit',
+  });
   res.send(foundFridge);
 };

@@ -8,6 +8,7 @@ import Create from './routes/create';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Box, Stack, TextField, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
+import ShowFridge from './routes/showFridge';
 
 const defaultTheme = createTheme();
 
@@ -19,6 +20,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path='create' element={<Create />}></Route>
+          <Route path='fridge' element={<ShowFridge />}></Route>
           <Route
             path='/'
             element={

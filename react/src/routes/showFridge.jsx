@@ -13,6 +13,7 @@ import {
   ListItem,
   Typography,
 } from '@mui/material';
+import { red } from '@mui/material/colors';
 
 export default function ShowFridge() {
   const [searchParams] = useSearchParams();
@@ -29,7 +30,7 @@ export default function ShowFridge() {
       setIsChecked(event.target.checked);
     };
     return (
-      <Card sx={{ minWidth: 275, position: 'relative' }}>
+      <Card sx={{ minWidth: 275, position: 'relative', m: 1 }}>
         <Checkbox
           checked={isChecked}
           onChange={handleCheckboxChange}
@@ -42,10 +43,10 @@ export default function ShowFridge() {
           <Typography variant='h5' component='div' sx={{ mb: 1 }}>
             {member.name}
           </Typography>
-          <Typography sx={{ mb: 1.5 }} color='text.secondary'>
+          <Typography sx={{ mb: 1.5, color: '#606c38' }}>
             飲食習慣: {member.preference}
           </Typography>
-          <Typography variant='body2'>
+          <Typography variant='body2' sx={{ color: '#bc6c25' }}>
             排除食材：
             <br />
             {member.omit.join('、')}
@@ -56,6 +57,13 @@ export default function ShowFridge() {
   }
 
   function IngredientCard({ category }) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 設定今天的日期，不包括時間
+
+    const threeDaysLater = new Date();
+    threeDaysLater.setHours(0, 0, 0, 0);
+    threeDaysLater.setDate(threeDaysLater.getDate() + 3); // 獲得三天後的日期
+
     return (
       <Card sx={{ minWidth: 275, m: 2, overflow: 'visible' }}>
         <CardContent>
@@ -67,28 +75,47 @@ export default function ShowFridge() {
             {category.category}類
           </Typography>
           <List dense>
-            {category.items.map((item) => (
-              <ListItem
-                key={item._id}
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  padding: '8px',
-                  margin: '5px 0',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                  backgroundColor: 'background.paper',
-                }}
-              >
-                <Typography variant='body2' component='span'>
-                  {item.name}
-                </Typography>
-                <Typography variant='body2' component='span'>
-                  到期日: {new Date(item.expirationDate).toLocaleDateString()}
-                </Typography>
-              </ListItem>
-            ))}
+            {category.items.map((item) => {
+              const expirationDate = new Date(item.expirationDate);
+              expirationDate.setHours(0, 0, 0, 0);
+              let color = 'inherit'; // 預設顏色
+              if (expirationDate < today) {
+                color = '#ae2012'; // 已過期
+              } else if (expirationDate <= threeDaysLater) {
+                color = '#ee9b00'; // 三天內過期
+              }
+
+              return (
+                <ListItem
+                  key={item._id}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    padding: '8px',
+                    margin: '5px 0',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                    backgroundColor: 'background.paper',
+                  }}
+                >
+                  <Typography
+                    variant='body2'
+                    component='span'
+                    sx={{ color: color }}
+                  >
+                    {item.name}
+                  </Typography>
+                  <Typography
+                    variant='body2'
+                    component='span'
+                    sx={{ color: color }}
+                  >
+                    到期日: {expirationDate.toLocaleDateString()}
+                  </Typography>
+                </ListItem>
+              );
+            })}
           </List>
         </CardContent>
       </Card>
@@ -109,13 +136,22 @@ export default function ShowFridge() {
 
   return (
     <Box component='div' sx={{ m: 2 }}>
-      <Typography variant='h2' component='div' sx={{ mb: 3 }}>
+      <Typography variant='h2' component='div'>
         {fridgeData.name}
       </Typography>
+      <Typography sx={{ mb: 4 }}>
+        今日：
+        {new Date().toLocaleDateString('zh-Hant-TW', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })}
+      </Typography>
+
       <Typography variant='h5' component='div' sx={{ mb: 3 }}>
         成員名單
       </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 5 }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
         <h3></h3>
         {fridgeData.members.map((member) => (
           <MemberCard key={member._id} member={member} />

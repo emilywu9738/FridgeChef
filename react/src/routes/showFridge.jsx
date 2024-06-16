@@ -118,7 +118,7 @@ export default function ShowFridge() {
                   <Typography
                     variant='body2'
                     component='span'
-                    sx={{ flexGrow: 1, marginLeft: 1 }}
+                    sx={{ flexGrow: 1, marginLeft: 1, color: color }}
                   >
                     {item.name}
                   </Typography>
@@ -152,9 +152,28 @@ export default function ShowFridge() {
 
   return (
     <Box component='div' sx={{ m: 2 }}>
-      <Typography variant='h2' component='div'>
-        {fridgeData.name}
-      </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          mb: 4,
+        }}
+      >
+        <Typography variant='h2'>{fridgeData.name}</Typography>
+        <Button
+          variant='contained'
+          size='large'
+          sx={{
+            ml: 4,
+            backgroundColor: '#f59b51',
+            ':hover': {
+              backgroundColor: '#e76f51',
+            },
+          }}
+        >
+          推薦食譜
+        </Button>
+      </Box>
       <Typography sx={{ mb: 4 }}>
         今日：
         {new Date().toLocaleDateString('zh-Hant-TW', {

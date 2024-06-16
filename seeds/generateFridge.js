@@ -18,17 +18,19 @@ async function getRandomUsers() {
   return Array.from(userGroup);
 }
 
-async function generateFridges() {
-  const randomName = faker.person.firstName();
-  const randomUsers = await getRandomUsers();
+async function generateFridges(fridgeNum) {
+  for (let i = 0; i < fridgeNum; i++) {
+    const randomUsers = await getRandomUsers();
+    const [firstUser] = await User.find(randomUsers[0]);
 
-  const fridge = new Fridge({
-    name: `${randomName}'s Home`,
-    members: randomUsers,
-  });
+    const fridge = new Fridge({
+      name: `${firstUser.name}'s Home`,
+      members: randomUsers,
+    });
 
-  await fridge.save();
-  console.log('Fridge added successfully!');
+    await fridge.save();
+  }
+  console.log('Fridges added successfully!');
 }
 
-await generateFridges();
+await generateFridges(5);

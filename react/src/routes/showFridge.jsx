@@ -155,8 +155,8 @@ export default function ShowFridge() {
       <Box
         sx={{
           display: 'flex',
+          flexWrap: 'wrap',
           alignItems: 'center',
-          mb: 4,
         }}
       >
         <Typography variant='h2'>{fridgeData.name}</Typography>
@@ -164,7 +164,7 @@ export default function ShowFridge() {
           variant='contained'
           size='large'
           sx={{
-            ml: 4,
+            ml: 3,
             backgroundColor: '#f59b51',
             ':hover': {
               backgroundColor: '#e76f51',
@@ -174,7 +174,7 @@ export default function ShowFridge() {
           推薦食譜
         </Button>
       </Box>
-      <Typography sx={{ mb: 4 }}>
+      <Typography sx={{ mb: 4, mt: 2 }}>
         今日：
         {new Date().toLocaleDateString('zh-Hant-TW', {
           year: 'numeric',
@@ -183,7 +183,7 @@ export default function ShowFridge() {
         })}
       </Typography>
 
-      <Typography variant='h5' component='div' sx={{ mb: 3 }}>
+      <Typography variant='h5' component='div' sx={{ mb: 1 }}>
         成員名單
       </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
@@ -192,7 +192,7 @@ export default function ShowFridge() {
           <MemberCard key={member._id} member={member} />
         ))}
       </Box>
-      <Typography variant='h5' component='div' sx={{ mb: 3 }}>
+      <Typography variant='h5' component='div' sx={{ mb: 1 }}>
         食材清單
       </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>

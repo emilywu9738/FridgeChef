@@ -64,7 +64,7 @@ async function insertAllUsers(users) {
   const params = { params: allParams };
 
   await session.run(query, params);
-  console.log('Recipes created successfully!');
+  console.log('Users created successfully!');
 }
 
 async function createRelationShips(users) {
@@ -89,6 +89,13 @@ const allUsers = await User.find().populate({
   select: 'title tags ingredients',
 });
 
+async function clearAll() {
+  const query = `MATCH (n) DETACH DELETE n`;
+  await session.run(query);
+  console.log('All data cleared!');
+}
+
+// await clearAll();
 // await insertAllRecipes(allUsers);
 // await insertAllUsers(allUsers);
 // await createRelationShips(allUsers);

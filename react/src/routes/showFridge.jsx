@@ -58,11 +58,22 @@ export default function ShowFridge() {
 
   function IngredientCard({ category }) {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // 設定今天的日期，不包括時間
-
+    today.setHours(0, 0, 0, 0);
     const threeDaysLater = new Date();
     threeDaysLater.setHours(0, 0, 0, 0);
-    threeDaysLater.setDate(threeDaysLater.getDate() + 3); // 獲得三天後的日期
+    threeDaysLater.setDate(threeDaysLater.getDate() + 3);
+
+    // 初始化每個食材的選中狀態為未選中
+    const [checkedStates, setCheckedStates] = useState(
+      new Array(category.items.length).fill(false),
+    );
+
+    // 處理 Checkbox 的點擊事件
+    const handleCheckboxChange = (index) => {
+      const newCheckedStates = [...checkedStates];
+      newCheckedStates[index] = !newCheckedStates[index];
+      setCheckedStates(newCheckedStates);
+    };
 
     return (
       <Card sx={{ minWidth: 275, m: 2, overflow: 'visible' }}>
@@ -75,14 +86,14 @@ export default function ShowFridge() {
             {category.category}類
           </Typography>
           <List dense>
-            {category.items.map((item) => {
+            {category.items.map((item, index) => {
               const expirationDate = new Date(item.expirationDate);
               expirationDate.setHours(0, 0, 0, 0);
-              let color = 'inherit'; // 預設顏色
+              let color = 'inherit';
               if (expirationDate < today) {
-                color = '#ae2012'; // 已過期
+                color = '#ae2012';
               } else if (expirationDate <= threeDaysLater) {
-                color = '#ee9b00'; // 三天內過期
+                color = '#ee9b00';
               }
 
               return (
@@ -99,10 +110,15 @@ export default function ShowFridge() {
                     backgroundColor: 'background.paper',
                   }}
                 >
+                  <Checkbox
+                    checked={checkedStates[index]}
+                    onChange={() => handleCheckboxChange(index)}
+                    sx={{ padding: 0 }}
+                  />
                   <Typography
                     variant='body2'
                     component='span'
-                    sx={{ color: color }}
+                    sx={{ flexGrow: 1, marginLeft: 1 }}
                   >
                     {item.name}
                   </Typography>

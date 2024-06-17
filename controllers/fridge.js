@@ -65,3 +65,7 @@ export const renderFridgeById = async (req, res) => {
   });
   res.send(foundFridge);
 };
+
+export const recommendRecipe = (req, res) => {
+  res.send('clicked!');
+};

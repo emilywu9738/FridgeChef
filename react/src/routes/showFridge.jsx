@@ -10,7 +10,11 @@ import {
   Checkbox,
   List,
   ListItem,
+  Select,
   Typography,
+  FormControl,
+  InputLabel,
+  MenuItem,
 } from '@mui/material';
 
 export default function ShowFridge() {
@@ -22,6 +26,7 @@ export default function ShowFridge() {
   });
 
   const [checkedMembers, setCheckedMembers] = useState({});
+  const [recommendCategory, setRecommendCategory] = useState('');
 
   const handleMemberCheckChange = (memberId, isChecked) => {
     setCheckedMembers((prev) => ({
@@ -30,10 +35,15 @@ export default function ShowFridge() {
     }));
   };
 
+  const handleCategoryChange = (event) => {
+    setRecommendCategory(event.target.value);
+  };
+
   const handleRecommendRecipes = () => {
     const fridgeId = searchParams.get('id');
     axios
       .post(`http://localhost:8080/fridge/recipe?id=${fridgeId}`, {
+        recipeCategory: recommendCategory,
         fridgeData: fridgeData,
         checkedMembers: checkedMembers,
       })
@@ -177,30 +187,8 @@ export default function ShowFridge() {
 
   return (
     <Box component='div' sx={{ m: 2 }}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant='h2'>{fridgeData.name}</Typography>
-        <Button
-          variant='contained'
-          size='large'
-          sx={{
-            ml: 3,
-            backgroundColor: '#f59b51',
-            ':hover': {
-              backgroundColor: '#e76f51',
-            },
-          }}
-          onClick={handleRecommendRecipes}
-        >
-          推薦食譜
-        </Button>
-      </Box>
-      <Typography sx={{ mb: 4, mt: 2 }}>
+      <Typography variant='h2'>{fridgeData.name}</Typography>
+      <Typography sx={{ my: 2, ml: 1 }}>
         今日：
         {new Date().toLocaleDateString('zh-Hant-TW', {
           year: 'numeric',
@@ -208,6 +196,50 @@ export default function ShowFridge() {
           day: 'numeric',
         })}
       </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          mb: 4,
+        }}
+      >
+        <FormControl
+          fullWidth
+          sx={{ minWidth: 240, maxWidth: 275, my: 2, mx: 1 }}
+        >
+          <InputLabel id='recipeCategory-label' color='success'>
+            食譜類別
+          </InputLabel>
+          <Select
+            labelId='recipeCategory-label'
+            id='recipeCategory'
+            value={recommendCategory}
+            label='食譜類別'
+            onChange={handleCategoryChange}
+            color='success'
+          >
+            <MenuItem value={'All'}>All</MenuItem>
+            <MenuItem value={'蛋奶素'}>蛋奶素</MenuItem>
+            <MenuItem value={'全素'}>全素</MenuItem>
+          </Select>
+        </FormControl>
+        <Button
+          variant='contained'
+          size='large'
+          sx={{
+            ml: 1,
+            backgroundColor: '#f59b51',
+            ':hover': {
+              backgroundColor: '#e76f51',
+            },
+            height: 50,
+          }}
+          onClick={handleRecommendRecipes}
+        >
+          推薦食譜
+        </Button>
+      </Box>
 
       <Typography variant='h5' component='div' sx={{ mb: 1 }}>
         成員名單

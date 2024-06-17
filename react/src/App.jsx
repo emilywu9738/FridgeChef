@@ -6,9 +6,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Create from './routes/create';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { Box, Stack, TextField, Typography } from '@mui/material';
-import Button from '@mui/material/Button';
 import ShowFridge from './routes/showFridge';
+import Recipe from './routes/recipe';
 
 const defaultTheme = createTheme();
 
@@ -21,6 +20,7 @@ function App() {
         <Routes>
           <Route path='create' element={<Create />}></Route>
           <Route path='fridge' element={<ShowFridge />}></Route>
+          <Route path='fridge/recipe' element={<Recipe />}></Route>
           <Route
             path='/'
             element={

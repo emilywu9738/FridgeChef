@@ -1,8 +1,51 @@
 import mongoose from 'mongoose';
+import neo4j from 'neo4j-driver';
+import 'dotenv/config';
 import Fridge from '../models/fridge.js';
 import User from '../models/user.js';
 
+const uri = 'bolt://localhost:7687';
+const user = process.env.NEO4J_USER;
+const password = process.env.NEO4J_PASSWORD;
+
+const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
+const session = driver.session();
+
 mongoose.connect('mongodb://127.0.0.1:27017/fridgeChef');
+
+// 定義同義詞字典
+const synonymMap = {
+  蕃茄: '番茄',
+};
+
+const standardizeIngredientName = (name) => {
+  for (const [key, value] of Object.entries(synonymMap)) {
+    if (value === name) {
+      return key;
+    }
+  }
+  return synonymMap[name] || name;
+};
+
+const getAllSynonyms = (ingredient) => {
+  const synonyms = new Set();
+  const standardName = standardizeIngredientName(ingredient);
+  synonyms.add(standardName);
+  for (const [key, value] of Object.entries(synonymMap)) {
+    if (value === standardName) {
+      synonyms.add(key);
+    }
+  }
+  return Array.from(synonyms);
+};
+
+const generateRegexFromSynonyms = (omitIngredients) => {
+  const regexParts = omitIngredients.flatMap((ingredient) => {
+    const synonyms = getAllSynonyms(ingredient);
+    return synonyms.map((synonym) => `(?i).*${synonym}.*`);
+  });
+  return `(${regexParts.join('|')})`;
+};
 
 // eslint-disable-next-line import/prefer-default-export
 export const createIngredients = async (req, res) => {
@@ -66,13 +109,69 @@ export const renderFridgeById = async (req, res) => {
   res.send(foundFridge);
 };
 
-export const recommendRecipe = (req, res) => {
-  const { fridgeData, checkedMembers } = req.body;
+function filterItemsExpiringWithinDays(items, days) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() + 3);
+  dueDate.setHours(0, 0, 0, 1);
+
+  return items.filter((item) => {
+    const expirationDate = new Date(item.expirationDate);
+    return expirationDate <= dueDate;
+  });
+}
+
+export const recommendRecipe = async (req, res) => {
+  const { recipeCategory, fridgeData, checkedMembers } = req.body;
 
   const trueIds = Object.keys(checkedMembers).filter(
     (key) => checkedMembers[key] === true,
   );
-  console.log(trueIds);
+  const checkedUsersPromises = trueIds.map((id) => User.findById(id));
+  const checkedUsers = await Promise.all(checkedUsersPromises);
 
-  res.send('clicked!');
+  const omitIngredients = new Set();
+  checkedUsers.forEach((u) => {
+    u.omit.forEach((o) => {
+      getAllSynonyms(o).forEach((synonym) => omitIngredients.add(synonym));
+    });
+  });
+  const allOmitIngredients = Array.from(omitIngredients);
+  const fridgeItems = fridgeData.ingredients.flatMap((c) => c.items);
+
+  const filteredItems = filterItemsExpiringWithinDays(fridgeItems, 3);
+  const expiringIngredientNames = filteredItems.map((item) => item.name);
+
+  const omitRegex = generateRegexFromSynonyms(allOmitIngredients);
+  console.log(allOmitIngredients);
+
+  const cypherQuery = `
+    MATCH (r:Recipe)-[:CONTAINS]->(i:Ingredient)
+    WHERE i.name IN $expiringIngredientNames
+    AND NOT EXISTS {
+      MATCH (r)-[:CONTAINS]->(i2:Ingredient)
+      WHERE i2.name =~ $omitRegex 
+    }
+    RETURN r, COUNT(i) AS ingredientCount
+    ORDER BY ingredientCount DESC
+    LIMIT 5
+  `;
+
+  try {
+    const result = await session.run(cypherQuery, {
+      expiringIngredientNames,
+      omitRegex,
+    });
+
+    const recommendedRecipes = result.records.map(
+      (record) => record.get('r').properties,
+    );
+
+    res.json({ recommendedRecipes });
+  } catch (error) {
+    console.error('Error recommending recipes:', error);
+    res.status(500).send('Internal Server Error');
+  }
 };

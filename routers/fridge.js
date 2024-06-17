@@ -9,6 +9,6 @@ router.post('/create', fridge.createIngredients);
 
 router.get('/', fridge.renderFridgeById);
 
-router.get('/recipe', fridge.recommendRecipe);
+router.post('/recipe', fridge.recommendRecipe);
 
 export default router;

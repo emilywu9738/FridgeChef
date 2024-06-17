@@ -67,5 +67,12 @@ export const renderFridgeById = async (req, res) => {
 };
 
 export const recommendRecipe = (req, res) => {
+  const { fridgeData, checkedMembers } = req.body;
+
+  const trueIds = Object.keys(checkedMembers).filter(
+    (key) => checkedMembers[key] === true,
+  );
+  console.log(trueIds);
+
   res.send('clicked!');
 };

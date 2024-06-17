@@ -133,6 +133,7 @@ export default function Create() {
               <MenuItem value='蔬菜'>蔬菜</MenuItem>
               <MenuItem value='肉品'>肉品</MenuItem>
               <MenuItem value='海鮮'>海鮮</MenuItem>
+              <MenuItem value='調味料'>調味料</MenuItem>
             </Select>
           </FormControl>
           <Button

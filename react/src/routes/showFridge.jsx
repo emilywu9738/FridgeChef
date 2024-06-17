@@ -31,7 +31,18 @@ export default function ShowFridge() {
   };
 
   const handleRecommendRecipes = () => {
-    console.log(fridgeData);
+    const fridgeId = searchParams.get('id');
+    axios
+      .post(`http://localhost:8080/fridge/recipe?id=${fridgeId}`, {
+        fridgeData: fridgeData,
+        checkedMembers: checkedMembers,
+      })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) =>
+        console.error('Failed to fetch recommendation data:', error),
+      );
   };
 
   function MemberCard({ member, isChecked, onCheckChange }) {

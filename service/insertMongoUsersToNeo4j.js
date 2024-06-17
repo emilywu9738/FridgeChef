@@ -67,7 +67,7 @@ async function insertAllUsers(users) {
   console.log('Users created successfully!');
 }
 
-async function createRelationShips(users) {
+async function createUserRelationShips(users) {
   const query = `
       UNWIND $rels as rel
       MATCH (user:User {name: rel.userName}),(recipe:Recipe {name: rel.recipeTitle})
@@ -95,7 +95,49 @@ async function clearAll() {
   console.log('All data cleared!');
 }
 
+const allRecipes = await getRecipes(allUsers);
+
+function getRecipeIngredients(recipes) {
+  const ingredientSet = new Set();
+  for (let i = 0; i < recipes.length; i++) {
+    const allIngredients = recipes[i].ingredients;
+    allIngredients.forEach((i) => {
+      ingredientSet.add(i);
+    });
+  }
+  return Array.from(ingredientSet);
+}
+
+async function insertAllRecipeIngredients(recipes) {
+  const allIngredients = getRecipeIngredients(recipes);
+
+  const query = `
+        UNWIND $params AS param
+        CREATE (ingredient:Ingredient { name: param})
+      `;
+
+  const params = { params: allIngredients };
+
+  await session.run(query, params);
+  console.log('Ingredients created successfully!');
+}
+
+//  抓食譜內資訊直接新增ingredients並建立連結
+async function createRecipeNodeAndRelationShips() {
+  await session.run(
+    `MATCH (r:Recipe)
+       UNWIND r.ingredients AS ingredientName
+       MERGE (i:Ingredient {name: ingredientName})
+       MERGE (r)-[:CONTAINS]->(i)
+       RETURN r.name AS recipeName, i.name AS ingredientName`,
+  );
+
+  console.log('Recipe ingredients and relationship created successfully');
+}
+
 // await clearAll();
 // await insertAllRecipes(allUsers);
 // await insertAllUsers(allUsers);
-// await createRelationShips(allUsers);
+// await createUserRelationShips(allUsers);
+// await insertAllRecipeIngredients(allRecipes);
+// await createRecipeNodeAndRelationShips();

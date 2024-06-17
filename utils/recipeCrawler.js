@@ -53,9 +53,13 @@ function parseRecipeDetail(html) {
   const title = $('h1.title').text().trim(); // 替換成詳細頁面的標題選擇器
   let servings = '';
   const ingredients = [];
-  const ingredients_detail = [];
+  const ingredientsDetail = [];
   const instructions = [];
   const tags = [];
+  let coverImage = '';
+
+  // 解析封面圖片
+  coverImage = $('.recipe-cover img').attr('src');
 
   // 解析份量
   const num = $('.servings .num').text().trim();
@@ -67,7 +71,7 @@ function parseRecipeDetail(html) {
     const name = $(element).find('.ingredient-name a').text().trim();
     const unit = $(element).find('.ingredient-unit').text().trim();
     ingredients.push(`${name}`);
-    ingredients_detail.push(`${name} ${unit}`);
+    ingredientsDetail.push(`${name} ${unit}`);
   });
 
   // 解析作法
@@ -94,11 +98,12 @@ function parseRecipeDetail(html) {
 
   return {
     title,
+    coverImage,
     likes,
     servings,
     tags,
     ingredients,
-    ingredients_detail,
+    ingredientsDetail,
     instructions,
   };
 }

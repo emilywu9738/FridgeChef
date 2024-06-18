@@ -20,6 +20,8 @@ import {
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+const OPTIONS = ['蔬菜', '肉品', '海鮮', '調味料', '蛋豆類', '主食類'];
+
 export default function Create() {
   const [name, setName] = React.useState('');
   const [expired, setExpired] = React.useState('');
@@ -130,10 +132,11 @@ export default function Create() {
               label='類別'
               color='success'
             >
-              <MenuItem value='蔬菜'>蔬菜</MenuItem>
-              <MenuItem value='肉品'>肉品</MenuItem>
-              <MenuItem value='海鮮'>海鮮</MenuItem>
-              <MenuItem value='調味料'>調味料</MenuItem>
+              {OPTIONS.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
           <Button

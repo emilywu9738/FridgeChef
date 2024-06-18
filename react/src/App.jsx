@@ -6,8 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Create from './routes/create';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import ShowFridge from './routes/showFridge';
-import Recipe from './routes/recipe';
+import ShowFridgeAndRecipe from './routes/showFridgeAndRecipe';
 
 const defaultTheme = createTheme();
 
@@ -19,8 +18,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path='create' element={<Create />}></Route>
-          <Route path='fridge' element={<ShowFridge />}></Route>
-          <Route path='fridge/recipe' element={<Recipe />}></Route>
+          <Route path='fridge/recipe' element={<ShowFridgeAndRecipe />}></Route>
           <Route
             path='/'
             element={

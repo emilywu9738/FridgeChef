@@ -15,9 +15,36 @@ import {
   FormControl,
   InputLabel,
   MenuItem,
+  IconButton,
+  styled,
+  Collapse,
 } from '@mui/material';
 
-export default function ShowFridge() {
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+const ExpandMoreMembers = styled((props) => {
+  const { expand, ...other } = props;
+  return <IconButton {...other} />;
+})(({ theme, expand }) => ({
+  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+  transition: theme.transitions.create('transform', {
+    duration: theme.transitions.duration.shortest,
+  }),
+}));
+
+const ExpandMoreIngredients = styled((props) => {
+  const { expand, ...other } = props;
+  return <IconButton {...other} />;
+})(({ theme, expand }) => ({
+  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+  transition: theme.transitions.create('transform', {
+    duration: theme.transitions.duration.shortest,
+  }),
+}));
+
+export default function showFridgeAndRecipe() {
+  const [memberExpanded, setMemberExpanded] = React.useState(false);
+  const [ingredientExpanded, setIngredientExpanded] = React.useState(false);
   const [searchParams] = useSearchParams();
   const [fridgeData, setFridgeData] = useState({
     name: '',
@@ -27,6 +54,13 @@ export default function ShowFridge() {
 
   const [checkedMembers, setCheckedMembers] = useState({});
   const [recommendCategory, setRecommendCategory] = useState('');
+
+  const handleMemberExpandClick = () => {
+    setMemberExpanded(!memberExpanded);
+  };
+  const handleIngredientExpandClick = () => {
+    setIngredientExpanded(!ingredientExpanded);
+  };
 
   const handleMemberCheckChange = (memberId, isChecked) => {
     setCheckedMembers((prev) => ({
@@ -40,6 +74,8 @@ export default function ShowFridge() {
   };
 
   const handleRecommendRecipes = () => {
+    setIngredientExpanded(false);
+    setMemberExpanded(false);
     const fridgeId = searchParams.get('id');
     axios
       .post(`http://localhost:8080/fridge/recipe?id=${fridgeId}`, {
@@ -186,82 +222,124 @@ export default function ShowFridge() {
   }, [searchParams]);
 
   return (
-    <Box component='div' sx={{ m: 2 }}>
-      <Typography variant='h2'>{fridgeData.name}</Typography>
-      <Typography sx={{ my: 2, ml: 1 }}>
-        今日：
-        {new Date().toLocaleDateString('zh-Hant-TW', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })}
-      </Typography>
-      <Box
-        sx={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          mb: 4,
-        }}
-      >
-        <FormControl
-          fullWidth
-          sx={{ minWidth: 240, maxWidth: 275, my: 2, mx: 1 }}
-        >
-          <InputLabel id='recipeCategory-label' color='success'>
-            食譜類別
-          </InputLabel>
-          <Select
-            labelId='recipeCategory-label'
-            id='recipeCategory'
-            value={recommendCategory}
-            label='食譜類別'
-            onChange={handleCategoryChange}
-            color='success'
-          >
-            <MenuItem value={'All'}>All</MenuItem>
-            <MenuItem value={'蛋奶素'}>蛋奶素</MenuItem>
-            <MenuItem value={'全素'}>全素</MenuItem>
-          </Select>
-        </FormControl>
-        <Button
-          variant='contained'
-          size='large'
+    <Box sx={{ backgroundImage: 'url(/background.jpg)', m: 0 }}>
+      <Box component='div' sx={{ m: 2 }}>
+        <Typography variant='h2'>{fridgeData.name}</Typography>
+        <Typography sx={{ my: 2, ml: 1 }}>
+          今日：
+          {new Date().toLocaleDateString('zh-Hant-TW', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </Typography>
+        <Box
           sx={{
-            ml: 1,
-            backgroundColor: '#f59b51',
-            ':hover': {
-              backgroundColor: '#e76f51',
-            },
-            height: 50,
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            mb: 4,
           }}
-          onClick={handleRecommendRecipes}
         >
-          推薦食譜
-        </Button>
-      </Box>
+          <FormControl
+            fullWidth
+            sx={{ minWidth: 240, maxWidth: 275, my: 2, mx: 1 }}
+          >
+            <InputLabel id='recipeCategory-label' color='success'>
+              食譜類別
+            </InputLabel>
+            <Select
+              labelId='recipeCategory-label'
+              id='recipeCategory'
+              value={recommendCategory}
+              label='食譜類別'
+              onChange={handleCategoryChange}
+              color='success'
+            >
+              <MenuItem value={'All'}>All</MenuItem>
+              <MenuItem value={'蛋奶素'}>蛋奶素</MenuItem>
+              <MenuItem value={'全素'}>全素</MenuItem>
+            </Select>
+          </FormControl>
+          <Button
+            variant='contained'
+            size='large'
+            sx={{
+              ml: 1,
+              backgroundColor: '#f59b51',
+              ':hover': {
+                backgroundColor: '#e76f51',
+              },
+              height: 50,
+            }}
+            onClick={handleRecommendRecipes}
+          >
+            推薦食譜
+          </Button>
+        </Box>
 
-      <Typography variant='h5' component='div' sx={{ mb: 1 }}>
-        成員名單
-      </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
-        <h3></h3>
-        {fridgeData.members.map((member) => (
-          <MemberCard
-            key={member._id}
-            member={member}
-            isChecked={checkedMembers[member._id]}
-            onCheckChange={handleMemberCheckChange}
-          />
-        ))}
-      </Box>
-      <Typography variant='h5' component='div' sx={{ mb: 1 }}>
-        食材清單
-      </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-        {fridgeData.ingredients.map((category) => (
-          <IngredientCard key={category._id} category={category} />
-        ))}
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'flex-start',
+            mb: 3,
+          }}
+        >
+          <Typography variant='h5' component='div' sx={{ mb: 1 }}>
+            成員名單
+          </Typography>
+
+          <ExpandMoreMembers
+            expand={memberExpanded}
+            onClick={handleMemberExpandClick}
+            aria-expanded={memberExpanded}
+            aria-label='show more'
+          >
+            <ExpandMoreIcon />
+          </ExpandMoreMembers>
+        </Box>
+
+        <Collapse in={memberExpanded} timeout='auto' unmountOnExit>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
+            {fridgeData.members.map((member) => (
+              <MemberCard
+                key={member._id}
+                member={member}
+                isChecked={checkedMembers[member._id]}
+                onCheckChange={handleMemberCheckChange}
+              />
+            ))}
+          </Box>
+        </Collapse>
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'flex-start',
+            mb: 3,
+          }}
+        >
+          <Typography variant='h5' component='div' sx={{ mb: 1 }}>
+            食材清單
+          </Typography>
+          <ExpandMoreIngredients
+            expand={ingredientExpanded}
+            onClick={handleIngredientExpandClick}
+            aria-expanded={ingredientExpanded}
+            aria-label='show more'
+          >
+            <ExpandMoreIcon />
+          </ExpandMoreIngredients>
+        </Box>
+
+        <Collapse in={ingredientExpanded} timeout='auto' unmountOnExit>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+            {fridgeData.ingredients.map((category) => (
+              <IngredientCard key={category._id} category={category} />
+            ))}
+          </Box>
+        </Collapse>
       </Box>
     </Box>
   );

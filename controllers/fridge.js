@@ -148,13 +148,19 @@ export const recommendRecipe = async (req, res) => {
   const omitRegex = generateRegexFromSynonyms(allOmitIngredients);
   const searchRegex = generateRegexFromSynonyms(expiringIngredientNames);
 
+  let additionalQuery = '';
+  if (recipeCategory === '全素' || recipeCategory === '奶蛋素') {
+    additionalQuery = 'AND ANY(tag IN r.tags WHERE tag = $recipeCategory)';
+  }
+
   const cypherQuery = `
     MATCH (r:Recipe)-[:CONTAINS]->(i:Ingredient)
     WHERE i.name =~ $searchRegex
-    AND NOT EXISTS {
-      MATCH (r)-[:CONTAINS]->(i2:Ingredient)
-      WHERE i2.name =~ $omitRegex 
-    }
+      AND NOT EXISTS {
+        MATCH (r)-[:CONTAINS]->(i2:Ingredient)
+        WHERE i2.name =~ $omitRegex 
+      }
+    ${additionalQuery}
     RETURN r, COUNT(i) AS ingredientCount
     ORDER BY ingredientCount DESC
     LIMIT 6
@@ -164,6 +170,8 @@ export const recommendRecipe = async (req, res) => {
     const result = await session.run(cypherQuery, {
       searchRegex,
       omitRegex,
+      recipeCategory,
+      expiringIngredientNames,
     });
 
     const recommendedRecipes = result.records.map(

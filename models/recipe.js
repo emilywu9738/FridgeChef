@@ -8,7 +8,7 @@ const recipeSchema = new Schema({
   servings: String,
   tags: { type: [String], required: true },
   ingredients: { type: [String], required: true },
-  ingredients_detail: { type: [String], required: true },
+  ingredientsDetail: { type: [String], required: true },
   instructions: [
     {
       stepText: { type: String, required: true },

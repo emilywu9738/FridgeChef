@@ -18,6 +18,8 @@ import {
   IconButton,
   styled,
   Collapse,
+  Grid,
+  CardMedia,
 } from '@mui/material';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -42,16 +44,16 @@ const ExpandMoreIngredients = styled((props) => {
   }),
 }));
 
-export default function showFridgeAndRecipe() {
-  const [memberExpanded, setMemberExpanded] = React.useState(false);
-  const [ingredientExpanded, setIngredientExpanded] = React.useState(false);
+export default function ShowFridgeAndRecipe() {
+  const [memberExpanded, setMemberExpanded] = React.useState(true);
+  const [ingredientExpanded, setIngredientExpanded] = React.useState(true);
   const [searchParams] = useSearchParams();
   const [fridgeData, setFridgeData] = useState({
     name: '',
     members: [],
     ingredients: [],
   });
-
+  const [recipeData, setRecipeData] = useState([]);
   const [checkedMembers, setCheckedMembers] = useState({});
   const [recommendCategory, setRecommendCategory] = useState('');
 
@@ -73,22 +75,24 @@ export default function showFridgeAndRecipe() {
     setRecommendCategory(event.target.value);
   };
 
-  const handleRecommendRecipes = () => {
-    setIngredientExpanded(false);
-    setMemberExpanded(false);
-    const fridgeId = searchParams.get('id');
-    axios
-      .post(`http://localhost:8080/fridge/recipe?id=${fridgeId}`, {
-        recipeCategory: recommendCategory,
-        fridgeData: fridgeData,
-        checkedMembers: checkedMembers,
-      })
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) =>
-        console.error('Failed to fetch recommendation data:', error),
+  const handleRecommendRecipes = async () => {
+    try {
+      setIngredientExpanded(false);
+      setMemberExpanded(false);
+      const fridgeId = searchParams.get('id');
+      const response = await axios.post(
+        `http://localhost:8080/fridge/recipe?id=${fridgeId}`,
+        {
+          recipeCategory: recommendCategory,
+          fridgeData: fridgeData,
+          checkedMembers: checkedMembers,
+        },
       );
+      const { fullRecipes } = response.data;
+      setRecipeData(fullRecipes);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   function MemberCard({ member, isChecked, onCheckChange }) {
@@ -201,6 +205,27 @@ export default function showFridgeAndRecipe() {
     );
   }
 
+  function RecipeCard({ recipe }) {
+    const image = recipe.coverImage ? recipe.coverImage : '/empty.jpg';
+    return (
+      <Grid item xs={12} sm={6} md={3}>
+        <Card sx={{ minWidth: 275, position: 'relative', m: 1 }}>
+          <CardContent>
+            <Typography sx={{ fontSize: 18, mb: 1, fontWeight: 500 }}>
+              {recipe.title}
+            </Typography>
+            <CardMedia
+              component='img'
+              height='180'
+              image={image}
+              alt={recipe.title}
+            />
+          </CardContent>
+        </Card>
+      </Grid>
+    );
+  }
+
   useEffect(() => {
     const fridgeId = searchParams.get('id');
     if (fridgeId) {
@@ -225,7 +250,7 @@ export default function showFridgeAndRecipe() {
     <Box sx={{ backgroundImage: 'url(/background.jpg)', m: 0 }}>
       <Box component='div' sx={{ m: 2 }}>
         <Typography variant='h2'>{fridgeData.name}</Typography>
-        <Typography sx={{ my: 2, ml: 1 }}>
+        <Typography sx={{ my: 1, ml: 1 }}>
           今日：
           {new Date().toLocaleDateString('zh-Hant-TW', {
             year: 'numeric',
@@ -334,12 +359,22 @@ export default function showFridgeAndRecipe() {
         </Box>
 
         <Collapse in={ingredientExpanded} timeout='auto' unmountOnExit>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 5 }}>
             {fridgeData.ingredients.map((category) => (
               <IngredientCard key={category._id} category={category} />
             ))}
           </Box>
         </Collapse>
+        <Typography variant='h5' component='div' sx={{ mb: 5 }}>
+          食譜推薦清單
+        </Typography>
+        <Grid container spacing={2}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+            {recipeData.map((recipe) => (
+              <RecipeCard key={recipe._id} recipe={recipe} />
+            ))}
+          </Box>
+        </Grid>
       </Box>
     </Box>
   );

@@ -36,12 +36,12 @@ async function insertAllRecipes(users) {
 
   const query = `
         UNWIND $params AS param
-        CREATE (recipe:Recipe { name: param.title, tags: param.tags, ingredients: param.ingredients})
+        CREATE (recipe:Recipe { id: param.id, name: param.title, tags: param.tags, ingredients: param.ingredients})
       `;
 
   const allParams = allRecipes.map((r) => {
-    const { title, tags, ingredients } = r;
-    return { title, tags, ingredients };
+    const { _id, title, tags, ingredients } = r;
+    return { id: _id.toString(), title, tags, ingredients };
   });
 
   const params = { params: allParams };

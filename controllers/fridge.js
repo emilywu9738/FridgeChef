@@ -141,6 +141,7 @@ export const recommendRecipe = async (req, res) => {
   });
   const allOmitIngredients = Array.from(omitIngredients);
   const fridgeItems = fridgeData.ingredients.flatMap((c) => c.items);
+  const fridgeItemNames = fridgeItems.map((item) => item.name);
 
   const filteredItems = filterItemsExpiringWithinDays(fridgeItems, 3);
   const expiringIngredientNames = filteredItems.map((item) => item.name);
@@ -161,8 +162,16 @@ export const recommendRecipe = async (req, res) => {
         WHERE i2.name =~ $omitRegex 
       }
     ${additionalQuery}
-    RETURN r, COUNT(i) AS ingredientCount
-    ORDER BY ingredientCount DESC
+    WITH r, i,
+      CASE 
+        WHEN i.name IN $expiringIngredientNames THEN 1  // 快過期的食材得到更高的得分
+        WHEN i.name IN $fridgeItemNames THEN 1  // 其他冰箱中的食材得到基本得分
+        ELSE 0
+      END AS ingredientScore
+    WITH r, COLLECT(i.name) AS includedIngredients,
+      SUM(ingredientScore) AS totalScore
+    RETURN r, includedIngredients, totalScore
+    ORDER BY totalScore DESC
     LIMIT 6
   `;
 
@@ -172,6 +181,7 @@ export const recommendRecipe = async (req, res) => {
       omitRegex,
       recipeCategory,
       expiringIngredientNames,
+      fridgeItemNames,
     });
 
     const recommendedRecipes = result.records.map(
@@ -181,6 +191,7 @@ export const recommendRecipe = async (req, res) => {
     const fullRecipes = await Recipe.find({
       _id: { $in: recipeIds },
     });
+
     res.json({ fullRecipes });
   } catch (error) {
     console.error('Error recommending recipes:', error);

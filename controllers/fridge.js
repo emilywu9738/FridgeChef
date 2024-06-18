@@ -3,6 +3,7 @@ import neo4j from 'neo4j-driver';
 import 'dotenv/config';
 import Fridge from '../models/fridge.js';
 import User from '../models/user.js';
+import Recipe from '../models/recipe.js';
 
 const uri = 'bolt://localhost:7687';
 const user = process.env.NEO4J_USER;
@@ -145,31 +146,34 @@ export const recommendRecipe = async (req, res) => {
   const expiringIngredientNames = filteredItems.map((item) => item.name);
 
   const omitRegex = generateRegexFromSynonyms(allOmitIngredients);
-  console.log(allOmitIngredients);
+  const searchRegex = generateRegexFromSynonyms(expiringIngredientNames);
 
   const cypherQuery = `
     MATCH (r:Recipe)-[:CONTAINS]->(i:Ingredient)
-    WHERE i.name IN $expiringIngredientNames
+    WHERE i.name =~ $searchRegex
     AND NOT EXISTS {
       MATCH (r)-[:CONTAINS]->(i2:Ingredient)
       WHERE i2.name =~ $omitRegex 
     }
     RETURN r, COUNT(i) AS ingredientCount
     ORDER BY ingredientCount DESC
-    LIMIT 5
+    LIMIT 6
   `;
 
   try {
     const result = await session.run(cypherQuery, {
-      expiringIngredientNames,
+      searchRegex,
       omitRegex,
     });
 
     const recommendedRecipes = result.records.map(
       (record) => record.get('r').properties,
     );
-
-    res.json({ recommendedRecipes });
+    const recipeIds = recommendedRecipes.map((r) => r.id);
+    const fullRecipes = await Recipe.find({
+      _id: { $in: recipeIds },
+    });
+    res.json({ fullRecipes });
   } catch (error) {
     console.error('Error recommending recipes:', error);
     res.status(500).send('Internal Server Error');

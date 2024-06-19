@@ -7,6 +7,8 @@ import Create from './routes/create';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ShowFridgeAndRecipe from './routes/showFridgeAndRecipe';
+import Register from './routes/register';
+import Login from './routes/login';
 
 const defaultTheme = createTheme();
 
@@ -19,6 +21,8 @@ function App() {
         <Routes>
           <Route path='create' element={<Create />}></Route>
           <Route path='fridge/recipe' element={<ShowFridgeAndRecipe />}></Route>
+          <Route path='login' element={<Login />}></Route>
+          <Route path='register' element={<Register />}></Route>
           <Route
             path='/'
             element={

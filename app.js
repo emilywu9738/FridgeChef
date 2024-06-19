@@ -3,6 +3,7 @@ import cors from 'cors';
 
 // import recipeAPI from './routers/recipeAPI.js';
 import fridge from './routers/fridge.js';
+import user from './routers/user.js';
 
 const app = express();
 
@@ -19,5 +20,6 @@ app.use(
 // const API_VERSION = '1.0';
 // app.use(`/api/${API_VERSION}/recipe`, recipeAPI);
 app.use('/fridge', fridge);
+app.use('/user', user);
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));

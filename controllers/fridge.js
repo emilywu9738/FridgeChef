@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import nodemailer from 'nodemailer';
 import neo4j from 'neo4j-driver';
 import 'dotenv/config';
 import Fridge from '../models/fridge.js';
@@ -12,11 +13,36 @@ const password = process.env.NEO4J_PASSWORD;
 const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
 const session = driver.session();
 
-mongoose.connect('mongodb://127.0.0.1:27017/fridgeChef');
+mongoose.connect(process.env.MONGOOSE_CONNECT);
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASSWORD,
+  },
+});
 
 // 定義同義詞字典
 const synonymMap = {
   蕃茄: '番茄',
+};
+
+const sendEmail = (to, subject, text) => {
+  const mailOptions = {
+    from: process.env.GMAIL_USER,
+    to,
+    subject,
+    text,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Error sending email:', error);
+    } else {
+      console.log('Email sent:', info.response);
+    }
+  });
 };
 
 const standardizeIngredientName = (name) => {
@@ -47,6 +73,22 @@ const generateRegexFromSynonyms = (omitIngredients) => {
   });
   return `(${regexParts.join('|')})`;
 };
+
+function formatFridgeContents(contents) {
+  return contents
+    .map((category) => {
+      const itemsString = category.items
+        .map(
+          (item) =>
+            `${item.name} (有效期限: ${item.expirationDate
+              .toISOString()
+              .slice(0, 10)})`,
+        )
+        .join(', ');
+      return `${category.category}：${itemsString}`;
+    })
+    .join('\n');
+}
 
 // eslint-disable-next-line import/prefer-default-export
 export const createIngredients = async (req, res) => {
@@ -94,6 +136,14 @@ export const createIngredients = async (req, res) => {
         }
       }),
     );
+    const message = formatFridgeContents(formattedItems);
+
+    sendEmail(
+      process.env.GMAIL_RECEIVER_TEST,
+      'FridgeChef - 食材庫更新',
+      `新食材已更新至食材庫。\n食材列表：\n${message}`,
+    );
+
     res.status(200).send('食材已成功新增');
   } catch (err) {
     res.status(500).send('食材新增失敗');

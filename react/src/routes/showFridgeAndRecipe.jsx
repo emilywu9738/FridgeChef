@@ -208,18 +208,34 @@ export default function ShowFridgeAndRecipe() {
   function RecipeCard({ recipe }) {
     const image = recipe.coverImage ? recipe.coverImage : '/empty.jpg';
     return (
-      <Grid item xs={12} sm={6} md={3}>
-        <Card sx={{ minWidth: 275, position: 'relative', m: 1 }}>
+      <Grid item xs={12} sm={6} md={4}>
+        <Card
+          sx={{
+            minWidth: 275,
+            minHeight: 347,
+            flexGrow: 1,
+            position: 'relative',
+            m: 2,
+          }}
+        >
           <CardContent>
             <Typography sx={{ fontSize: 18, mb: 1, fontWeight: 500 }}>
               {recipe.title}
             </Typography>
             <CardMedia
               component='img'
-              height='180'
+              height='300'
               image={image}
               alt={recipe.title}
+              sx={{ mb: 2 }}
             />
+            <Typography
+              sx={{ fontSize: 12 }}
+              color='text.secondary'
+              gutterBottom
+            >
+              食材：{recipe.ingredients.join('、')}
+            </Typography>
           </CardContent>
         </Card>
       </Grid>
@@ -249,7 +265,9 @@ export default function ShowFridgeAndRecipe() {
   return (
     <Box sx={{ backgroundImage: 'url(/background.jpg)', m: 0 }}>
       <Box component='div' sx={{ m: 2 }}>
-        <Typography variant='h2'>{fridgeData.name}</Typography>
+        <Typography variant='h2' sx={{ fontWeight: 500 }}>
+          {fridgeData.name}
+        </Typography>
         <Typography sx={{ my: 1, ml: 1 }}>
           今日：
           {new Date().toLocaleDateString('zh-Hant-TW', {
@@ -282,7 +300,7 @@ export default function ShowFridgeAndRecipe() {
               color='success'
             >
               <MenuItem value={'All'}>All</MenuItem>
-              <MenuItem value={'蛋奶素'}>蛋奶素</MenuItem>
+              <MenuItem value={'奶蛋素'}>奶蛋素</MenuItem>
               <MenuItem value={'全素'}>全素</MenuItem>
             </Select>
           </FormControl>
@@ -369,7 +387,7 @@ export default function ShowFridgeAndRecipe() {
           食譜推薦清單
         </Typography>
         <Grid container spacing={2}>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
             {recipeData.map((recipe) => (
               <RecipeCard key={recipe._id} recipe={recipe} />
             ))}

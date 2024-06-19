@@ -20,7 +20,7 @@ import {
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const OPTIONS = ['蔬菜', '肉品', '海鮮', '調味料', '蛋豆類', '主食類'];
+const OPTIONS = ['蔬菜', '肉品', '海鮮', '調味料', '蛋豆', '主食'];
 
 export default function Create() {
   const [name, setName] = React.useState('');

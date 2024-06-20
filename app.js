@@ -14,6 +14,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: 'http://localhost:5173',
+    credentials: true,
   }),
 );
 
@@ -26,6 +27,7 @@ app.use((err, req, res, next) => {
   const { statusCode = 500 } = err;
   if (!err.message) err.message = 'Oh No, Something Went Wrong!';
   res.status(statusCode).send(err.message);
+  console.error(err);
 });
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));

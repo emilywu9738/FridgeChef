@@ -29,7 +29,8 @@ export default function Login() {
         email: data.get('email'),
         password: data.get('password'),
       })
-      .then((response) => console.log(response.data));
+      .then((response) => console.log(response.data))
+      .catch((err) => console.error(err.message));
   };
 
   return (

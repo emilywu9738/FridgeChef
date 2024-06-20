@@ -1,7 +1,7 @@
 import express from 'express';
 
 import * as user from '../controllers/user.js';
-import { validateUser } from '../middleware/middleware.js';
+import { validateUser } from '../middleware/userMiddleware.js';
 import catchAsync from '../utils/catchAsync.js';
 
 const router = express.Router();

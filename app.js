@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 // import recipeAPI from './routers/recipeAPI.js';
 import fridge from './routers/fridge.js';
@@ -11,6 +12,7 @@ const PORT = 8080;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: 'http://localhost:5173',

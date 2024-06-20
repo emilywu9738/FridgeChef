@@ -13,17 +13,9 @@ export const validateUser = (req, res, next) => {
 };
 
 export const validateJWT = (req, res, next) => {
-  try {
-    const accessToken = req.cookies.JWT;
-    if (!accessToken) {
-      res.redirect('/user/login');
-      return;
-    }
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error(err);
-    const { statusCode = 500 } = err;
-    res.status(statusCode).render('error', { err });
+  const accessToken = req.cookies.JWT;
+  if (!accessToken) {
+    throw new ExpressError('Access Denied', 401);
   }
   next();
 };

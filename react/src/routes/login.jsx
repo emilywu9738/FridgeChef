@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import {
   Avatar,
@@ -21,6 +23,7 @@ const theme = createTheme({
 });
 
 export default function Login() {
+  const navigate = useNavigate();
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -36,7 +39,10 @@ export default function Login() {
           withCredentials: true,
         },
       )
-      .then((response) => console.log(response.data))
+      .then((response) => {
+        console.log(response.data);
+        navigate('/user/profile');
+      })
       .catch((err) => console.error(err.message));
   };
 

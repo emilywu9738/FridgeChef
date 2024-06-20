@@ -9,6 +9,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ShowFridgeAndRecipe from './routes/showFridgeAndRecipe';
 import Register from './routes/register';
 import Login from './routes/login';
+import Profile from './routes/profile';
 
 const defaultTheme = createTheme();
 
@@ -23,6 +24,7 @@ function App() {
           <Route path='fridge/recipe' element={<ShowFridgeAndRecipe />}></Route>
           <Route path='login' element={<Login />}></Route>
           <Route path='register' element={<Register />}></Route>
+          <Route path='user/profile' element={<Profile />}></Route>
           <Route
             path='/'
             element={

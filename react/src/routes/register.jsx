@@ -25,11 +25,17 @@ export default function Register() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     axios
-      .post('http://localhost:8080/user/register', {
-        name: data.get('name'),
-        email: data.get('email'),
-        password: data.get('password'),
-      })
+      .post(
+        'http://localhost:8080/user/register',
+        {
+          name: data.get('name'),
+          email: data.get('email'),
+          password: data.get('password'),
+        },
+        {
+          withCredentials: true, // 確保設置了此選項
+        },
+      )
       .then((response) => console.log(response.data));
   };
 

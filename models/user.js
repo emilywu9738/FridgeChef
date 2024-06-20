@@ -7,7 +7,7 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   liked_recipes: [{ type: Schema.Types.ObjectId, ref: 'Recipe' }],
-  preference: { type: String, required: true },
+  preference: { type: String },
   omit: { type: [String] },
 });
 

@@ -26,7 +26,7 @@ export default function Register() {
     const data = new FormData(event.currentTarget);
     axios
       .post('http://localhost:8080/user/register', {
-        username: data.get('username'),
+        name: data.get('name'),
         email: data.get('email'),
         password: data.get('password'),
       })
@@ -95,10 +95,10 @@ export default function Register() {
                   margin='normal'
                   required
                   fullWidth
-                  name='username'
+                  name='name'
                   label='Username'
                   type='text'
-                  id='username'
+                  id='name'
                   sx={{ bgcolor: '#fdf7e8' }}
                 />
                 <TextField

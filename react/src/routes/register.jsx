@@ -37,7 +37,8 @@ export default function Register() {
           withCredentials: true, // 確保設置了此選項
         },
       )
-      .then((response) => console.log(response.data));
+      .then((response) => console.log(response.data))
+      .catch((err) => console.error(err));
   };
 
   return (

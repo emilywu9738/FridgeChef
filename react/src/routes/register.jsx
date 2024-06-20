@@ -28,6 +28,7 @@ export default function Register() {
       .post(
         'http://localhost:8080/user/register',
         {
+          provider: 'native',
           name: data.get('name'),
           email: data.get('email'),
           password: data.get('password'),

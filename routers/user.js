@@ -6,7 +6,7 @@ import catchAsync from '../utils/catchAsync.js';
 
 const router = express.Router();
 
-router.post('/login', user.login);
+router.post('/login', catchAsync(user.login));
 
 router.post('/register', validateUser, catchAsync(user.register));
 

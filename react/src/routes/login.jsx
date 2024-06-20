@@ -26,6 +26,7 @@ export default function Login() {
     const data = new FormData(event.currentTarget);
     axios
       .post('http://localhost:8080/user/login', {
+        provider: 'native',
         email: data.get('email'),
         password: data.get('password'),
       })

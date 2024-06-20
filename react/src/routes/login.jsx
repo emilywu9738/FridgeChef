@@ -25,11 +25,17 @@ export default function Login() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     axios
-      .post('http://localhost:8080/user/login', {
-        provider: 'native',
-        email: data.get('email'),
-        password: data.get('password'),
-      })
+      .post(
+        'http://localhost:8080/user/login',
+        {
+          provider: 'native',
+          email: data.get('email'),
+          password: data.get('password'),
+        },
+        {
+          withCredentials: true,
+        },
+      )
       .then((response) => console.log(response.data))
       .catch((err) => console.error(err.message));
   };

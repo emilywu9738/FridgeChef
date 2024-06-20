@@ -22,4 +22,10 @@ app.use(
 app.use('/fridge', fridge);
 app.use('/user', user);
 
+app.use((err, req, res, next) => {
+  const { statusCode = 500 } = err;
+  if (!err.message) err.message = 'Oh No, Something Went Wrong!';
+  res.status(statusCode).send(err.message);
+});
+
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));

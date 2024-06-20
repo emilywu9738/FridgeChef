@@ -10,6 +10,7 @@ import {
   Link,
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from 'axios';
 
 const theme = createTheme({
   palette: {
@@ -23,10 +24,12 @@ export default function Login() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    axios
+      .post('http://localhost:8080/user/login', {
+        email: data.get('email'),
+        password: data.get('password'),
+      })
+      .then((response) => console.log(response.data));
   };
 
   return (
@@ -84,7 +87,7 @@ export default function Login() {
               <Box
                 component='form'
                 onSubmit={handleSubmit}
-                noValidate
+                // noValidate
                 sx={{ mt: 1 }}
               >
                 <TextField
@@ -93,6 +96,7 @@ export default function Login() {
                   fullWidth
                   id='email'
                   label='Email Address'
+                  type='email'
                   name='email'
                   sx={{ bgcolor: '#fdf7e8' }}
                   autoFocus
@@ -111,13 +115,20 @@ export default function Login() {
                   type='submit'
                   fullWidth
                   variant='contained'
-                  sx={{ mt: 3, mb: 2, bgcolor: '#DDA15E' }}
+                  sx={{
+                    mt: 3,
+                    mb: 2,
+                    bgcolor: '#DDA15E',
+                    ':hover': {
+                      backgroundColor: '#e76f51',
+                    },
+                  }}
                 >
                   登入
                 </Button>
                 <Typography>
                   <Link href='/register' variant='body2'>
-                    還沒有帳戶嗎？按這裡註冊新用戶～
+                    還沒有帳戶嗎？按這裡註冊新帳戶～
                   </Link>
                 </Typography>
               </Box>

@@ -41,6 +41,7 @@ export default function Profile() {
             flexGrow: 1,
             position: 'relative',
             m: 2,
+            borderRadius: 5,
           }}
         >
           <CardHeader

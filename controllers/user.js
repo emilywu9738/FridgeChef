@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
 import 'dotenv/config';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 import User from '../models/user.js';
+import Fridge from '../models/fridge.js';
 import ExpressError from '../utils/ExpressError.js';
 import { generateJWT } from '../utils/JWT.js';
 import { validateJWT } from '../middleware/userMiddleware.js';
@@ -22,7 +24,6 @@ export const login = async (req, res) => {
     if (!isMatch) {
       throw new ExpressError('登入失敗！', 403);
     }
-    console.log(id);
     const accessToken = generateJWT(id);
     res.cookie('JWT', accessToken, {
       maxAge: 3600000,
@@ -55,3 +56,13 @@ export const register = async (req, res) => {
 // export const updatePreferenceAndOmit= async(req,res)=>{
 //   const {}
 // }
+
+export const getProfileData = async (req, res) => {
+  const accessToken = req.cookies.JWT;
+  const decoded = jwt.verify(accessToken, process.env.MY_SECRET_KEY);
+  const { id } = decoded;
+  const userData = await User.findById(id);
+  const userFridge = await Fridge.find({ members: id });
+
+  res.send({ userFridge, userData });
+};

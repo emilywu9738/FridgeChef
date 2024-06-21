@@ -58,7 +58,13 @@ export default function Profile() {
               </Typography>
             }
             onClick={handleFridgeClick}
-            sx={{ bgcolor: '#6c584c', cursor: 'pointer' }}
+            sx={{
+              bgcolor: '#6c584c',
+              cursor: 'pointer',
+              ':hover': {
+                backgroundColor: '#9c6644',
+              },
+            }}
           />
 
           <CardContent>

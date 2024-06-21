@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import {
   Box,
@@ -45,6 +45,8 @@ const ExpandMoreIngredients = styled((props) => {
 }));
 
 export default function ShowFridgeAndRecipe() {
+  const navigate = useNavigate();
+
   const [memberExpanded, setMemberExpanded] = React.useState(true);
   const [ingredientExpanded, setIngredientExpanded] = React.useState(true);
   const [searchParams] = useSearchParams();
@@ -245,7 +247,9 @@ export default function ShowFridgeAndRecipe() {
   useEffect(() => {
     const fridgeId = searchParams.get('id');
     if (fridgeId) {
-      axios(`http://localhost:8080/fridge?id=${fridgeId}`)
+      axios(`http://localhost:8080/fridge?id=${fridgeId}`, {
+        withCredentials: true,
+      })
         .then((response) => {
           setFridgeData(response.data);
           // 初始化所有成員的勾選狀態為未選
@@ -258,9 +262,14 @@ export default function ShowFridgeAndRecipe() {
           );
           setCheckedMembers(initialChecks);
         })
-        .catch((error) => console.error('Failed to fetch fridge data:', error));
+        .catch((err) => {
+          console.error('Failed to fetch fridge data:', err);
+          if (err.response && err.response.status === 401) {
+            navigate('/login');
+          }
+        });
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   return (
     <Box sx={{ backgroundImage: 'url(/background.jpg)', m: 0 }}>

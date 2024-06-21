@@ -62,7 +62,10 @@ export const getProfileData = async (req, res) => {
   const decoded = jwt.verify(accessToken, process.env.MY_SECRET_KEY);
   const { id } = decoded;
   const userData = await User.findById(id);
-  const userFridge = await Fridge.find({ members: id });
+  const userFridge = await Fridge.find({ members: id }).populate({
+    path: 'members',
+    select: 'name preference omit',
+  });
 
   res.send({ userFridge, userData });
 };

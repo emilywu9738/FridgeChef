@@ -1,5 +1,7 @@
 import { userSchema } from '../schema/schema.js';
 import ExpressError from '../utils/ExpressError.js';
+import 'dotenv/config';
+import jwt from 'jsonwebtoken';
 
 export const validateUser = (req, res, next) => {
   const { error } = userSchema.validate(req.body);
@@ -17,5 +19,10 @@ export const validateJWT = (req, res, next) => {
   if (!accessToken) {
     throw new ExpressError('Access Denied', 401);
   }
-  next();
+
+  jwt.verify(accessToken, process.env.MY_SECRET_KEY, (err, user) => {
+    if (err) throw new ExpressError('Authentication failed!', 403);
+    req.user = user;
+    next();
+  });
 };

@@ -90,6 +90,8 @@ export default function Profile() {
         console.error(err);
         if (err.response && err.response.status === 401) {
           navigate('/login');
+        } else if (err.response && err.response.status === 403) {
+          navigate('/forbidden');
         }
       });
   }, [navigate]);

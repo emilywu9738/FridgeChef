@@ -5,6 +5,7 @@ import 'dotenv/config';
 import Fridge from '../models/fridge.js';
 import User from '../models/user.js';
 import Recipe from '../models/recipe.js';
+import ExpressError from '../utils/ExpressError.js';
 
 const uri = 'bolt://localhost:7687';
 const user = process.env.NEO4J_USER;
@@ -152,11 +153,22 @@ export const createIngredients = async (req, res) => {
 };
 
 export const renderFridgeById = async (req, res) => {
+  const userId = req.user.id;
+
   const { id } = req.query;
   const foundFridge = await Fridge.findById(id).populate({
     path: 'members',
     select: 'name preference omit',
   });
+
+  const isMember = foundFridge.members.some(
+    (member) => member._id.toString() === userId,
+  );
+
+  if (!isMember) {
+    throw new ExpressError('Authentication failed!', 403);
+  }
+
   res.send(foundFridge);
 };
 

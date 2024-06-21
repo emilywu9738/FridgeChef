@@ -266,6 +266,8 @@ export default function ShowFridgeAndRecipe() {
           console.error('Failed to fetch fridge data:', err);
           if (err.response && err.response.status === 401) {
             navigate('/login');
+          } else if (err.response && err.response.status === 403) {
+            navigate('/forbidden');
           }
         });
     }

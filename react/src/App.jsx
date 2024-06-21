@@ -10,6 +10,7 @@ import ShowFridgeAndRecipe from './routes/showFridgeAndRecipe';
 import Register from './routes/register';
 import Login from './routes/login';
 import Profile from './routes/profile';
+import ForbiddenPage from './routes/forbidden';
 
 const defaultTheme = createTheme();
 
@@ -25,6 +26,7 @@ function App() {
           <Route path='login' element={<Login />}></Route>
           <Route path='register' element={<Register />}></Route>
           <Route path='user/profile' element={<Profile />}></Route>
+          <Route path='/forbidden' element={<ForbiddenPage />} />
           <Route
             path='/'
             element={

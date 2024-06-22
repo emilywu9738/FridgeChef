@@ -99,7 +99,15 @@ export default function ShowFridgeAndRecipe() {
 
   function MemberCard({ member, isChecked, onCheckChange }) {
     return (
-      <Card sx={{ minWidth: 275, position: 'relative', m: 1 }}>
+      <Card
+        sx={{
+          borderRadius: '10px',
+          minWidth: 275,
+          position: 'relative',
+          m: 1,
+          bgcolor: '#FFFBF0',
+        }}
+      >
         <Checkbox
           checked={isChecked}
           onChange={(event) => onCheckChange(member._id, event.target.checked)}
@@ -145,7 +153,15 @@ export default function ShowFridgeAndRecipe() {
     };
 
     return (
-      <Card sx={{ minWidth: 275, m: 2, overflow: 'visible' }}>
+      <Card
+        sx={{
+          borderRadius: '10px',
+          minWidth: 275,
+          m: 2,
+          overflow: 'visible',
+          bgcolor: '#FFFBF0',
+        }}
+      >
         <CardContent>
           <Typography
             sx={{ fontSize: 18, mb: 1, fontWeight: 500 }}
@@ -212,9 +228,10 @@ export default function ShowFridgeAndRecipe() {
     return (
       <Grid item xs={12} sm={6} md={4}>
         <Card
+          elevation={3}
           sx={{
             minWidth: 275,
-            minHeight: 347,
+            minHeight: 477,
             flexGrow: 1,
             position: 'relative',
             m: 2,
@@ -274,8 +291,8 @@ export default function ShowFridgeAndRecipe() {
   }, [searchParams, navigate]);
 
   return (
-    <Box sx={{ backgroundImage: 'url(/background.jpg)', m: 0 }}>
-      <Box component='div' sx={{ m: 2 }}>
+    <Box component='div' sx={{ bgcolor: '#faedcd' }}>
+      <Box component='div' sx={{ p: 4 }}>
         <Typography variant='h2' sx={{ fontWeight: 500 }}>
           {fridgeData.name}
         </Typography>
@@ -297,7 +314,12 @@ export default function ShowFridgeAndRecipe() {
         >
           <FormControl
             fullWidth
-            sx={{ minWidth: 240, maxWidth: 275, my: 2, mx: 1 }}
+            sx={{
+              minWidth: 240,
+              maxWidth: 275,
+              my: 2,
+              mx: 1,
+            }}
           >
             <InputLabel id='recipeCategory-label' color='success'>
               食譜類別
@@ -309,6 +331,7 @@ export default function ShowFridgeAndRecipe() {
               label='食譜類別'
               onChange={handleCategoryChange}
               color='success'
+              sx={{ bgcolor: '#FFFBF0' }}
             >
               <MenuItem value={'All'}>All</MenuItem>
               <MenuItem value={'奶蛋素'}>奶蛋素</MenuItem>

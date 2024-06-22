@@ -42,6 +42,7 @@ export default function Profile() {
   const [preferCategory, setPreferCategory] = useState('');
   const [omit, setOmit] = useState('');
   const [previewList, setPreviewList] = useState([]);
+  const [originalPreviewList, setOriginalPreviewList] = useState([]);
 
   const open = Boolean(anchorEl);
 
@@ -58,13 +59,14 @@ export default function Profile() {
   };
 
   const handleEditPreferences = () => {
+    setOriginalPreviewList([...previewList]);
     setEditMode(true);
     handleClose();
   };
 
   const cancelEditPreferences = () => {
+    setPreviewList(originalPreviewList);
     setEditMode(false);
-    setPreviewList([]);
   };
 
   const handleAddPreview = (event) => {
@@ -144,6 +146,7 @@ export default function Profile() {
         setUserData(response.data.userData);
         setUserFridge(response.data.userFridge);
         setPreferCategory(response.data.userData.preference);
+        setPreviewList(response.data.userData.omit);
       })
       .catch((err) => {
         console.error(err);

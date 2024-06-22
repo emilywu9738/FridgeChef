@@ -18,12 +18,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sendEmail = (to, subject, text) => {
+const sendEmail = (to, subject, html) => {
   const mailOptions = {
     from: process.env.GMAIL_USER,
     to,
     subject,
-    text,
+    html,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -119,5 +119,49 @@ export const createGroup = async (req, res) => {
   const { name, description, host, inviting } = req.body;
   const fridge = new Fridge({ name, description, members: host, inviting });
   await fridge.save();
+
+  inviting.forEach((member) => {
+    sendEmail(
+      member.email,
+      `【FridgeChef】 ${host.name} 邀請您一起加入${name}！`,
+      `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          .email-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            border:1px solid;
+            text-align: center;
+          }
+          a.button {
+            background-color: #4CAF50; 
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px; 
+            display: inline-block;
+          }
+        </style>
+        </head>
+        <body>
+          <div class="email-container">
+            <h2>Invitation</h2>
+            <p>您收到 ${host.name} (${host.email}) 的邀請，歡迎您一起加入 FridgeChef 群組！</p>
+            <p>群組名稱：${name}</p>
+            <a href="#" class="button">接受邀請</a>
+            <p>（此連結將於三天後過期）</p>
+          </div>
+        </body>
+        </html>
+        `,
+    );
+  });
+
   res.status(200).send('群組新增成功！');
 };

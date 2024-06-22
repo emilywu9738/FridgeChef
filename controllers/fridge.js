@@ -156,10 +156,13 @@ export const renderFridgeById = async (req, res) => {
   const userId = req.user.id;
 
   const { id } = req.query;
-  const foundFridge = await Fridge.findById(id).populate({
-    path: 'members',
-    select: 'name preference omit',
-  });
+  const foundFridge = await Fridge.findById(id).populate([
+    {
+      path: 'members',
+      select: 'name preference omit',
+    },
+    { path: 'inviting', select: 'name email' },
+  ]);
 
   const isMember = foundFridge.members.some(
     (member) => member._id.toString() === userId,

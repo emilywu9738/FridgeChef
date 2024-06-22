@@ -12,6 +12,10 @@ router.get('/logout', user.logout);
 
 router.post('/register', validateUser, catchAsync(user.register));
 
+router.get('/search', catchAsync(user.searchUser));
+
+router.post('/createGroup', validateJWT, catchAsync(user.createGroup));
+
 router
   .route('/profile')
   .get(validateJWT, catchAsync(user.getProfileData))

@@ -11,6 +11,7 @@ import Register from './routes/register';
 import Login from './routes/login';
 import Profile from './routes/profile';
 import ForbiddenPage from './routes/forbidden';
+import CreateGroup from './routes/createGroup';
 
 const defaultTheme = createTheme({
   palette: {
@@ -32,6 +33,7 @@ function App() {
           <Route path='login' element={<Login />}></Route>
           <Route path='register' element={<Register />}></Route>
           <Route path='user/profile' element={<Profile />}></Route>
+          <Route path='user/createGroup' element={<CreateGroup />}></Route>
           <Route path='/forbidden' element={<ForbiddenPage />} />
           <Route
             path='/'

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import 'dotenv/config';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
 
 import User from '../models/user.js';
 import Fridge from '../models/fridge.js';
@@ -9,6 +9,31 @@ import ExpressError from '../utils/ExpressError.js';
 import { generateJWT } from '../utils/JWT.js';
 
 mongoose.connect(process.env.MONGOOSE_CONNECT);
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASSWORD,
+  },
+});
+
+const sendEmail = (to, subject, text) => {
+  const mailOptions = {
+    from: process.env.GMAIL_USER,
+    to,
+    subject,
+    text,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Error sending email:', error);
+    } else {
+      console.log('Email sent:', info.response);
+    }
+  });
+};
 
 export const login = async (req, res) => {
   const { provider, email, password } = req.body;
@@ -77,4 +102,22 @@ export const getProfileData = async (req, res) => {
   });
 
   res.send({ userFridge, userData });
+};
+
+export const searchUser = async (req, res) => {
+  const { name } = req.query;
+  const results = await User.find({
+    $or: [
+      { name: { $regex: name, $options: 'i' } },
+      { email: { $regex: name, $options: 'i' } },
+    ],
+  });
+  res.json(results);
+};
+
+export const createGroup = async (req, res) => {
+  const { name, description, host, inviting } = req.body;
+  const fridge = new Fridge({ name, description, members: host, inviting });
+  await fridge.save();
+  res.status(200).send('群組新增成功！');
 };

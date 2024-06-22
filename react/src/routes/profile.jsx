@@ -109,6 +109,10 @@ export default function Profile() {
       .catch((err) => console.error(err));
   };
 
+  const handleCreateGroup = () => {
+    navigate('/user/createGroup');
+  };
+
   function FridgeCard({ fridge }) {
     const fridgeMembers = fridge.members.map((m) => m.name).join(' ');
     const handleFridgeClick = () => {
@@ -228,7 +232,7 @@ export default function Profile() {
                       <EditIcon />
                       <Typography sx={{ ml: 1 }}>編輯喜好</Typography>
                     </MenuItem>
-                    <MenuItem>
+                    <MenuItem onClick={handleCreateGroup}>
                       <GroupsIcon />
                       <Typography sx={{ ml: 1 }}> 新增群組</Typography>
                     </MenuItem>

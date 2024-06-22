@@ -45,7 +45,7 @@ export default function Create() {
       .catch((error) => {
         console.error('Error:', error);
       });
-    // 清空預覽列表
+
     setPreviewList([]);
   };
 

@@ -11,16 +11,8 @@ import {
   Typography,
   Link,
 } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import axios from 'axios';
 
-const theme = createTheme({
-  palette: {
-    background: {
-      default: '#faedcd',
-    },
-  },
-});
+import axios from 'axios';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -47,7 +39,7 @@ export default function Login() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Container component='main' maxWidth='md' sx={{ bgcolor: '#faedcd' }}>
         <CssBaseline />
         <Box
@@ -150,6 +142,6 @@ export default function Login() {
           </Box>
         </Box>
       </Container>
-    </ThemeProvider>
+    </>
   );
 }

@@ -12,7 +12,13 @@ import Login from './routes/login';
 import Profile from './routes/profile';
 import ForbiddenPage from './routes/forbidden';
 
-const defaultTheme = createTheme();
+const defaultTheme = createTheme({
+  palette: {
+    background: {
+      default: '#faedcd',
+    },
+  },
+});
 
 function App() {
   const [count, setCount] = useState(0);

@@ -11,27 +11,16 @@ import {
   InputLabel,
   List,
   ListItem,
-  ListItemText,
   Menu,
   MenuItem,
   Select,
   TextField,
-  ThemeProvider,
   Typography,
-  createTheme,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CloseIcon from '@mui/icons-material/Close';
-
-const theme = createTheme({
-  palette: {
-    background: {
-      default: '#faedcd',
-    },
-  },
-});
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -188,7 +177,7 @@ export default function Profile() {
   }, [navigate, reload]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {Object.keys(userData).length > 0 && (
         <Box
           sx={{
@@ -387,6 +376,6 @@ export default function Profile() {
           </Card>
         </Box>
       )}
-    </ThemeProvider>
+    </>
   );
 }

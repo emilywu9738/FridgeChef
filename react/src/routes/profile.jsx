@@ -21,6 +21,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CloseIcon from '@mui/icons-material/Close';
+import GroupsIcon from '@mui/icons-material/Groups';
+import LogoutIcon from '@mui/icons-material/Logout';
+import EditIcon from '@mui/icons-material/Edit';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -96,6 +99,14 @@ export default function Profile() {
   const handleDelete = (index) => {
     const newList = previewList.filter((_, i) => i !== index);
     setPreviewList(newList);
+  };
+
+  const handleLogout = () => {
+    axios('http://localhost:8080/user/logout', { withCredentials: true })
+      .then((response) => {
+        setReload(!reload);
+      })
+      .catch((err) => console.error(err));
   };
 
   function FridgeCard({ fridge }) {
@@ -214,10 +225,16 @@ export default function Profile() {
                   </IconButton>
                   <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
                     <MenuItem onClick={handleEditPreferences}>
-                      <Typography>編輯喜好</Typography>
+                      <EditIcon />
+                      <Typography sx={{ ml: 1 }}>編輯喜好</Typography>
                     </MenuItem>
                     <MenuItem>
-                      <Typography>新增群組</Typography>
+                      <GroupsIcon />
+                      <Typography sx={{ ml: 1 }}> 新增群組</Typography>
+                    </MenuItem>
+                    <MenuItem onClick={handleLogout}>
+                      <LogoutIcon />
+                      <Typography sx={{ ml: 1 }}> 登出</Typography>
                     </MenuItem>
                   </Menu>
                 </>

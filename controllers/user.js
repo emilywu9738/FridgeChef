@@ -32,6 +32,11 @@ export const login = async (req, res) => {
   }
 };
 
+export const logout = (req, res) => {
+  res.clearCookie('JWT');
+  res.status(200).send('logout!');
+};
+
 export const register = async (req, res) => {
   const { provider, name, email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 12);

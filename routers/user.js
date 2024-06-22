@@ -8,6 +8,8 @@ const router = express.Router();
 
 router.post('/login', catchAsync(user.login));
 
+router.get('/logout', user.logout);
+
 router.post('/register', validateUser, catchAsync(user.register));
 
 router

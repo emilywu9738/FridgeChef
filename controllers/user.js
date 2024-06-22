@@ -7,7 +7,6 @@ import User from '../models/user.js';
 import Fridge from '../models/fridge.js';
 import ExpressError from '../utils/ExpressError.js';
 import { generateJWT } from '../utils/JWT.js';
-import { validateJWT } from '../middleware/userMiddleware.js';
 
 mongoose.connect(process.env.MONGOOSE_CONNECT);
 
@@ -53,14 +52,19 @@ export const register = async (req, res) => {
   res.json('註冊成功');
 };
 
-// export const updatePreferenceAndOmit= async(req,res)=>{
-//   const {}
-// }
+export const updatePreferenceAndOmit = async (req, res) => {
+  const { id } = req.user;
+  const { preferCategory, previewList } = req.body;
+
+  await User.findOneAndUpdate(
+    { _id: id },
+    { preference: preferCategory, omit: previewList },
+  );
+  res.status(200).send('喜好已成功更新！');
+};
 
 export const getProfileData = async (req, res) => {
-  const accessToken = req.cookies.JWT;
-  const decoded = jwt.verify(accessToken, process.env.MY_SECRET_KEY);
-  const { id } = decoded;
+  const { id } = req.user;
   const userData = await User.findById(id);
   const userFridge = await Fridge.find({ members: id }).populate({
     path: 'members',

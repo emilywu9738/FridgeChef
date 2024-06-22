@@ -35,12 +35,14 @@ const theme = createTheme({
 
 export default function Profile() {
   const navigate = useNavigate();
+  const [reload, setReload] = useState(false);
   const [userData, setUserData] = useState({});
   const [userFridge, setUserFridge] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [editMode, setEditMode] = useState(false);
-  const [preferCategory, setPreferCategory] = useState('');
   const [omit, setOmit] = useState('');
+  const [preferCategory, setPreferCategory] = useState('');
+  const [originalPreferCategory, setOriginalPreferCategory] = useState('');
   const [previewList, setPreviewList] = useState([]);
   const [originalPreviewList, setOriginalPreviewList] = useState([]);
 
@@ -60,12 +62,14 @@ export default function Profile() {
 
   const handleEditPreferences = () => {
     setOriginalPreviewList([...previewList]);
+    setOriginalPreferCategory(preferCategory);
     setEditMode(true);
     handleClose();
   };
 
   const cancelEditPreferences = () => {
     setPreviewList(originalPreviewList);
+    setPreferCategory(originalPreferCategory);
     setEditMode(false);
   };
 
@@ -73,6 +77,31 @@ export default function Profile() {
     event.preventDefault();
     setPreviewList([...previewList, omit]);
     setOmit('');
+  };
+
+  const handleSubmit = () => {
+    axios
+      .post(
+        'http://localhost:8080/user/profile',
+        {
+          preferCategory,
+          previewList,
+        },
+        { withCredentials: true },
+      )
+      .then((response) => {
+        alert(response.data);
+        setReload(!reload);
+        setEditMode(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        if (err.response && err.response.status === 401) {
+          navigate('/login');
+        } else if (err.response && err.response.status === 403) {
+          navigate('/forbidden');
+        }
+      });
   };
 
   const handleDelete = (index) => {
@@ -156,7 +185,7 @@ export default function Profile() {
           navigate('/forbidden');
         }
       });
-  }, [navigate]);
+  }, [navigate, reload]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -290,6 +319,7 @@ export default function Profile() {
                   <Button
                     type='submit'
                     variant='contained'
+                    onClick={handleSubmit}
                     sx={{
                       bgcolor: '#6f5e53',
                       height: 50,

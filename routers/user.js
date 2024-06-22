@@ -10,6 +10,9 @@ router.post('/login', catchAsync(user.login));
 
 router.post('/register', validateUser, catchAsync(user.register));
 
-router.get('/profile', validateJWT, catchAsync(user.getProfileData));
+router
+  .route('/profile')
+  .get(validateJWT, catchAsync(user.getProfileData))
+  .post(validateJWT, catchAsync(user.updatePreferenceAndOmit));
 
 export default router;

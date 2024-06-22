@@ -282,7 +282,7 @@ export default function Profile() {
                       sx={{
                         bgcolor: '#e2711d',
                         height: 50,
-                        ':hover': { bgcolor: '#8a7968' },
+                        ':hover': { bgcolor: '#B7560B' },
                       }}
                     >
                       新增
@@ -323,7 +323,7 @@ export default function Profile() {
                     sx={{
                       bgcolor: '#6f5e53',
                       height: 50,
-                      ':hover': { bgcolor: '#' },
+                      ':hover': { bgcolor: '#55463E' },
                     }}
                   >
                     上傳更新

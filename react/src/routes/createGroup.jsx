@@ -44,6 +44,8 @@ export default function CreateGroup() {
   };
 
   const handleSubmit = () => {
+    event.preventDefault();
+
     axios
       .post(
         'http://localhost:8080/user/createGroup',
@@ -158,7 +160,6 @@ export default function CreateGroup() {
                   name='description'
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  autoFocus
                   fullWidth
                   color='success'
                   sx={{ flexGrow: 1, my: 1 }}

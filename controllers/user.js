@@ -2,9 +2,11 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 
 import User from '../models/user.js';
 import Fridge from '../models/fridge.js';
+import Invitation from '../models/invitation.js';
 import ExpressError from '../utils/ExpressError.js';
 import { generateJWT } from '../utils/JWT.js';
 
@@ -34,6 +36,8 @@ const sendEmail = (to, subject, html) => {
     }
   });
 };
+
+const generateToken = () => crypto.randomBytes(16).toString('hex');
 
 export const login = async (req, res) => {
   const { provider, email, password } = req.body;
@@ -118,50 +122,87 @@ export const searchUser = async (req, res) => {
 export const createGroup = async (req, res) => {
   const { name, description, host, inviting } = req.body;
   const fridge = new Fridge({ name, description, members: host, inviting });
-  await fridge.save();
+  const result = await fridge.save();
+  const groupId = result._id.toString();
 
-  inviting.forEach((member) => {
-    sendEmail(
-      member.email,
-      `【FridgeChef】 ${host.name} 邀請您一起加入${name}！`,
-      `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          .email-container {
-            width: 100%;
-            max-width: 600px;
-            margin: 20px;
-            padding: 20px;
-            border-radius: 8px;
-            border:1px solid;
-            text-align: center;
-          }
-          a.button {
-            background-color: #4CAF50; 
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px; 
-            display: inline-block;
-          }
-        </style>
-        </head>
-        <body>
-          <div class="email-container">
-            <h2>Invitation</h2>
-            <p>您收到 ${host.name} (${host.email}) 的邀請，歡迎您一起加入 FridgeChef 群組！</p>
-            <p>群組名稱：${name}</p>
-            <a href="#" class="button">接受邀請</a>
-            <p>（此連結將於三天後過期）</p>
-          </div>
-        </body>
-        </html>
-        `,
-    );
-  });
+  if (Array.isArray(inviting) && inviting.length > 0) {
+    const invitePromises = inviting.map((member) => {
+      const token = generateToken();
+      const invitation = new Invitation({
+        email: member.email,
+        token,
+        groupId,
+      });
+      return invitation.save().then(() => {
+        sendEmail(
+          member.email,
+          `【FridgeChef】 ${host.name} 邀請您一起加入${name}！`,
+          `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            .email-container {
+              width: 100%;
+              max-width: 600px;
+              margin-top: 10px;
+              padding: 20px;
+              border-radius: 8px;
+              border:1px solid;
+              text-align: center;
+            }
+            a.button {
+              background-color: #ea8c55;
+              color: white;
+              padding: 10px 20px;
+              text-decoration: none;
+              border-radius: 5px;
+              display: inline-block;
+            }
+          </style>
+          </head>
+          <body>
+            <div class="email-container">
+              <h2>Invitation</h2>
+              <p>您收到 ${host.name} (${host.email}) 的邀請，歡迎您一起加入 FridgeChef 群組！</p>
+              <p>群組名稱：${name}</p>
+              <a href='http://localhost:5173/user/invitation?token=${token}&email=${member.email}' class="button">接受邀請</a>
+              <p>（此連結將於24小時後過期）</p>
+            </div>
+          </body>
+          </html>
+          `,
+        );
+      });
+    });
+
+    await Promise.all(invitePromises);
+  }
 
   res.status(200).send('群組新增成功！');
+};
+
+export const validateInvitation = async (req, res) => {
+  const { token, email } = req.query;
+  const { user } = req;
+  const foundUser = await User.findOne({ _id: user.id });
+  if (foundUser.email !== email) {
+    throw new ExpressError('Authentication failed!', 403);
+  }
+
+  const invitation = await Invitation.findOne({ token });
+  if (!invitation) {
+    return res.status(404).send('邀請已過期或不存在');
+  }
+
+  await Fridge.findOneAndUpdate(
+    { _id: invitation.groupId },
+    {
+      $pull: { inviting: user.id },
+      $addToSet: { members: user.id },
+    },
+  );
+
+  res.status(200).send('群組加入成功！');
 };

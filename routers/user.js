@@ -14,7 +14,10 @@ router.post('/register', validateUser, catchAsync(user.register));
 
 router.get('/search', catchAsync(user.searchUser));
 
-router.post('/createGroup', validateJWT, catchAsync(user.createGroup));
+router
+  .route('/createGroup')
+  .post(validateJWT, catchAsync(user.createGroup))
+  .get(validateJWT, catchAsync(user.validateInvitation));
 
 router
   .route('/profile')

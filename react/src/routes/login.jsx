@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import {
@@ -16,9 +16,13 @@ import axios from 'axios';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const redirect = searchParams.get('redirect');
+
     axios
       .post(
         'http://localhost:8080/user/login',
@@ -33,7 +37,11 @@ export default function Login() {
       )
       .then((response) => {
         console.log(response.data);
-        navigate('/user/profile');
+        if (redirect === 'invitation') {
+          navigate('/user/invitation');
+        } else {
+          navigate('/user/profile');
+        }
       })
       .catch((err) => console.error(err.message));
   };

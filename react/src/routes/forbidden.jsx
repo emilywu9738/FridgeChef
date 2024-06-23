@@ -58,7 +58,7 @@ function ForbiddenPage() {
           </Typography>
           <Button
             variant='contained'
-            sx={{ mt: 2, bgcolor: '#6c584c' }}
+            sx={{ mt: 2, bgcolor: '#6c584c', ':hover': { bgcolor: '#80604C' } }}
             onClick={handleBackToHome}
           >
             返回主頁

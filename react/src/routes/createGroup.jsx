@@ -134,7 +134,12 @@ export default function CreateGroup() {
             />
 
             <CardContent sx={{ bgcolor: '#FFFBF1' }}>
-              <>
+              <Box
+                component='form'
+                onSubmit={handleSubmit}
+                // noValidate
+                sx={{ mt: 1 }}
+              >
                 <TextField
                   id='name'
                   label='群組名稱'
@@ -252,7 +257,6 @@ export default function CreateGroup() {
                   <Button
                     type='submit'
                     variant='contained'
-                    onClick={handleSubmit}
                     sx={{
                       bgcolor: '#6f5e53',
                       height: 50,
@@ -272,7 +276,7 @@ export default function CreateGroup() {
                     取消
                   </Button>
                 </Box>
-              </>
+              </Box>
             </CardContent>
           </Card>
         </Box>

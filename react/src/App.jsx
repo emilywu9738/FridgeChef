@@ -13,6 +13,7 @@ import Profile from './routes/profile';
 import ForbiddenPage from './routes/forbidden';
 import CreateGroup from './routes/createGroup';
 import Invitation from './routes/invitation';
+import RecipeDetails from './routes/recipeDetails';
 
 const defaultTheme = createTheme({
   palette: {
@@ -31,6 +32,10 @@ function App() {
         <Routes>
           <Route path='create' element={<Create />}></Route>
           <Route path='fridge/recipe' element={<ShowFridgeAndRecipe />}></Route>
+          <Route
+            path='fridge/recipeDetails'
+            element={<RecipeDetails />}
+          ></Route>
           <Route path='login' element={<Login />}></Route>
           <Route path='register' element={<Register />}></Route>
           <Route path='user/profile' element={<Profile />}></Route>

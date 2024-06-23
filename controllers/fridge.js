@@ -175,6 +175,13 @@ export const renderFridgeById = async (req, res) => {
   res.send(foundFridge);
 };
 
+export const renderRecipeById = async (req, res) => {
+  const { id } = req.query;
+  const foundRecipe = await Recipe.findById(id);
+
+  res.status(200).send(foundRecipe);
+};
+
 function filterItemsExpiringWithinDays(items, days) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);

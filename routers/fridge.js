@@ -10,6 +10,8 @@ router.post('/create', catchAsync(fridge.createIngredients));
 
 router.get('/', validateJWT, catchAsync(fridge.renderFridgeById));
 
+router.get('/recipeDetails', catchAsync(fridge.renderRecipeById));
+
 router.post('/recipe', catchAsync(fridge.recommendRecipe));
 
 export default router;

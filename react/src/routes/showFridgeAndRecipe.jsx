@@ -104,6 +104,11 @@ export default function ShowFridgeAndRecipe() {
     }
   };
 
+  const handleRecipeDetails = (id, event) => {
+    event.stopPropagation();
+    navigate(`/fridge/recipeDetails?id=${id}`);
+  };
+
   function MemberCard({ member, isChecked, onCheckChange }) {
     return (
       <Card
@@ -274,7 +279,12 @@ export default function ShowFridgeAndRecipe() {
           }}
         >
           <CardContent>
-            <Typography sx={{ fontSize: 18, mb: 1, fontWeight: 500 }}>
+            <Typography
+              onClick={(event) =>
+                handleRecipeDetails(recipe._id.toString(), event)
+              }
+              sx={{ fontSize: 18, mb: 1, fontWeight: 500, cursor: 'pointer' }}
+            >
               {recipe.title}
             </Typography>
             <CardMedia

@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 
 const fridgeSchema = new Schema({
   name: { type: String, required: true },
-  discription: { type: String },
+  description: { type: String },
   members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   inviting: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   ingredients: [

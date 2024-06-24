@@ -44,7 +44,7 @@ function RouteStructure() {
     <>
       {showNavBar && <NavBar />}
       <Routes>
-        <Route path='create' element={<Create />}></Route>
+        <Route path='fridge/create' element={<Create />}></Route>
         <Route path='fridge/recipe' element={<ShowFridgeAndRecipe />}></Route>
         <Route path='fridge/recipeDetails' element={<RecipeDetails />}></Route>
         <Route path='login' element={<Login />}></Route>

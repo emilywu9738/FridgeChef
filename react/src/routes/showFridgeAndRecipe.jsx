@@ -46,11 +46,11 @@ const ExpandMoreIngredients = styled((props) => {
 
 export default function ShowFridgeAndRecipe() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [memberExpanded, setMemberExpanded] = useState(true);
   const [invitingMemberExpanded, setInvitingMemberExpanded] = useState(true);
   const [ingredientExpanded, setIngredientExpanded] = useState(true);
-  const [searchParams] = useSearchParams();
   const [fridgeData, setFridgeData] = useState({
     name: '',
     members: [],
@@ -107,6 +107,10 @@ export default function ShowFridgeAndRecipe() {
   const handleRecipeDetails = (id, event) => {
     event.stopPropagation();
     navigate(`/fridge/recipeDetails?id=${id}`);
+  };
+
+  const handleCreateIngredients = () => {
+    navigate(`/fridge/create?fridgeId=${fridgeData._id.toString()}`);
   };
 
   function MemberCard({ member, isChecked, onCheckChange }) {
@@ -479,7 +483,7 @@ export default function ShowFridgeAndRecipe() {
                 display: 'flex',
                 flexWrap: 'wrap',
                 alignItems: 'flex-start',
-                mb: 3,
+                mb: 1,
               }}
             >
               <Typography variant='h5' component='div' sx={{ mb: 1 }}>
@@ -496,6 +500,20 @@ export default function ShowFridgeAndRecipe() {
             </Box>
 
             <Collapse in={ingredientExpanded} timeout='auto' unmountOnExit>
+              <Button
+                variant='contained'
+                size='large'
+                sx={{
+                  mb: 3,
+                  backgroundColor: '#f59b51',
+                  ':hover': {
+                    backgroundColor: '#e76f51',
+                  },
+                }}
+                onClick={handleCreateIngredients}
+              >
+                新增食材
+              </Button>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 5 }}>
                 {fridgeData.ingredients.map((category) => (
                   <IngredientCard key={category._id} category={category} />

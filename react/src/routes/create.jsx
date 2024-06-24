@@ -1,5 +1,7 @@
-import * as React from 'react';
+import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+
 import {
   Avatar,
   Box,
@@ -23,10 +25,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 const OPTIONS = ['蔬菜', '肉品', '海鮮', '調味料', '蛋豆', '主食'];
 
 export default function Create() {
-  const [name, setName] = React.useState('');
-  const [expired, setExpired] = React.useState('');
-  const [category, setCategory] = React.useState('');
-  const [previewList, setPreviewList] = React.useState([]);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const [name, setName] = useState('');
+  const [expired, setExpired] = useState('');
+  const [category, setCategory] = useState('');
+  const [previewList, setPreviewList] = useState([]);
 
   const handleAddPreview = (event) => {
     event.preventDefault();
@@ -37,13 +42,21 @@ export default function Create() {
   };
 
   const handleSubmit = () => {
+    const fridgeId = searchParams.get('fridgeId');
     axios
-      .post('http://localhost:8080/fridge/create', previewList)
+      .post(
+        `http://localhost:8080/fridge/create?fridgeId=${fridgeId}`,
+        previewList,
+        { withCredentials: true },
+      )
       .then((response) => {
         alert(response.data);
       })
-      .catch((error) => {
-        console.error('Error:', error);
+      .catch((err) => {
+        console.error('Error:', err);
+        if (err.response && err.response.status === 401) {
+          navigate('/login');
+        }
       });
 
     setPreviewList([]);
@@ -81,7 +94,7 @@ export default function Create() {
           marginRight: 4,
         }}
       >
-        <Avatar sx={{ m: 1, bgcolor: '#CCD5AE' }}>
+        <Avatar sx={{ m: 1, bgcolor: '#386641' }}>
           <LibraryAddIcon />
         </Avatar>
         <Typography component='h1' variant='h5'>
@@ -104,6 +117,7 @@ export default function Create() {
             onChange={(e) => setName(e.target.value)}
             autoFocus
             color='success'
+            sx={{ bgcolor: '#fdf7e8' }}
           />
           <TextField
             margin='normal'
@@ -119,6 +133,7 @@ export default function Create() {
               shrink: true,
             }}
             color='success'
+            sx={{ bgcolor: '#fdf7e8' }}
           />
           <FormControl fullWidth margin='normal'>
             <InputLabel id='category-label' color='success' required>
@@ -131,6 +146,7 @@ export default function Create() {
               onChange={handleCategoryChange}
               label='類別'
               color='success'
+              sx={{ bgcolor: '#fdf7e8' }}
             >
               {OPTIONS.map((option) => (
                 <MenuItem key={option} value={option}>
@@ -143,7 +159,12 @@ export default function Create() {
             type='submit'
             fullWidth
             variant='contained'
-            sx={{ mt: 3, mb: 2, bgcolor: '#D4A373' }}
+            sx={{
+              mt: 3,
+              mb: 2,
+              bgcolor: '#D4A373',
+              ':hover': { bgcolor: '#BF8852' },
+            }}
           >
             加到預覽列表
           </Button>
@@ -157,7 +178,7 @@ export default function Create() {
           {previewList.map((item, index) => (
             <ListItem
               key={index}
-              sx={{ bgcolor: '#f0f0f0', marginBottom: 1, borderRadius: 1 }}
+              sx={{ bgcolor: '#fdf7e8', marginBottom: 1, borderRadius: 1 }}
             >
               <ListItemText
                 primary={`${item.name} (${item.category}類)`}
@@ -178,7 +199,12 @@ export default function Create() {
             onClick={handleSubmit}
             fullWidth
             variant='contained'
-            sx={{ mt: 3, mb: 2, bgcolor: '#bc6c25' }}
+            sx={{
+              mt: 3,
+              mb: 2,
+              bgcolor: '#bc6c25',
+              ':hover': { bgcolor: '#9B5212' },
+            }}
           >
             送出更新
           </Button>

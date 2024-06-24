@@ -3,7 +3,11 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const notificationSchema = new Schema({
-  type: { type: String, required: true },
+  type: {
+    type: String,
+    required: true,
+    enum: ['create', 'invitation', 'expire'],
+  },
   target: {
     type: { type: String, required: true, enum: ['User', 'Fridge'] },
     id: { type: Schema.Types.ObjectId, required: true, refPath: 'target.type' },

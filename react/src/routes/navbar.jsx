@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AppBar,
   Avatar,
@@ -18,6 +18,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 
 const pages = [];
 
@@ -27,16 +28,13 @@ export default function NavBar() {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [anchorElNotify, setAnchorElNotify] = useState(null);
+  const [notifications, setNotifications] = useState([]);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
-  };
-
-  const handleOpenNotifyMenu = (event) => {
-    setAnchorElNotify(event.currentTarget);
   };
 
   const handleCloseNavMenu = () => {
@@ -63,6 +61,25 @@ export default function NavBar() {
         navigate('/login');
       })
       .catch((err) => console.error(err));
+  };
+
+  const handleNotifications = (event) => {
+    setAnchorElNotify(event.currentTarget);
+
+    axios
+      .get('http://localhost:8080/user/notifications', {
+        withCredentials: true,
+      })
+      .then((response) => {
+        console.log(response.data);
+        setNotifications(response.data);
+      })
+      .catch((err) => {
+        console.error(err);
+        if (err.response && err.response.status === 401) {
+          navigate('/login');
+        }
+      });
   };
 
   return (
@@ -145,7 +162,7 @@ export default function NavBar() {
 
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title='Open Notifications'>
-              <IconButton onClick={handleOpenNotifyMenu} sx={{ p: 0 }}>
+              <IconButton onClick={handleNotifications} sx={{ p: 0 }}>
                 <Avatar sx={{ bgcolor: '#6c584c' }}>
                   <CircleNotificationsIcon sx={{ fontSize: 38 }} />
                 </Avatar>
@@ -167,12 +184,62 @@ export default function NavBar() {
               open={Boolean(anchorElNotify)}
               onClose={handleCloseNotifyMenu}
             >
-              <MenuItem>
-                <AssignmentIndIcon />
-                <Typography textAlign='center' sx={{ ml: 1 }}>
-                  通知1
-                </Typography>
-              </MenuItem>
+              {notifications.map((notification) => (
+                <MenuItem key={notification.id}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      flexWrap: 'wrap',
+                      maxWidth: 200,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        mb: 1,
+                      }}
+                    >
+                      <NotificationsNoneIcon sx={{ mr: 1, fontSize: 20 }} />
+                      <Typography
+                        sx={{
+                          flexGrow: 1,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          fontSize: 14,
+                        }}
+                      >
+                        {notification.topic}
+                      </Typography>
+                    </Box>
+                    <Typography
+                      sx={{
+                        whiteSpace: 'normal',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        fontSize: 13,
+                      }}
+                    >
+                      {notification.content}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        whiteSpace: 'normal',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        fontSize: 11,
+                        mt: 1,
+                        fontStyle: 'italic',
+                        color: 'gray',
+                      }}
+                    >
+                      {notification.time}
+                    </Typography>
+                  </Box>
+                </MenuItem>
+              ))}
             </Menu>
           </Box>
 

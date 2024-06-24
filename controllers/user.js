@@ -2,10 +2,10 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
-import crypto from 'crypto';
 
 import User from '../models/user.js';
 import Fridge from '../models/fridge.js';
+import Notification from '../models/notification.js';
 import Invitation from '../models/invitation.js';
 import ExpressError from '../utils/ExpressError.js';
 import { generateJWT } from '../utils/JWT.js';
@@ -36,8 +36,6 @@ const sendEmail = (to, subject, html) => {
     }
   });
 };
-
-const generateToken = () => crypto.randomBytes(16).toString('hex');
 
 export const login = async (req, res) => {
   const { provider, email, password } = req.body;
@@ -126,18 +124,18 @@ export const createGroup = async (req, res) => {
   const groupId = result._id.toString();
 
   if (Array.isArray(inviting) && inviting.length > 0) {
-    const invitePromises = inviting.map((member) => {
-      const token = generateToken();
+    const invitePromises = inviting.map(async (member) => {
       const invitation = new Invitation({
         email: member.email,
-        token,
         groupId,
       });
-      return invitation.save().then(() => {
-        sendEmail(
-          member.email,
-          `【FridgeChef】 ${host.name} 邀請您一起加入${name}！`,
-          `<!DOCTYPE html>
+      const invitationResult = await invitation.save();
+      const invitationId = invitationResult._id.toString();
+
+      sendEmail(
+        member.email,
+        `【FridgeChef】 ${host.name} 邀請您一起加入${name}！`,
+        `<!DOCTYPE html>
           <html lang="en">
           <head>
           <meta charset="UTF-8">
@@ -167,16 +165,22 @@ export const createGroup = async (req, res) => {
               <h2>Invitation</h2>
               <p>您收到 ${host.name} (${host.email}) 的邀請，歡迎您一起加入 FridgeChef 群組！</p>
               <p>群組名稱：${name}</p>
-              <a href='http://localhost:5173/user/invitation?token=${token}&email=${member.email}' class="button">接受邀請</a>
+              <a href='http://localhost:5173/user/invitation?id=${invitationId}&email=${member.email}' class="button">接受邀請</a>
               <p>（此連結將於24小時後過期）</p>
             </div>
           </body>
           </html>
           `,
-        );
-      });
-    });
+      );
 
+      const notification = new Notification({
+        type: 'invitation',
+        target: { type: 'User', id: member._id.toString() },
+        content: `${host.name} 已邀請您至 ${name}。 `,
+      });
+
+      await notification.save();
+    });
     await Promise.all(invitePromises);
   }
 
@@ -184,14 +188,15 @@ export const createGroup = async (req, res) => {
 };
 
 export const validateInvitation = async (req, res) => {
-  const { token, email } = req.query;
+  const { id, email } = req.query;
+
   const { user } = req;
-  const foundUser = await User.findOne({ _id: user.id });
+  const foundUser = await User.findById(user.id);
   if (foundUser.email !== email) {
     throw new ExpressError('Authentication failed!', 403);
   }
 
-  const invitation = await Invitation.findOne({ token });
+  const invitation = await Invitation.findById(id);
   if (!invitation) {
     return res.status(404).send('邀請已過期或不存在');
   }
@@ -204,5 +209,72 @@ export const validateInvitation = async (req, res) => {
     },
   );
 
-  res.status(200).send('群組加入成功！');
+  return res.status(200).send('群組加入成功！');
+};
+
+export const getNotifications = async (req, res) => {
+  const userId = req.user.id;
+  const userFridge = await Fridge.find({ members: userId });
+  const userFridgeIds = userFridge.map((fridge) => fridge._id.toString());
+
+  const notificationsFromDB = await Notification.find({
+    $or: [
+      { 'target.id': userId, 'target.type': 'User' },
+      { 'target.id': { $in: userFridgeIds }, 'target.type': 'Fridge' },
+    ],
+  });
+
+  function determineTopic(notificationType) {
+    if (notificationType === 'create') {
+      return '新增食材';
+    }
+    if (notificationType === 'expire') {
+      return '過期通知';
+    }
+    return '群組邀請';
+  }
+
+  function timeSince(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+
+    let interval = seconds / 31536000; // 年份的秒數
+    if (interval > 1) {
+      return `${Math.floor(interval)} 年前`;
+    }
+    interval = seconds / 2592000; // 月份的秒數
+    if (interval > 1) {
+      return `${Math.floor(interval)} 月前`;
+    }
+    interval = seconds / 604800; // 周的秒數
+    if (interval > 1) {
+      return `${Math.floor(interval)} 周前`;
+    }
+    interval = seconds / 86400; // 天的秒數
+    if (interval > 1) {
+      return `${Math.floor(interval)} 天前`;
+    }
+    interval = seconds / 3600; // 小時的秒數
+    if (interval > 1) {
+      return `${Math.floor(interval)} 小時前`;
+    }
+    interval = seconds / 60; // 分鐘的秒數
+    if (interval > 1) {
+      return `${Math.floor(interval)} 分鐘前`;
+    }
+    return `${Math.floor(seconds)} 秒前`;
+  }
+
+  const sortedNotifications = notificationsFromDB.sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+  );
+
+  const notifications = sortedNotifications.map((notify) => ({
+    id: notify._id.toString(),
+    topic: determineTopic(notify.type),
+    content: notify.content,
+    time: timeSince(notify.createdAt),
+    readStatus: notify.readStatus,
+  }));
+
+  res.status(200).send(notifications);
 };

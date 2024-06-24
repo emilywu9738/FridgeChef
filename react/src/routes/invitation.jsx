@@ -15,16 +15,13 @@ function Invitation() {
   const [searchParams] = useSearchParams();
 
   const handleGroupInvitation = () => {
-    const token = searchParams.get('token');
+    const id = searchParams.get('id');
     const email = searchParams.get('email');
 
     axios
-      .get(
-        `http://localhost:8080/user/createGroup?token=${token}&email=${email}`,
-        {
-          withCredentials: true,
-        },
-      )
+      .get(`http://localhost:8080/user/createGroup?id=${id}&email=${email}`, {
+        withCredentials: true,
+      })
       .then((response) => {
         alert(response.data);
         navigate('/user/profile');

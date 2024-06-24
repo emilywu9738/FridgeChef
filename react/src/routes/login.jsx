@@ -1,6 +1,6 @@
+import axios from 'axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import {
   Avatar,
   Box,
@@ -11,8 +11,7 @@ import {
   Typography,
   Link,
 } from '@mui/material';
-
-import axios from 'axios';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 export default function Login() {
   const navigate = useNavigate();

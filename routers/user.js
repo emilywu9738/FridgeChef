@@ -24,4 +24,6 @@ router
   .get(validateJWT, catchAsync(user.getProfileData))
   .post(validateJWT, catchAsync(user.updatePreferenceAndOmit));
 
+router.get('/notifications', validateJWT, catchAsync(user.getNotifications));
+
 export default router;

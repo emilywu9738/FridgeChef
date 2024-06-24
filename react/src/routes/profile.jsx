@@ -236,10 +236,6 @@ export default function Profile() {
                       <GroupsIcon />
                       <Typography sx={{ ml: 1 }}> 新增群組</Typography>
                     </MenuItem>
-                    <MenuItem onClick={handleLogout}>
-                      <LogoutIcon />
-                      <Typography sx={{ ml: 1 }}> 登出</Typography>
-                    </MenuItem>
                   </Menu>
                 </>
               }

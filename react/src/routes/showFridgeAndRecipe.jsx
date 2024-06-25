@@ -112,6 +112,9 @@ export default function ShowFridgeAndRecipe() {
   const handleCreateIngredients = () => {
     navigate(`/fridge/create?fridgeId=${fridgeData._id.toString()}`);
   };
+  const handleCreateIngredientsByPhoto = () => {
+    navigate(`/fridge/createByPhoto?fridgeId=${fridgeData._id.toString()}`);
+  };
 
   function MemberCard({ member, isChecked, onCheckChange }) {
     return (
@@ -512,7 +515,22 @@ export default function ShowFridgeAndRecipe() {
                 }}
                 onClick={handleCreateIngredients}
               >
-                新增食材
+                文字新增食材
+              </Button>
+              <Button
+                variant='contained'
+                size='large'
+                sx={{
+                  mb: 3,
+                  ml: 2,
+                  backgroundColor: '#d8572a',
+                  ':hover': {
+                    backgroundColor: '#C74617',
+                  },
+                }}
+                onClick={handleCreateIngredientsByPhoto}
+              >
+                圖片新增食材
               </Button>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 5 }}>
                 {fridgeData.ingredients.map((category) => (

@@ -10,6 +10,7 @@ import Login from './routes/login';
 import Profile from './routes/profile';
 import ForbiddenPage from './routes/forbidden';
 import CreateItems from './routes/createItems';
+import CreateByPhoto from './routes/createByPhoto';
 import CreateGroup from './routes/createGroup';
 import Invitation from './routes/invitation';
 import RecipeDetails from './routes/recipeDetails';
@@ -44,6 +45,7 @@ function RouteStructure() {
       {showNavBar && <NavBar />}
       <Routes>
         <Route path='fridge/create' element={<CreateItems />}></Route>
+        <Route path='fridge/createByPhoto' element={<CreateByPhoto />}></Route>
         <Route path='fridge/recipe' element={<ShowFridgeAndRecipe />}></Route>
         <Route path='fridge/recipeDetails' element={<RecipeDetails />}></Route>
         <Route path='login' element={<Login />}></Route>

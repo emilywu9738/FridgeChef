@@ -1,6 +1,7 @@
 import { userSchema } from '../schema/schema.js';
 import ExpressError from '../utils/ExpressError.js';
 import 'dotenv/config';
+import multer from 'multer';
 import jwt from 'jsonwebtoken';
 
 export const validateUser = (req, res, next) => {
@@ -26,3 +27,6 @@ export const validateJWT = (req, res, next) => {
     next();
   });
 };
+
+const storage = multer.memoryStorage();
+export const upload = multer({ storage });

@@ -1,12 +1,21 @@
 import mongoose from 'mongoose';
 import nodemailer from 'nodemailer';
 import neo4j from 'neo4j-driver';
+import fs from 'fs-extra';
+import path from 'path';
 import 'dotenv/config';
+import { createWorker } from 'tesseract.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
 import Fridge from '../models/fridge.js';
 import User from '../models/user.js';
 import Recipe from '../models/recipe.js';
 import Notification from '../models/notification.js';
 import ExpressError from '../utils/ExpressError.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const uri = 'bolt://localhost:7687';
 const user = process.env.NEO4J_USER;
@@ -163,6 +172,42 @@ export const createIngredients = async (req, res) => {
   await notification.save();
 
   res.status(200).send('食材已成功新增');
+};
+
+async function loadIngredients() {
+  try {
+    const filePath = path.join(__dirname, '../data/ingredients.json');
+    const ingredients = await fs.readJson(filePath);
+    return ingredients;
+  } catch (error) {
+    return console.error('Failed to load ingredients:', error);
+  }
+}
+
+export const createByPhoto = async (req, res) => {
+  if (!req.file) {
+    throw new ExpressError('No image uploaded', 400);
+  }
+
+  const ingredients = await loadIngredients();
+
+  const worker = await createWorker('chi_tra');
+
+  try {
+    const result = await worker.recognize(req.file.buffer);
+    await worker.terminate();
+
+    const dataWithoutSpace = result.data.text.replace(/\s+/g, '');
+
+    const matchIngredients = ingredients.filter((ingredient) =>
+      dataWithoutSpace.toLowerCase().includes(ingredient.toLowerCase()),
+    );
+
+    res.send(matchIngredients); // 返回 OCR 處理結果
+  } catch (error) {
+    console.error('OCR error:', error);
+    res.status(500).send('Failed to process image');
+  }
 };
 
 export const renderFridgeById = async (req, res) => {

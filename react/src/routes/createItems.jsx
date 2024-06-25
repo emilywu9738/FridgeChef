@@ -24,7 +24,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 const OPTIONS = ['蔬菜', '肉品', '海鮮', '調味料', '蛋豆', '主食'];
 
-export default function Create() {
+export default function CreateItems() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 

@@ -149,7 +149,7 @@ export const createIngredients = async (req, res) => {
   fridge.members.forEach((member) => {
     sendEmail(
       member.email,
-      'FridgeChef - 食材庫更新',
+      '【FridgeChef】食材庫更新',
       `${createUser.name} 更新食材至食材庫。\n食材列表：\n${message}`,
     );
   });

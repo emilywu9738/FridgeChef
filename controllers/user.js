@@ -201,13 +201,21 @@ export const validateInvitation = async (req, res) => {
     return res.status(404).send('邀請已過期或不存在');
   }
 
-  await Fridge.findOneAndUpdate(
+  const result = await Fridge.findOneAndUpdate(
     { _id: invitation.groupId },
     {
       $pull: { inviting: user.id },
       $addToSet: { members: user.id },
     },
   );
+
+  const groupNotification = new Notification({
+    type: 'invitation',
+    target: { type: 'Fridge', id: invitation.groupId },
+    content: `${foundUser.name} 已成功加入群組 ${result.name}`,
+  });
+
+  await groupNotification.save();
 
   return res.status(200).send('群組加入成功！');
 };

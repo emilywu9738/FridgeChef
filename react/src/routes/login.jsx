@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
@@ -10,12 +11,17 @@ import {
   TextField,
   Typography,
   Link,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const [openSuccessSnackbar, setSuccessOpenSnackbar] = useState(false);
+  const [openErrorSnackbar, setErrorOpenSnackbar] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -36,19 +42,63 @@ export default function Login() {
       )
       .then((response) => {
         console.log(response.data);
+        setSuccessOpenSnackbar(true);
         if (redirect === 'invitation') {
-          navigate('/user/invitation');
+          setTimeout(() => {
+            navigate('/user/invitation');
+          }, 2000);
         } else {
-          navigate('/user/profile');
+          setTimeout(() => {
+            navigate('/user/profile');
+          }, 2000);
         }
       })
-      .catch((err) => console.error(err.message));
+      .catch((err) => {
+        setErrorOpenSnackbar(true);
+        console.error(err.message);
+      });
+  };
+
+  const handleCloseSuccessSnackbar = () => {
+    setSuccessOpenSnackbar(false);
+  };
+  const handleCloseErrorSnackbar = () => {
+    setErrorOpenSnackbar(false);
   };
 
   return (
     <>
       <Container component='main' maxWidth='md' sx={{ bgcolor: '#faedcd' }}>
         <CssBaseline />
+        <Snackbar
+          open={openSuccessSnackbar}
+          onClose={handleCloseSuccessSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            elevation={6}
+            severity='success'
+            variant='filled'
+            onClose={handleCloseSuccessSnackbar}
+          >
+            登入成功！
+          </Alert>
+        </Snackbar>
+        <Snackbar
+          open={openErrorSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseErrorSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            elevation={3}
+            severity='error'
+            variant='filled'
+            onClose={handleCloseErrorSnackbar}
+          >
+            登入失敗！
+          </Alert>
+        </Snackbar>
         <Box
           sx={{
             marginTop: 8,

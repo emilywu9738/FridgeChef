@@ -101,14 +101,6 @@ export default function Profile() {
     setPreviewList(newList);
   };
 
-  const handleLogout = () => {
-    axios('http://localhost:8080/user/logout', { withCredentials: true })
-      .then((response) => {
-        setReload(!reload);
-      })
-      .catch((err) => console.error(err));
-  };
-
   const handleCreateGroup = () => {
     navigate('/user/createGroup');
   };

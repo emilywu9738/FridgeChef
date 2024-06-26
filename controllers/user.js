@@ -68,6 +68,7 @@ export const register = async (req, res) => {
   const { provider, name, email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 12);
   const [foundUser] = await User.find({ email });
+
   if (foundUser) {
     throw new ExpressError('使用者已存在，請直接登入', 403);
   }
@@ -81,7 +82,7 @@ export const register = async (req, res) => {
     maxAge: 3600000,
     httpOnly: true,
   });
-  res.json('註冊成功');
+  res.status(200).send('註冊成功');
 };
 
 export const updatePreferenceAndOmit = async (req, res) => {

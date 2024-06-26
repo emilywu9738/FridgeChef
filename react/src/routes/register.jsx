@@ -1,17 +1,27 @@
 import axios from 'axios';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import {
+  Alert,
   Avatar,
   Box,
   Button,
   Container,
   CssBaseline,
   Link,
+  Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 export default function Register() {
+  const navigate = useNavigate();
+
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('註冊失敗');
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -28,13 +38,68 @@ export default function Register() {
           withCredentials: true, // 確保設置了此選項
         },
       )
-      .then((response) => console.log(response.data))
-      .catch((err) => console.error(err));
+      .then((response) => {
+        setOpenSuccessSnackbar(true);
+        console.log(response.data);
+        setTimeout(() => {
+          navigate('/user/profile');
+        }, 2000);
+      })
+      .catch((err) => {
+        if (err.response && err.response.status === 403) {
+          setErrorMessage('使用者已存在，將為您跳轉至登入頁面');
+          setOpenErrorSnackbar(true);
+          console.error(err);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+        } else {
+          setErrorMessage('註冊失敗！');
+          setOpenErrorSnackbar(true);
+        }
+      });
+  };
+
+  const handleCloseSuccessSnackbar = () => {
+    setOpenSuccessSnackbar(false);
+  };
+
+  const handleCloseErrorSnackbar = () => {
+    setOpenErrorSnackbar(false);
   };
 
   return (
     <Container component='main' maxWidth='md' sx={{ bgcolor: '#faedcd' }}>
       <CssBaseline />
+      <Snackbar
+        open={openSuccessSnackbar}
+        onClose={handleCloseSuccessSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          elevation={3}
+          severity='success'
+          variant='filled'
+          onClose={handleCloseSuccessSnackbar}
+        >
+          註冊成功！
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={openErrorSnackbar}
+        autoHideDuration={6000} // 6 秒後自動關閉
+        onClose={handleCloseErrorSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          elevation={6}
+          severity='warning'
+          variant='filled'
+          onClose={handleCloseErrorSnackbar}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       <Box
         sx={{
           marginTop: 8,
@@ -97,6 +162,7 @@ export default function Register() {
                 label='Username'
                 type='text'
                 id='name'
+                autoFocus
                 sx={{ bgcolor: '#fdf7e8' }}
               />
               <TextField
@@ -107,7 +173,6 @@ export default function Register() {
                 label='Email Address'
                 name='email'
                 sx={{ bgcolor: '#fdf7e8' }}
-                autoFocus
               />
               <TextField
                 margin='normal'

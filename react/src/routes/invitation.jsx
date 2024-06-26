@@ -1,18 +1,25 @@
 import axios from 'axios';
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
   CardHeader,
+  Snackbar,
   Typography,
 } from '@mui/material';
 
 function Invitation() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleGroupInvitation = () => {
     const id = searchParams.get('id');
@@ -23,17 +30,32 @@ function Invitation() {
         withCredentials: true,
       })
       .then((response) => {
-        alert(response.data);
+        setOpenSuccessSnackbar(true);
+        setSuccessMessage(response.data);
         navigate('/user/profile');
       })
       .catch((err) => {
-        console.error(err);
         if (err.response && err.response.status === 401) {
-          navigate('/login?redirect=invitation');
+          setErrorMessage('請先登入，將為您轉移至登入頁面');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login?redirect=invitation');
+          }, 2000);
         } else if (err.response && err.response.status === 403) {
           navigate('/forbidden');
+        } else {
+          setErrorMessage('群組加入失敗');
+          setOpenErrorSnackbar(true);
         }
       });
+  };
+
+  const handleCloseSuccessSnackbar = () => {
+    setOpenSuccessSnackbar(false);
+  };
+
+  const handleCloseErrorSnackbar = () => {
+    setOpenErrorSnackbar(false);
   };
 
   return (
@@ -47,6 +69,35 @@ function Invitation() {
         bgcolor: '#faedcd',
       }}
     >
+      <Snackbar
+        open={openSuccessSnackbar}
+        onClose={handleCloseSuccessSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          elevation={6}
+          severity='success'
+          variant='filled'
+          onClose={handleCloseSuccessSnackbar}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={openErrorSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseErrorSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          elevation={3}
+          severity='error'
+          variant='filled'
+          onClose={handleCloseErrorSnackbar}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       <Card sx={{ width: 500, textAlign: 'center', borderRadius: 5 }}>
         <CardHeader
           title={

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -14,6 +15,7 @@ import {
   Menu,
   MenuItem,
   Select,
+  Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
@@ -37,6 +39,10 @@ export default function Profile() {
   const [originalPreferCategory, setOriginalPreferCategory] = useState('');
   const [previewList, setPreviewList] = useState([]);
   const [originalPreviewList, setOriginalPreviewList] = useState([]);
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const open = Boolean(anchorEl);
 
@@ -82,16 +88,24 @@ export default function Profile() {
         { withCredentials: true },
       )
       .then((response) => {
-        alert(response.data);
+        setOpenSuccessSnackbar(true);
+        setSuccessMessage(response.data);
         setReload(!reload);
         setEditMode(false);
       })
       .catch((err) => {
         console.error(err);
         if (err.response && err.response.status === 401) {
-          navigate('/login');
+          setErrorMessage('請先登入，將為您轉移至登入頁面');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
         } else if (err.response && err.response.status === 403) {
           navigate('/forbidden');
+        } else {
+          setErrorMessage('更新失敗');
+          setOpenErrorSnackbar(true);
         }
       });
   };
@@ -105,6 +119,14 @@ export default function Profile() {
     navigate('/user/createGroup');
   };
 
+  const handleCloseSuccessSnackbar = () => {
+    setOpenSuccessSnackbar(false);
+  };
+
+  const handleCloseErrorSnackbar = () => {
+    setOpenErrorSnackbar(false);
+  };
+
   function FridgeCard({ fridge }) {
     const fridgeMembers = fridge.members.map((m) => m.name).join(' ');
     const handleFridgeClick = () => {
@@ -112,53 +134,85 @@ export default function Profile() {
     };
 
     return (
-      <Grid item xs={12} md={6}>
-        <Card
-          elevation={3}
-          sx={{
-            flexGrow: 1,
-            position: 'relative',
-            m: 2,
-            borderRadius: 5,
-          }}
+      <>
+        <Snackbar
+          open={openSuccessSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSuccessSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
-          <CardHeader
-            title={
-              <Typography
-                variant='h5'
-                sx={{
-                  fontSize: '1rem',
-                  color: 'white',
-                  fontWeight: 550,
-                }}
-              >
-                {fridge.name}
-              </Typography>
-            }
-            onClick={handleFridgeClick}
+          <Alert
+            elevation={6}
+            severity='success'
+            variant='filled'
+            onClose={handleCloseSuccessSnackbar}
+          >
+            {successMessage}
+          </Alert>
+        </Snackbar>
+        <Snackbar
+          open={openErrorSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseErrorSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            elevation={3}
+            severity='error'
+            variant='filled'
+            onClose={handleCloseErrorSnackbar}
+          >
+            {errorMessage}
+          </Alert>
+        </Snackbar>
+        <Grid item xs={12} md={6}>
+          <Card
+            elevation={3}
             sx={{
-              bgcolor: '#6c584c',
-              cursor: 'pointer',
-              ':hover': {
-                backgroundColor: '#9c6644',
-              },
+              flexGrow: 1,
+              position: 'relative',
+              m: 2,
+              borderRadius: 5,
             }}
-          />
+          >
+            <CardHeader
+              title={
+                <Typography
+                  variant='h5'
+                  sx={{
+                    fontSize: '1rem',
+                    color: 'white',
+                    fontWeight: 550,
+                  }}
+                >
+                  {fridge.name}
+                </Typography>
+              }
+              onClick={handleFridgeClick}
+              sx={{
+                bgcolor: '#6c584c',
+                cursor: 'pointer',
+                ':hover': {
+                  backgroundColor: '#9c6644',
+                },
+              }}
+            />
 
-          <CardContent>
-            <Typography
-              sx={{ fontSize: 14 }}
-              color='text.secondary'
-              component='div'
-              gutterBottom
-            >
-              成員
-              <br />
-              {fridgeMembers}
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
+            <CardContent>
+              <Typography
+                sx={{ fontSize: 14 }}
+                color='text.secondary'
+                component='div'
+                gutterBottom
+              >
+                成員
+                <br />
+                {fridgeMembers}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </>
     );
   }
 

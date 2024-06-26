@@ -20,8 +20,8 @@ export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const [openSuccessSnackbar, setSuccessOpenSnackbar] = useState(false);
-  const [openErrorSnackbar, setErrorOpenSnackbar] = useState(false);
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -42,7 +42,7 @@ export default function Login() {
       )
       .then((response) => {
         console.log(response.data);
-        setSuccessOpenSnackbar(true);
+        setOpenSuccessSnackbar(true);
         if (redirect === 'invitation') {
           setTimeout(() => {
             navigate('/user/invitation');
@@ -54,16 +54,16 @@ export default function Login() {
         }
       })
       .catch((err) => {
-        setErrorOpenSnackbar(true);
+        setOpenErrorSnackbar(true);
         console.error(err.message);
       });
   };
 
   const handleCloseSuccessSnackbar = () => {
-    setSuccessOpenSnackbar(false);
+    setOpenSuccessSnackbar(false);
   };
   const handleCloseErrorSnackbar = () => {
-    setErrorOpenSnackbar(false);
+    setOpenErrorSnackbar(false);
   };
 
   return (

@@ -1,4 +1,6 @@
 node_modules
 .env
-/data
+rawData.json
+recipeData.json
+chi_tra.traineddata
 .DS_Store

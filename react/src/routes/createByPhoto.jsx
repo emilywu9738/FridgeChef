@@ -38,6 +38,7 @@ export default function CreateByPhoto() {
   const [imagePreview, setImagePreview] = useState(null);
   const [editIndex, setEditIndex] = useState(-1); // -1 表示沒有項目正在編輯
   const [isEditing, setIsEditing] = useState(false);
+  const [backupItem, setBackupItem] = useState(null);
 
   const handleAddPreview = (event) => {
     event.preventDefault();
@@ -106,6 +107,31 @@ export default function CreateByPhoto() {
     } else {
       setImagePreview(null);
     }
+  };
+
+  const handleEdit = (index) => {
+    setBackupItem({ ...previewList[index] });
+    setEditIndex(index);
+    setIsEditing(true);
+  };
+
+  const handleInputChange = (e, index, field) => {
+    const newPreviewList = [...previewList];
+    newPreviewList[index][field] = e.target.value;
+    setPreviewList(newPreviewList);
+  };
+
+  const handleUpdate = (e, index) => {
+    e.preventDefault();
+    setIsEditing(false); // 退出編輯模式
+  };
+
+  const handleCancel = (event) => {
+    const updatedList = [...previewList];
+    updatedList[editIndex] = backupItem;
+    setPreviewList(updatedList);
+    setIsEditing(false);
+    setBackupItem(null);
   };
 
   return (
@@ -249,24 +275,62 @@ export default function CreateByPhoto() {
               key={index}
               sx={{ bgcolor: '#fdf7e8', marginBottom: 1, borderRadius: 1 }}
             >
-              <ListItemText
-                primary={`${item.name} (${item.category}類)`}
-                secondary={`過期時間: ${item.expired}`}
-              />
-              <IconButton
-                edge='end'
-                aria-label='delete'
-                onClick={() => handleEdit(index)}
-              >
-                <EditIcon sx={{ mr: 1 }} />
-              </IconButton>
-              <IconButton
-                edge='end'
-                aria-label='delete'
-                onClick={() => handleDelete(index)}
-              >
-                <DeleteIcon />
-              </IconButton>
+              {isEditing && editIndex === index ? (
+                // 編輯模式界面
+                <Box component='form' onSubmit={(e) => handleUpdate(e, index)}>
+                  <TextField
+                    value={item.name}
+                    onChange={(e) => handleInputChange(e, index, 'name')}
+                    size='small'
+                    sx={{ width: '100%', mb: 1 }}
+                  />
+                  <TextField
+                    type='date'
+                    value={item.expired}
+                    onChange={(e) => handleInputChange(e, index, 'expired')}
+                    size='small'
+                    sx={{ width: '100%', mb: 1 }}
+                  />
+                  <Select
+                    value={item.category}
+                    onChange={(e) => handleInputChange(e, index, 'category')}
+                    size='small'
+                    sx={{ width: '100%', mb: 1 }}
+                  >
+                    {OPTIONS.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <Button type='submit' sx={{ mr: 1 }}>
+                    儲存
+                  </Button>
+                  <Button onClick={handleCancel}>取消</Button>
+                </Box>
+              ) : (
+                // 常規顯示
+                <>
+                  <ListItemText
+                    primary={`${item.name} (${item.category}類)`}
+                    secondary={`過期時間: ${item.expired}`}
+                  />
+                  <IconButton
+                    edge='end'
+                    aria-label='edit'
+                    onClick={() => handleEdit(index)}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    edge='end'
+                    aria-label='delete'
+                    onClick={() => handleDelete(index)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </>
+              )}
             </ListItem>
           ))}
         </List>

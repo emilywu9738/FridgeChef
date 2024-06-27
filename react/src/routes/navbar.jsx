@@ -1,9 +1,12 @@
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
+
 import {
   AppBar,
   Avatar,
+  Badge,
   Box,
   Container,
   IconButton,
@@ -29,6 +32,9 @@ export default function NavBar() {
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [anchorElNotify, setAnchorElNotify] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [userId, setUserId] = useState('');
+  const [socket, setSocket] = useState(null);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -65,13 +71,13 @@ export default function NavBar() {
 
   const handleNotifications = (event) => {
     setAnchorElNotify(event.currentTarget);
+    setUnreadCount(0);
 
     axios
       .get('http://localhost:8080/user/notifications', {
         withCredentials: true,
       })
       .then((response) => {
-        console.log(response.data);
         setNotifications(response.data);
       })
       .catch((err) => {
@@ -82,8 +88,36 @@ export default function NavBar() {
       });
   };
 
+  useEffect(() => {
+    axios('http://localhost:8080/user/info', { withCredentials: true })
+      .then((response) => {
+        const { userId } = response.data;
+        setUserId(userId);
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    setSocket(io('http://localhost:8080'));
+  }, []);
+
+  useEffect(() => {
+    if (socket && userId) {
+      socket.emit('newUser', userId);
+
+      socket.on('notification', () => {
+        setUnreadCount((prevCount) => prevCount + 1);
+      });
+      console.log(unreadCount);
+    }
+  }, [socket, userId, unreadCount]);
+
   return (
-    <AppBar position='static' sx={{ bgcolor: '#a98467', height: 80 }}>
+    <AppBar
+      socket={socket}
+      position='static'
+      sx={{ bgcolor: '#a98467', height: 80 }}
+    >
       <Container maxWidth='xl' sx={{ width: '100%', mt: 1 }}>
         <Toolbar
           disableGutters
@@ -162,10 +196,24 @@ export default function NavBar() {
 
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title='Open Notifications'>
-              <IconButton onClick={handleNotifications} sx={{ p: 0 }}>
-                <Avatar sx={{ bgcolor: '#6c584c' }}>
-                  <CircleNotificationsIcon sx={{ fontSize: 38 }} />
-                </Avatar>
+              <IconButton
+                onClick={handleNotifications}
+                sx={{
+                  p: 0,
+                  boxShadow: unreadCount ? '0 0 13px 4px #FFF9D8' : 'none',
+                }}
+              >
+                {unreadCount > 0 ? (
+                  <Badge badgeContent={1} color='warning'>
+                    <Avatar sx={{ bgcolor: '#6c584c' }}>
+                      <CircleNotificationsIcon sx={{ fontSize: 38 }} />
+                    </Avatar>
+                  </Badge>
+                ) : (
+                  <Avatar sx={{ bgcolor: '#6c584c' }}>
+                    <CircleNotificationsIcon sx={{ fontSize: 38 }} />
+                  </Avatar>
+                )}
               </IconButton>
             </Tooltip>
             <Menu

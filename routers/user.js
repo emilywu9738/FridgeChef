@@ -26,4 +26,6 @@ router
 
 router.get('/notifications', validateJWT, catchAsync(user.getNotifications));
 
+router.get('/info', validateJWT, user.getUserInfo);
+
 export default router;

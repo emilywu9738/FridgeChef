@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
+import { io, getOnlineUsers } from '../app.js';
 
 import User from '../models/user.js';
 import Fridge from '../models/fridge.js';
@@ -107,6 +108,11 @@ export const getProfileData = async (req, res) => {
   res.send({ userFridge, userData });
 };
 
+export const getUserInfo = (req, res) => {
+  const { id } = req.user;
+  res.send({ userId: id });
+};
+
 export const searchUser = async (req, res) => {
   const { name } = req.query;
   const results = await User.find({
@@ -123,6 +129,7 @@ export const createGroup = async (req, res) => {
   const fridge = new Fridge({ name, description, members: host, inviting });
   const result = await fridge.save();
   const groupId = result._id.toString();
+  const onlineUsers = getOnlineUsers();
 
   if (Array.isArray(inviting) && inviting.length > 0) {
     const invitePromises = inviting.map(async (member) => {
@@ -180,7 +187,14 @@ export const createGroup = async (req, res) => {
         content: `${host.name} 已邀請您至 ${name}。 `,
       });
 
-      await notification.save();
+      const savedNotification = await notification.save();
+      const getUser = (userId) => onlineUsers.find((u) => u.userId === userId);
+
+      const userId = member._id.toString();
+
+      const { socketId } = getUser(userId);
+
+      io.to(socketId).emit('notification', savedNotification);
     });
     await Promise.all(invitePromises);
   }
@@ -199,7 +213,7 @@ export const validateInvitation = async (req, res) => {
 
   const invitation = await Invitation.findById(id);
   if (!invitation) {
-    return res.status(404).send('邀請已過期或不存在');
+    throw new ExpressError('邀請已過期或不存在', 404);
   }
 
   const result = await Fridge.findOneAndUpdate(

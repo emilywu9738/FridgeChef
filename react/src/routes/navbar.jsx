@@ -70,23 +70,24 @@ export default function NavBar() {
       .catch((err) => console.error(err));
   };
 
-  const handleNotifications = (event) => {
+  const handleNotifications = async (event) => {
     setAnchorElNotify(event.currentTarget);
     setUnreadCount(0);
-
-    axios
-      .get('http://localhost:8080/user/notifications', {
-        withCredentials: true,
-      })
-      .then((response) => {
-        setNotifications(response.data);
-      })
-      .catch((err) => {
-        console.error(err);
-        if (err.response && err.response.status === 401) {
-          navigate('/login');
-        }
-      });
+    try {
+      const response = await axios.get(
+        'http://localhost:8080/user/notifications',
+        {
+          withCredentials: true,
+        },
+      );
+      const { notifications } = response.data;
+      setNotifications(notifications);
+    } catch (err) {
+      console.error(err);
+      if (err.response && err.response.status === 401) {
+        navigate('/login');
+      }
+    }
   };
 
   useEffect(() => {
@@ -100,6 +101,23 @@ export default function NavBar() {
   }, []);
 
   useEffect(() => {
+    axios
+      .get('http://localhost:8080/user/countNotifications', {
+        withCredentials: true,
+      })
+      .then((response) => {
+        const { count } = response.data;
+        setUnreadCount(count);
+      })
+      .catch((err) => {
+        console.error(err);
+        if (err.response && err.response.status === 401) {
+          navigate('/login');
+        }
+      });
+  }, [navigate]);
+
+  useEffect(() => {
     setSocket(io('http://localhost:8080'));
   }, []);
 
@@ -108,7 +126,6 @@ export default function NavBar() {
       socket.emit('newUser', { userId, groupId });
 
       socket.on('notification', () => {
-        console.log('notify!');
         setUnreadCount((prevCount) => prevCount + 1);
       });
     }
@@ -206,7 +223,7 @@ export default function NavBar() {
                 }}
               >
                 {unreadCount > 0 ? (
-                  <Badge badgeContent={1} color='warning'>
+                  <Badge badgeContent={unreadCount} color='warning'>
                     <Avatar sx={{ bgcolor: '#6c584c' }}>
                       <CircleNotificationsIcon sx={{ fontSize: 38 }} />
                     </Avatar>

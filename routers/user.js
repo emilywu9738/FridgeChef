@@ -28,4 +28,10 @@ router.get('/notifications', validateJWT, catchAsync(user.getNotifications));
 
 router.get('/info', validateJWT, user.getUserInfo);
 
+router.get(
+  '/countNotifications',
+  validateJWT,
+  catchAsync(user.countNotifications),
+);
+
 export default router;

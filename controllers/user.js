@@ -312,5 +312,31 @@ export const getNotifications = async (req, res) => {
     readStatus: notify.readStatus,
   }));
 
-  res.status(200).send(notifications);
+  await Notification.updateMany(
+    {
+      $or: [
+        { 'target.id': userId, 'target.type': 'User' },
+        { 'target.id': { $in: userFridgeIds }, 'target.type': 'Fridge' },
+      ],
+    },
+    { $set: { readStatus: true } },
+  );
+
+  res.status(200).json({ notifications });
+};
+
+export const countNotifications = async (req, res) => {
+  const userId = req.user.id;
+  const userFridge = await Fridge.find({ members: userId });
+  const userFridgeIds = userFridge.map((fridge) => fridge._id.toString());
+
+  const count = await Notification.countDocuments({
+    $or: [
+      { 'target.id': userId, 'target.type': 'User' },
+      { 'target.id': { $in: userFridgeIds }, 'target.type': 'Fridge' },
+    ],
+    readStatus: false,
+  });
+
+  res.status(200).json({ count });
 };

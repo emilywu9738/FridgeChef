@@ -108,9 +108,11 @@ export const getProfileData = async (req, res) => {
   res.send({ userFridge, userData });
 };
 
-export const getUserInfo = (req, res) => {
+export const getUserInfo = async (req, res) => {
   const { id } = req.user;
-  res.send({ userId: id });
+  const userFridge = await Fridge.find({ members: id });
+  const groupId = userFridge.map((fridge) => fridge._id.toString());
+  res.send({ userId: id, groupId });
 };
 
 export const searchUser = async (req, res) => {
@@ -187,14 +189,14 @@ export const createGroup = async (req, res) => {
         content: `${host.name} 已邀請您至 ${name}。 `,
       });
 
-      const savedNotification = await notification.save();
+      await notification.save();
       const getUser = (userId) => onlineUsers.find((u) => u.userId === userId);
 
       const userId = member._id.toString();
 
       const { socketId } = getUser(userId);
 
-      io.to(socketId).emit('notification', savedNotification);
+      io.to(socketId).emit('notification', 'new notification!');
     });
     await Promise.all(invitePromises);
   }
@@ -203,6 +205,7 @@ export const createGroup = async (req, res) => {
 };
 
 export const validateInvitation = async (req, res) => {
+  const onlineUsers = getOnlineUsers();
   const { id, email } = req.query;
 
   const { user } = req;
@@ -231,6 +234,16 @@ export const validateInvitation = async (req, res) => {
   });
 
   await groupNotification.save();
+
+  const getUsersInGroup = (groupId) =>
+    onlineUsers.filter((u) => u.groupId.includes(groupId));
+
+  const groupUsers = getUsersInGroup(invitation.groupId);
+  const groupUserSocketId = groupUsers.map((u) => u.socketId);
+
+  groupUserSocketId.forEach((socketId) => {
+    io.to(socketId).emit('notification', 'new notification!');
+  });
 
   return res.status(200).send('群組加入成功！');
 };

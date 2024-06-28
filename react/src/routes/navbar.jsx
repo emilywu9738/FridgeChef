@@ -34,6 +34,7 @@ export default function NavBar() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [userId, setUserId] = useState('');
+  const [groupId, setGroupId] = useState([]);
   const [socket, setSocket] = useState(null);
 
   const handleOpenNavMenu = (event) => {
@@ -91,8 +92,9 @@ export default function NavBar() {
   useEffect(() => {
     axios('http://localhost:8080/user/info', { withCredentials: true })
       .then((response) => {
-        const { userId } = response.data;
+        const { userId, groupId } = response.data;
         setUserId(userId);
+        setGroupId(groupId);
       })
       .catch((err) => console.error(err));
   }, []);
@@ -103,14 +105,13 @@ export default function NavBar() {
 
   useEffect(() => {
     if (socket && userId) {
-      socket.emit('newUser', userId);
+      socket.emit('newUser', { userId, groupId });
 
       socket.on('notification', () => {
         setUnreadCount((prevCount) => prevCount + 1);
       });
-      console.log(unreadCount);
     }
-  }, [socket, userId, unreadCount]);
+  }, [socket, userId, unreadCount, groupId]);
 
   return (
     <AppBar

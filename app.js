@@ -43,9 +43,9 @@ export const io = new Server(server, {
 
 let onlineUsers = [];
 
-const addNewUser = (userId, socketId) =>
+const addNewUser = (userId, groupId, socketId) =>
   !onlineUsers.some((u) => u.userId === userId) &&
-  onlineUsers.push({ userId, socketId });
+  onlineUsers.push({ userId, groupId, socketId });
 
 const removeUser = (socketId) => {
   onlineUsers = onlineUsers.filter((u) => u.socketId !== socketId);
@@ -53,8 +53,8 @@ const removeUser = (socketId) => {
 
 io.on('connection', (socket) => {
   console.log('user connected');
-  socket.on('newUser', (userId) => {
-    addNewUser(userId, socket.id);
+  socket.on('newUser', (userInfo) => {
+    addNewUser(userInfo.userId, userInfo.groupId, socket.id);
   });
 
   socket.on('disconnect', () => {

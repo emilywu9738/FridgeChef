@@ -32,7 +32,9 @@ function Invitation() {
       .then((response) => {
         setOpenSuccessSnackbar(true);
         setSuccessMessage(response.data);
-        navigate('/user/profile');
+        setTimeout(() => {
+          navigate('/user/profile');
+        }, 2000);
       })
       .catch((err) => {
         if (err.response && err.response.status === 401) {

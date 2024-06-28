@@ -34,4 +34,6 @@ router.get(
   catchAsync(user.countNotifications),
 );
 
+router.post('/updateLikes', validateJWT, user.updateLikes);
+
 export default router;

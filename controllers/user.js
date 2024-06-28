@@ -6,6 +6,7 @@ import { io, getOnlineUsers } from '../app.js';
 
 import User from '../models/user.js';
 import Fridge from '../models/fridge.js';
+import Recipe from '../models/recipe.js';
 import Notification from '../models/notification.js';
 import Invitation from '../models/invitation.js';
 import ExpressError from '../utils/ExpressError.js';
@@ -341,4 +342,24 @@ export const countNotifications = async (req, res) => {
   });
 
   res.status(200).json({ count });
+};
+
+export const updateLikes = async (req, res) => {
+  const userId = req.user.id;
+  const { recipeId, liked } = req.body;
+  if (liked) {
+    await User.findOneAndUpdate(
+      { _id: userId },
+      { $push: { liked_recipes: recipeId } },
+    );
+    await Recipe.findOneAndUpdate({ _id: recipeId }, { $inc: { likes: 1 } });
+  } else {
+    await User.findOneAndUpdate(
+      { _id: userId },
+      { $pull: { liked_recipes: recipeId } },
+    );
+    await Recipe.findOneAndUpdate({ _id: recipeId }, { $inc: { likes: -1 } });
+  }
+
+  res.status(200).send('資料已更新');
 };

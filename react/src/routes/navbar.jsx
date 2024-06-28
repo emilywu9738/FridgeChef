@@ -64,7 +64,7 @@ export default function NavBar() {
   const handleLogout = () => {
     setAnchorElNav(null);
     axios('http://localhost:8080/user/logout', { withCredentials: true })
-      .then((response) => {
+      .then(() => {
         navigate('/login');
       })
       .catch((err) => console.error(err));
@@ -108,6 +108,7 @@ export default function NavBar() {
       socket.emit('newUser', { userId, groupId });
 
       socket.on('notification', () => {
+        console.log('notify!');
         setUnreadCount((prevCount) => prevCount + 1);
       });
     }

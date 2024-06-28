@@ -13,6 +13,7 @@ import User from '../models/user.js';
 import Recipe from '../models/recipe.js';
 import Notification from '../models/notification.js';
 import ExpressError from '../utils/ExpressError.js';
+import { io, getOnlineUsers } from '../app.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -102,6 +103,7 @@ function formatFridgeContents(contents) {
 }
 
 export const createIngredients = async (req, res) => {
+  const onlineUsers = getOnlineUsers();
   const userId = req.user.id;
   const { fridgeId } = req.query;
 
@@ -170,6 +172,16 @@ export const createIngredients = async (req, res) => {
   });
 
   await notification.save();
+
+  const getUsersInGroup = (groupId) =>
+    onlineUsers.filter((u) => u.groupId.includes(groupId));
+
+  const groupUsers = getUsersInGroup(fridgeId);
+  const groupUserSocketId = groupUsers.map((u) => u.socketId);
+
+  groupUserSocketId.forEach((socketId) => {
+    io.to(socketId).emit('notification', 'new notification!');
+  });
 
   res.status(200).send('食材已成功新增');
 };

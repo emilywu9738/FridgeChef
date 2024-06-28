@@ -36,6 +36,7 @@ export default function NavBar() {
   const [userId, setUserId] = useState('');
   const [groupId, setGroupId] = useState([]);
   const [socket, setSocket] = useState(null);
+  const [userName, setUserName] = useState('');
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -93,9 +94,10 @@ export default function NavBar() {
   useEffect(() => {
     axios('http://localhost:8080/user/info', { withCredentials: true })
       .then((response) => {
-        const { userId, groupId } = response.data;
+        const { userId, groupId, userName } = response.data;
         setUserId(userId);
         setGroupId(groupId);
+        setUserName(userName);
       })
       .catch((err) => console.error(err));
   }, []);
@@ -334,6 +336,22 @@ export default function NavBar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
+              <MenuItem onClick={handleProfile}>
+                <Box display='flex' flexDirection='column'>
+                  <Typography sx={{ ml: 1 }}>{userName}</Typography>
+                  <Typography
+                    sx={{
+                      ml: 1,
+                      fontStyle: 'italic',
+                      fontSize: 12,
+                      color: 'gray',
+                    }}
+                  >
+                    id: {userId}
+                  </Typography>
+                </Box>
+              </MenuItem>
+
               <MenuItem onClick={handleProfile}>
                 <AssignmentIndIcon />
                 <Typography textAlign='center' sx={{ ml: 1 }}>

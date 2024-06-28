@@ -110,9 +110,11 @@ export const getProfileData = async (req, res) => {
 
 export const getUserInfo = async (req, res) => {
   const { id } = req.user;
+  const user = await User.findById(id);
+  const userName = user.name;
   const userFridge = await Fridge.find({ members: id });
   const groupId = userFridge.map((fridge) => fridge._id.toString());
-  res.send({ userId: id, groupId });
+  res.send({ userId: id, groupId, userName });
 };
 
 export const searchUser = async (req, res) => {

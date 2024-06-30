@@ -18,7 +18,7 @@ import { io, getOnlineUsers } from '../app.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const uri = 'bolt://localhost:7687';
+const uri = 'neo4j+s://aa84db4b.databases.neo4j.io:7687';
 const user = process.env.NEO4J_USER;
 const password = process.env.NEO4J_PASSWORD;
 

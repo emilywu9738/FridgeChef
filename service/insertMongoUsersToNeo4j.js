@@ -4,14 +4,15 @@ import 'dotenv/config';
 import Recipe from '../models/recipe.js';
 import User from '../models/user.js';
 
-const uri = 'bolt://localhost:7687';
+// const uri = 'bolt://localhost:7687';
+const uri = 'neo4j+s://aa84db4b.databases.neo4j.io:7687';
 const user = process.env.NEO4J_USER;
 const password = process.env.NEO4J_PASSWORD;
 
 const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
 const session = driver.session();
 
-mongoose.connect('mongodb://127.0.0.1:27017/fridgeChef');
+mongoose.connect(process.env.MONGOOSE_CONNECT);
 const db = mongoose.connection;
 // eslint-disable-next-line no-console
 db.on('error', console.error.bind(console, 'connection error:'));

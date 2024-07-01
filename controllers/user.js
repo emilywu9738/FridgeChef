@@ -55,7 +55,8 @@ export const login = async (req, res) => {
     const accessToken = generateJWT(id);
     res.cookie('JWT', accessToken, {
       maxAge: 3600000,
-      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
     });
     res.json('登入成功');
   }
@@ -82,7 +83,8 @@ export const register = async (req, res) => {
   const accessToken = generateJWT(id);
   res.cookie('JWT', accessToken, {
     maxAge: 3600000,
-    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
   });
   res.status(200).send('註冊成功');
 };

@@ -21,10 +21,12 @@ app.use(
   }),
 );
 
-// const API_VERSION = '1.0';
-// app.use(`/api/${API_VERSION}/recipe`, recipeAPI);
 app.use('/fridge', fridge);
 app.use('/user', user);
+
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 app.use((err, req, res, next) => {
   const { statusCode = 500 } = err;

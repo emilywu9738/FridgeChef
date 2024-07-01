@@ -93,7 +93,7 @@ export default function NavBar() {
   };
 
   useEffect(() => {
-    apiClient('http://localhost:8080/user/info', { withCredentials: true })
+    apiClient('/user/info', { withCredentials: true })
       .then((response) => {
         const { userId, groupId, userName } = response.data;
         setUserId(userId);
@@ -104,8 +104,8 @@ export default function NavBar() {
   }, []);
 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/user/countNotifications', {
+    apiClient
+      .get('/user/countNotifications', {
         withCredentials: true,
       })
       .then((response) => {
@@ -121,7 +121,7 @@ export default function NavBar() {
   }, [navigate]);
 
   useEffect(() => {
-    setSocket(io('http://localhost:8080'));
+    setSocket(io(import.meta.env.VITE_API_BASE_URL));
   }, []);
 
   useEffect(() => {

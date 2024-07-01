@@ -12,6 +12,10 @@ import {
   Typography,
 } from '@mui/material';
 
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+});
+
 function Invitation() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -25,10 +29,9 @@ function Invitation() {
     const id = searchParams.get('id');
     const email = searchParams.get('email');
 
-    axios
-      .get(`http://localhost:8080/user/createGroup?id=${id}&email=${email}`, {
-        withCredentials: true,
-      })
+    apiClient(`/user/createGroup?id=${id}&email=${email}`, {
+      withCredentials: true,
+    })
       .then((response) => {
         setOpenSuccessSnackbar(true);
         setSuccessMessage(response.data);

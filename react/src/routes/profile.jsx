@@ -24,8 +24,11 @@ import { useNavigate } from 'react-router-dom';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CloseIcon from '@mui/icons-material/Close';
 import GroupsIcon from '@mui/icons-material/Groups';
-import LogoutIcon from '@mui/icons-material/Logout';
 import EditIcon from '@mui/icons-material/Edit';
+
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+});
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -78,9 +81,9 @@ export default function Profile() {
   };
 
   const handleSubmit = () => {
-    axios
+    apiClient
       .post(
-        'http://localhost:8080/user/profile',
+        '/user/profile',
         {
           preferCategory,
           previewList,
@@ -217,10 +220,9 @@ export default function Profile() {
   }
 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/user/profile', {
-        withCredentials: true,
-      })
+    apiClient('/user/profile', {
+      withCredentials: true,
+    })
       .then((response) => {
         setUserData(response.data.userData);
         setUserFridge(response.data.userFridge);

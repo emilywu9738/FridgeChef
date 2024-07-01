@@ -16,6 +16,10 @@ import {
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+});
+
 export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -28,9 +32,9 @@ export default function Login() {
     const data = new FormData(event.currentTarget);
     const redirect = searchParams.get('redirect');
 
-    axios
+    apiClient
       .post(
-        'http://localhost:8080/user/login',
+        '/user/login',
         {
           provider: 'native',
           email: data.get('email'),

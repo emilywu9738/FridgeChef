@@ -23,6 +23,10 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+});
+
 const pages = [];
 
 export default function NavBar() {
@@ -64,7 +68,7 @@ export default function NavBar() {
 
   const handleLogout = () => {
     setAnchorElNav(null);
-    axios('http://localhost:8080/user/logout', { withCredentials: true })
+    apiClient('/user/logout', { withCredentials: true })
       .then(() => {
         navigate('/login');
       })
@@ -75,12 +79,9 @@ export default function NavBar() {
     setAnchorElNotify(event.currentTarget);
     setUnreadCount(0);
     try {
-      const response = await axios.get(
-        'http://localhost:8080/user/notifications',
-        {
-          withCredentials: true,
-        },
-      );
+      const response = await apiClient('/user/notifications', {
+        withCredentials: true,
+      });
       const { notifications } = response.data;
       setNotifications(notifications);
     } catch (err) {
@@ -92,7 +93,7 @@ export default function NavBar() {
   };
 
   useEffect(() => {
-    axios('http://localhost:8080/user/info', { withCredentials: true })
+    apiClient('http://localhost:8080/user/info', { withCredentials: true })
       .then((response) => {
         const { userId, groupId, userName } = response.data;
         setUserId(userId);

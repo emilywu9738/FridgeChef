@@ -28,6 +28,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+});
+
 const OPTIONS = ['蔬菜', '肉品', '海鮮', '調味料', '蛋豆', '主食'];
 
 export default function CreateItems() {
@@ -57,12 +61,10 @@ export default function CreateItems() {
 
   const handleSubmit = () => {
     const fridgeId = searchParams.get('fridgeId');
-    axios
-      .post(
-        `http://localhost:8080/fridge/create?fridgeId=${fridgeId}`,
-        previewList,
-        { withCredentials: true },
-      )
+    apiClient
+      .post(`/fridge/create?fridgeId=${fridgeId}`, previewList, {
+        withCredentials: true,
+      })
       .then((response) => {
         setOpenSuccessSnackbar(true);
         setSuccessMessage(response.data);
@@ -105,8 +107,8 @@ export default function CreateItems() {
         const formData = new FormData();
         formData.append('image', file);
         // 發送圖片到後端
-        axios
-          .post('http://localhost:8080/fridge/createByPhoto', formData, {
+        apiClient
+          .post('/fridge/createByPhoto', formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
@@ -144,7 +146,7 @@ export default function CreateItems() {
     setIsEditing(false); // 退出編輯模式
   };
 
-  const handleCancel = (event) => {
+  const handleCancel = () => {
     const updatedList = [...previewList];
     updatedList[editIndex] = backupItem;
     setPreviewList(updatedList);

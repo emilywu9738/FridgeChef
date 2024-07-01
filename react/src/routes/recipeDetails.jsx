@@ -14,6 +14,10 @@ import {
 } from '@mui/material';
 import BookmarksIcon from '@mui/icons-material/Bookmarks';
 
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+});
+
 export default function RecipeDetails() {
   const navigate = useNavigate();
 
@@ -25,9 +29,9 @@ export default function RecipeDetails() {
   const handleButtonClick = () => {
     const recipeId = searchParams.get('id');
 
-    axios
+    apiClient
       .post(
-        'http://localhost:8080/user/updateLikes',
+        '/user/updateLikes',
         { recipeId, liked: !liked },
         {
           withCredentials: true,
@@ -53,8 +57,8 @@ export default function RecipeDetails() {
 
   useEffect(() => {
     const recipeId = searchParams.get('id');
-    axios
-      .get(`http://localhost:8080/fridge/recipeDetails?id=${recipeId}`)
+    apiClient
+      .get(`/fridge/recipeDetails?id=${recipeId}`)
       .then((response) => {
         setRecipe(response.data);
         setRecipeLikes(response.data.likes);
@@ -66,8 +70,8 @@ export default function RecipeDetails() {
 
   useEffect(() => {
     const recipeId = searchParams.get('id');
-    axios
-      .get('http://localhost:8080/user/profile', {
+    apiClient
+      .get('/user/profile', {
         withCredentials: true,
       })
       .then((response) => {

@@ -24,6 +24,10 @@ import {
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+});
+
 const ExpandMoreMembers = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
@@ -89,14 +93,11 @@ export default function ShowFridgeAndRecipe() {
       setIngredientExpanded(false);
       setMemberExpanded(false);
       const fridgeId = searchParams.get('id');
-      const response = await axios.post(
-        `http://localhost:8080/fridge/recipe?id=${fridgeId}`,
-        {
-          recipeCategory: recommendCategory,
-          fridgeData: fridgeData,
-          checkedMembers: checkedMembers,
-        },
-      );
+      const response = await apiClient.post(`/fridge/recipe?id=${fridgeId}`, {
+        recipeCategory: recommendCategory,
+        fridgeData: fridgeData,
+        checkedMembers: checkedMembers,
+      });
       const { fullRecipes } = response.data;
       setRecipeData(fullRecipes);
     } catch (err) {
@@ -314,7 +315,7 @@ export default function ShowFridgeAndRecipe() {
   useEffect(() => {
     const fridgeId = searchParams.get('id');
     if (fridgeId) {
-      axios(`http://localhost:8080/fridge?id=${fridgeId}`, {
+      apiClient(`/fridge?id=${fridgeId}`, {
         withCredentials: true,
       })
         .then((response) => {

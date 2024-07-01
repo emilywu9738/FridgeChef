@@ -15,6 +15,10 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+});
+
 export default function Register() {
   const navigate = useNavigate();
 
@@ -25,9 +29,9 @@ export default function Register() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    axios
+    apiClient
       .post(
-        'http://localhost:8080/user/register',
+        '/user/register',
         {
           provider: 'native',
           name: data.get('name'),

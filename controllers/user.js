@@ -180,7 +180,7 @@ export const createGroup = async (req, res) => {
               <h2>Invitation</h2>
               <p>您收到 ${host.name} (${host.email}) 的邀請，歡迎您一起加入 FridgeChef 群組！</p>
               <p>群組名稱：${name}</p>
-              <a href='http://localhost:5173/user/invitation?id=${invitationId}&email=${member.email}' class="button">接受邀請</a>
+              <a href='https://myfridgechef.com/user/invitation?id=${invitationId}&email=${member.email}' class="button">接受邀請</a>
               <p>（此連結將於24小時後過期）</p>
             </div>
           </body>

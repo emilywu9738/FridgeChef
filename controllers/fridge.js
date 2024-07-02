@@ -343,3 +343,40 @@ export const recommendRecipe = async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 };
+
+export const recommendRecipeOnDetailPage = async (req, res) => {
+  const { id } = req.query;
+
+  if (!id) {
+    throw new ExpressError('Page Not Found', 404);
+  }
+
+  const query = `
+        MATCH (currentRecipe:Recipe {id: $id})-[:CONTAINS]->(ingredient:Ingredient)
+        WITH currentRecipe, collect(ingredient) AS currentIngredients
+        MATCH (recommendedRecipe:Recipe)-[:CONTAINS]->(ingredient:Ingredient)
+        WHERE currentRecipe <> recommendedRecipe
+        WITH recommendedRecipe, currentIngredients, collect(ingredient) AS otherIngredients
+        WITH recommendedRecipe, 
+             size(apoc.coll.intersection(currentIngredients, otherIngredients)) AS intersection,
+             size(apoc.coll.union(currentIngredients, otherIngredients)) AS union
+        RETURN recommendedRecipe, intersection * 1.0 / union AS jaccardIndex
+        ORDER BY jaccardIndex DESC
+        LIMIT 5
+    `;
+
+  try {
+    const result = await session.run(query, { id });
+    const recommendedRecipes = result.records.map((record) => ({
+      recipe: record.get('recommendedRecipe').properties,
+      jaccardIndex: record.get('jaccardIndex'),
+    }));
+    const recipeIds = recommendedRecipes.map((r) => r.recipe.id);
+    const fullRecipes = await Recipe.find({
+      _id: { $in: recipeIds },
+    });
+    res.json(fullRecipes);
+  } catch (error) {
+    console.error('Error finding similar recipes:', error);
+  }
+};

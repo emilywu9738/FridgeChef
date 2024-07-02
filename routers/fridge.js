@@ -20,4 +20,9 @@ router.get('/recipeDetails', catchAsync(fridge.renderRecipeById));
 
 router.post('/recipe', catchAsync(fridge.recommendRecipe));
 
+router.get(
+  '/recipeBySimilarity',
+  catchAsync(fridge.recommendRecipeOnDetailPage),
+);
+
 export default router;

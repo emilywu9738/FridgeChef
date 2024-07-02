@@ -20,11 +20,12 @@ const apiClient = axios.create({
 
 export default function RecipeDetails() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [recipe, setRecipe] = useState({});
   const [recipeLikes, setRecipeLikes] = useState(0);
   const [liked, setLiked] = useState(false);
-  const [searchParams] = useSearchParams();
+  const [recommendedRecipes, setRecommendedRecipes] = useState([]);
 
   const handleButtonClick = () => {
     const recipeId = searchParams.get('id');
@@ -55,6 +56,10 @@ export default function RecipeDetails() {
     setLiked(!liked);
   };
 
+  const handleRecommendedRecipeDetails = (id) => {
+    navigate(`/fridge/recipeDetails?id=${id}`);
+  };
+
   useEffect(() => {
     const recipeId = searchParams.get('id');
     apiClient
@@ -62,6 +67,19 @@ export default function RecipeDetails() {
       .then((response) => {
         setRecipe(response.data);
         setRecipeLikes(response.data.likes);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, [searchParams]);
+
+  useEffect(() => {
+    const recipeId = searchParams.get('id');
+    apiClient
+      .get(`/fridge/recipeBySimilarity?id=${recipeId}`)
+      .then((response) => {
+        setRecommendedRecipes(response.data);
+        console.log(response.data);
       })
       .catch((err) => {
         console.error(err);
@@ -84,9 +102,15 @@ export default function RecipeDetails() {
   }, [searchParams]);
 
   return (
-    <Box style={{ backgroundColor: '#faedcd', minHeight: '100vh' }}>
-      <Box sx={{ maxWidth: 800, mx: 'auto' }}>
-        <Card elevation={10}>
+    <Box
+      style={{
+        display: 'flex',
+        backgroundColor: '#faedcd',
+        minHeight: '100vh',
+      }}
+    >
+      <Box sx={{ flex: 3, maxWidth: 800, ml: 'auto', mr: 5, my: 2 }}>
+        <Card elevation={10} sx={{ borderRadius: '15px' }}>
           <CardContent>
             <Box display='flex' justifyContent='space-between'>
               <Typography variant='h4' component='div' sx={{ mt: 1, mb: 2 }}>
@@ -102,7 +126,7 @@ export default function RecipeDetails() {
             <CardMedia
               component='img'
               height='480'
-              image={recipe.coverImage}
+              image={recipe.coverImage ? recipe.coverImage : '/empty.jpg'}
               alt={recipe.title}
             />
             <Box
@@ -193,6 +217,56 @@ export default function RecipeDetails() {
             </List>
           </CardContent>
         </Card>
+      </Box>
+      <Box sx={{ flex: 1, maxWidth: 360, mr: 'auto' }}>
+        <Box sx={{ mx: 1, mt: 3, height: '100vh' }}>
+          <Typography variant='h6' sx={{ mb: 2 }}>
+            你可能也會喜歡
+          </Typography>
+          <List>
+            {recommendedRecipes.map((recRecipe, index) => (
+              <Card
+                key={index}
+                sx={{
+                  mb: 2,
+                  maxWidth: '100%',
+                  height: '130px',
+                  display: 'flex',
+                  borderRadius: '12px',
+                }}
+              >
+                <CardMedia
+                  component='img'
+                  image={
+                    recRecipe.coverImage ? recRecipe.coverImage : '/empty.jpg'
+                  }
+                  alt={recRecipe.title}
+                  sx={{ width: '40%', objectFit: 'cover' }}
+                />
+                <CardContent>
+                  <Typography
+                    gutterBottom
+                    variant='h6'
+                    component='div'
+                    sx={{ fontSize: 16, cursor: 'pointer' }}
+                    onClick={(event) =>
+                      handleRecommendedRecipeDetails(recRecipe._id, event)
+                    }
+                  >
+                    {recRecipe.title}
+                  </Typography>
+                  <Typography
+                    variant='body2'
+                    color='text.secondary'
+                    sx={{ fontSize: 12 }}
+                  >
+                    {recRecipe.tags.map((tag) => `#${tag}`).join(' ')}
+                  </Typography>
+                </CardContent>
+              </Card>
+            ))}
+          </List>
+        </Box>
       </Box>
     </Box>
   );

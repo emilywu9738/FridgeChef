@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build && aws s3 --region 'ap-northeast-1' sync ./dist 's3://fridge-chef/' && aws cloudfront create-invalidation --distribution-id E1459XZJ2EQ9Z --paths '/*'"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",

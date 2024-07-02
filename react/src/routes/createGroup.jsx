@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { debounce, wrap } from 'lodash';
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -9,6 +10,7 @@ import {
   IconButton,
   List,
   ListItem,
+  Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
@@ -27,8 +29,11 @@ export default function CreateGroup() {
   const [input, setInput] = useState('');
   const [results, setResults] = useState([]);
   const [userData, setUserData] = useState({});
-
   const [previewList, setPreviewList] = useState([]);
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const debouncedSearch = debounce((searchTerm) => {
     apiClient(`/user/search?name=${searchTerm}`)
@@ -58,13 +63,23 @@ export default function CreateGroup() {
         },
       )
       .then((response) => {
-        alert(response.data);
-        navigate('/user/profile');
+        setOpenSuccessSnackbar(true);
+        setSuccessMessage(response.data);
+        setInterval(() => {
+          navigate('/user/profile');
+        }, 2000);
       })
       .catch((err) => {
         console.error(err);
         if (err.response && err.response.status === 401) {
-          navigate('/login');
+          setErrorMessage('請先登入，將為您轉移至登入頁面');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+        } else {
+          setErrorMessage('群組新增失敗！');
+          setOpenErrorSnackbar(true);
         }
       });
   };
@@ -76,6 +91,14 @@ export default function CreateGroup() {
 
   const cancelCreateGroup = () => {
     navigate('/user/profile');
+  };
+
+  const handleCloseSuccessSnackbar = () => {
+    setOpenSuccessSnackbar(false);
+  };
+
+  const handleCloseErrorSnackbar = () => {
+    setOpenErrorSnackbar(false);
   };
 
   useEffect(() => {
@@ -101,10 +124,39 @@ export default function CreateGroup() {
     } else {
       setResults([]);
     }
-  }, [input]);
+  }, [input, debouncedSearch]);
 
   return (
     <>
+      <Snackbar
+        open={openSuccessSnackbar}
+        onClose={handleCloseSuccessSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          elevation={6}
+          severity='success'
+          variant='filled'
+          onClose={handleCloseSuccessSnackbar}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={openErrorSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseErrorSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          elevation={3}
+          severity='error'
+          variant='filled'
+          onClose={handleCloseErrorSnackbar}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       {Object.keys(userData).length > 0 && (
         <Box
           sx={{

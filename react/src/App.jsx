@@ -1,5 +1,11 @@
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from 'react-router-dom';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ShowFridgeAndRecipe from './routes/showFridgeAndRecipe';
@@ -52,14 +58,7 @@ function RouteStructure() {
         <Route path='user/createGroup' element={<CreateGroup />}></Route>
         <Route path='user/invitation' element={<Invitation />}></Route>
         <Route path='/forbidden' element={<ForbiddenPage />} />
-        <Route
-          path='/'
-          element={
-            <>
-              <h1>This is home!!</h1>
-            </>
-          }
-        ></Route>
+        <Route path='/' element={<Navigate to='/user/profile' />}></Route>
       </Routes>
     </>
   );

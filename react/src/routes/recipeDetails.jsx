@@ -110,10 +110,14 @@ export default function RecipeDetails() {
       }}
     >
       <Box sx={{ flex: 3, maxWidth: 800, ml: 'auto', mr: 5, my: 2 }}>
-        <Card elevation={10} sx={{ borderRadius: '15px' }}>
+        <Card elevation={10} sx={{ borderRadius: '15px', ml: 1 }}>
           <CardContent>
             <Box display='flex' justifyContent='space-between'>
-              <Typography variant='h4' component='div' sx={{ mt: 1, mb: 2 }}>
+              <Typography
+                variant='h4'
+                component='div'
+                sx={{ my: 2, ml: 1, fontSize: 28 }}
+              >
                 {recipe.title}
               </Typography>
               <Button onClick={handleButtonClick}>
@@ -122,13 +126,15 @@ export default function RecipeDetails() {
                 />
               </Button>
             </Box>
+            <Box sx={{ mx: 1, mt: 1 }}>
+              <CardMedia
+                component='img'
+                height='400'
+                image={recipe.coverImage ? recipe.coverImage : '/empty.jpg'}
+                alt={recipe.title}
+              />
+            </Box>
 
-            <CardMedia
-              component='img'
-              height='480'
-              image={recipe.coverImage ? recipe.coverImage : '/empty.jpg'}
-              alt={recipe.title}
-            />
             <Box
               sx={{
                 display: 'flex',

@@ -119,10 +119,10 @@ export default function ShowFridgeAndRecipe() {
       <Card
         sx={{
           borderRadius: '10px',
-          minWidth: 275,
+          minWidth: 250,
           position: 'relative',
           m: 1,
-          bgcolor: '#FFFBF0',
+          bgcolor: '#FEFCF8',
         }}
       >
         <Checkbox
@@ -186,84 +186,76 @@ export default function ShowFridgeAndRecipe() {
     threeDaysLater.setHours(0, 0, 0, 0);
     threeDaysLater.setDate(threeDaysLater.getDate() + 3);
 
-    // 初始化每個食材的選中狀態為未選中
-    const [checkedStates, setCheckedStates] = useState(
-      new Array(category.items.length).fill(false),
+    const sortedItems = [...category.items].sort(
+      (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate),
     );
-
-    // 處理 Checkbox 的點擊事件
-    const handleCheckboxChange = (index) => {
-      const newCheckedStates = [...checkedStates];
-      newCheckedStates[index] = !newCheckedStates[index];
-      setCheckedStates(newCheckedStates);
-    };
 
     return (
       <Card
         sx={{
           borderRadius: '10px',
-          minWidth: 275,
-          m: 2,
+          minWidth: 270,
+          mr: 1,
+          my: 1,
           overflow: 'visible',
-          bgcolor: '#FFFBF0',
+          bgcolor: '#FEFCF8',
         }}
       >
         <CardContent>
           <Typography
-            sx={{ fontSize: 18, mb: 1, fontWeight: 500 }}
+            sx={{ fontSize: 18, mb: 0, fontWeight: 500 }}
             color='text.primary'
             gutterBottom
           >
             {category.category}類
           </Typography>
-          <List dense>
-            {category.items.map((item, index) => {
-              const expirationDate = new Date(item.expirationDate);
-              expirationDate.setHours(0, 0, 0, 0);
-              let color = 'inherit';
-              if (expirationDate < today) {
-                color = '#ae2012';
-              } else if (expirationDate <= threeDaysLater) {
-                color = '#ee9b00';
-              }
+          <Box sx={{ maxHeight: 210, overflowY: 'auto' }}>
+            <List dense>
+              {sortedItems.map((item, index) => {
+                const expirationDate = new Date(item.expirationDate);
+                expirationDate.setHours(0, 0, 0, 0);
+                let bgcolor = '#FCF8EE';
+                let color = 'inherit';
+                if (expirationDate < today) {
+                  bgcolor = '#C42615';
+                  color = 'white';
+                } else if (expirationDate <= threeDaysLater) {
+                  bgcolor = '#fff18a';
+                }
 
-              return (
-                <ListItem
-                  key={item._id}
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    padding: '8px',
-                    margin: '5px 0',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                    backgroundColor: 'background.paper',
-                  }}
-                >
-                  <Checkbox
-                    checked={checkedStates[index]}
-                    onChange={() => handleCheckboxChange(index)}
-                    sx={{ padding: 0 }}
-                  />
-                  <Typography
-                    variant='body2'
-                    component='span'
-                    sx={{ flexGrow: 1, marginLeft: 1, color: color }}
+                return (
+                  <ListItem
+                    key={item._id}
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      padding: '8px',
+                      margin: '8px 0',
+                      border: '1px solid #ccc',
+                      borderRadius: '4px',
+                      boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                      backgroundColor: bgcolor,
+                    }}
                   >
-                    {item.name}
-                  </Typography>
-                  <Typography
-                    variant='body2'
-                    component='span'
-                    sx={{ color: color }}
-                  >
-                    到期日: {expirationDate.toLocaleDateString()}
-                  </Typography>
-                </ListItem>
-              );
-            })}
-          </List>
+                    <Typography
+                      variant='body2'
+                      component='span'
+                      sx={{ flexGrow: 1, marginLeft: 1, color: color }}
+                    >
+                      {item.name}
+                    </Typography>
+                    <Typography
+                      variant='body2'
+                      component='span'
+                      sx={{ color: color }}
+                    >
+                      到期日: {expirationDate.toLocaleDateString()}
+                    </Typography>
+                  </ListItem>
+                );
+              })}
+            </List>
+          </Box>
         </CardContent>
       </Card>
     );
@@ -277,10 +269,11 @@ export default function ShowFridgeAndRecipe() {
           elevation={3}
           sx={{
             minWidth: 275,
-            minHeight: 477,
+            minHeight: 390,
             flexGrow: 1,
             position: 'relative',
             m: 2,
+            borderRadius: '10px',
           }}
         >
           <CardContent>
@@ -288,19 +281,34 @@ export default function ShowFridgeAndRecipe() {
               onClick={(event) =>
                 handleRecipeDetails(recipe._id.toString(), event)
               }
-              sx={{ fontSize: 18, mb: 1, fontWeight: 500, cursor: 'pointer' }}
+              sx={{
+                fontSize: 18,
+                mb: 1,
+                fontWeight: 500,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
             >
               {recipe.title}
             </Typography>
             <CardMedia
               component='img'
-              height='300'
+              height='250'
               image={image}
               alt={recipe.title}
               sx={{ mb: 2 }}
             />
             <Typography
-              sx={{ fontSize: 12 }}
+              sx={{
+                fontSize: 12,
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
               color='text.secondary'
               gutterBottom
             >
@@ -345,105 +353,66 @@ export default function ShowFridgeAndRecipe() {
     <>
       {Object.keys(fridgeData).length > 0 && (
         <Box component='div' sx={{ bgcolor: '#faedcd' }}>
-          <Box component='div' sx={{ p: 4 }}>
-            <Typography variant='h2' sx={{ fontWeight: 500 }}>
-              {fridgeData.name}
-            </Typography>
-            <Typography sx={{ my: 1, ml: 1 }}>
-              今日：
-              {new Date().toLocaleDateString('zh-Hant-TW', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </Typography>
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                mb: 4,
-              }}
+          <Box component='div' sx={{ p: 4, width: '80%', mx: 'auto' }}>
+            <Card
+              elevation={6}
+              sx={{ borderRadius: '15px', bgcolor: '#FCF5E2' }}
             >
-              <FormControl
-                fullWidth
-                sx={{
-                  minWidth: 240,
-                  maxWidth: 275,
-                  my: 2,
-                  mx: 1,
-                }}
-              >
-                <InputLabel id='recipeCategory-label' color='success'>
-                  食譜類別
-                </InputLabel>
-                <Select
-                  labelId='recipeCategory-label'
-                  id='recipeCategory'
-                  value={recommendCategory}
-                  label='食譜類別'
-                  onChange={handleCategoryChange}
-                  color='success'
-                  sx={{ bgcolor: '#FFFBF0' }}
+              <CardContent sx={{ p: 5 }}>
+                <Typography variant='h3' sx={{ fontWeight: 500, mb: 2 }}>
+                  {fridgeData.name}
+                </Typography>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    alignItems: 'center',
+                    mb: 4,
+                  }}
                 >
-                  <MenuItem value={'All'}>All</MenuItem>
-                  <MenuItem value={'奶蛋素'}>奶蛋素</MenuItem>
-                  <MenuItem value={'全素'}>全素</MenuItem>
-                </Select>
-              </FormControl>
-              <Button
-                variant='contained'
-                size='large'
-                sx={{
-                  ml: 1,
-                  backgroundColor: '#f59b51',
-                  ':hover': {
-                    backgroundColor: '#e76f51',
-                  },
-                  height: 50,
-                }}
-                onClick={handleRecommendRecipes}
-              >
-                推薦食譜
-              </Button>
-            </Box>
+                  <FormControl
+                    fullWidth
+                    sx={{
+                      minWidth: 240,
+                      maxWidth: 275,
+                      my: 2,
+                      mx: 1,
+                    }}
+                  >
+                    <InputLabel id='recipeCategory-label' color='success'>
+                      食譜類別
+                    </InputLabel>
+                    <Select
+                      labelId='recipeCategory-label'
+                      id='recipeCategory'
+                      value={recommendCategory}
+                      label='食譜類別'
+                      onChange={handleCategoryChange}
+                      color='success'
+                      sx={{ bgcolor: '#FFFBF0' }}
+                    >
+                      <MenuItem value={'All'}>All</MenuItem>
+                      <MenuItem value={'奶蛋素'}>奶蛋素</MenuItem>
+                      <MenuItem value={'全素'}>全素</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <Button
+                    variant='contained'
+                    size='large'
+                    sx={{
+                      ml: 1,
+                      backgroundColor: '#f59b51',
+                      ':hover': {
+                        backgroundColor: '#C6600C',
+                      },
+                      height: 50,
+                    }}
+                    onClick={handleRecommendRecipes}
+                  >
+                    推薦食譜
+                  </Button>
+                </Box>
 
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'flex-start',
-                mb: 3,
-              }}
-            >
-              <Typography variant='h5' component='div' sx={{ mb: 1 }}>
-                成員名單
-              </Typography>
-
-              <ExpandMoreMembers
-                expand={memberExpanded}
-                onClick={handleMemberExpandClick}
-                aria-expanded={memberExpanded}
-                aria-label='show more'
-              >
-                <ExpandMoreIcon />
-              </ExpandMoreMembers>
-            </Box>
-
-            <Collapse in={memberExpanded} timeout='auto' unmountOnExit>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
-                {fridgeData.members.map((member) => (
-                  <MemberCard
-                    key={member._id}
-                    member={member}
-                    isChecked={checkedMembers[member._id]}
-                    onCheckChange={handleMemberCheckChange}
-                  />
-                ))}
-              </Box>
-            </Collapse>
-            {Object.keys(fridgeData.inviting).length > 0 && (
-              <>
                 <Box
                   sx={{
                     display: 'flex',
@@ -453,85 +422,128 @@ export default function ShowFridgeAndRecipe() {
                   }}
                 >
                   <Typography variant='h5' component='div' sx={{ mb: 1 }}>
-                    邀請中成員
+                    成員名單
                   </Typography>
 
                   <ExpandMoreMembers
-                    expand={invitingMemberExpanded}
-                    onClick={handleInvitingMemberExpandClick}
-                    aria-expanded={invitingMemberExpanded}
+                    expand={memberExpanded}
+                    onClick={handleMemberExpandClick}
+                    aria-expanded={memberExpanded}
                     aria-label='show more'
                   >
                     <ExpandMoreIcon />
                   </ExpandMoreMembers>
                 </Box>
 
-                <Collapse
-                  in={invitingMemberExpanded}
-                  timeout='auto'
-                  unmountOnExit
-                >
+                <Collapse in={memberExpanded} timeout='auto' unmountOnExit>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
-                    {fridgeData.inviting.map((member) => (
-                      <InvitingMemberCard key={member._id} member={member} />
+                    {fridgeData.members.map((member) => (
+                      <MemberCard
+                        key={member._id}
+                        member={member}
+                        isChecked={checkedMembers[member._id]}
+                        onCheckChange={handleMemberCheckChange}
+                      />
                     ))}
                   </Box>
                 </Collapse>
-              </>
-            )}
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'flex-start',
-                mb: 1,
-              }}
-            >
-              <Typography variant='h5' component='div' sx={{ mb: 1 }}>
-                食材清單
-              </Typography>
-              <ExpandMoreIngredients
-                expand={ingredientExpanded}
-                onClick={handleIngredientExpandClick}
-                aria-expanded={ingredientExpanded}
-                aria-label='show more'
-              >
-                <ExpandMoreIcon />
-              </ExpandMoreIngredients>
-            </Box>
+                {Object.keys(fridgeData.inviting).length > 0 && (
+                  <>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        alignItems: 'flex-start',
+                        mb: 3,
+                      }}
+                    >
+                      <Typography variant='h5' component='div' sx={{ mb: 1 }}>
+                        邀請中成員
+                      </Typography>
 
-            <Collapse in={ingredientExpanded} timeout='auto' unmountOnExit>
-              <Button
-                variant='contained'
-                size='large'
-                sx={{
-                  mb: 3,
-                  ml: 2,
-                  backgroundColor: '#d8572a',
-                  ':hover': {
-                    backgroundColor: '#C74617',
-                  },
-                }}
-                onClick={handleCreateItems}
-              >
-                新增食材
-              </Button>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 5 }}>
-                {fridgeData.ingredients.map((category) => (
-                  <IngredientCard key={category._id} category={category} />
-                ))}
-              </Box>
-            </Collapse>
-            <Typography variant='h5' component='div' sx={{ mb: 5 }}>
-              食譜推薦清單
-            </Typography>
-            <Grid container spacing={2}>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                {recipeData.map((recipe) => (
-                  <RecipeCard key={recipe._id} recipe={recipe} />
-                ))}
-              </Box>
-            </Grid>
+                      <ExpandMoreMembers
+                        expand={invitingMemberExpanded}
+                        onClick={handleInvitingMemberExpandClick}
+                        aria-expanded={invitingMemberExpanded}
+                        aria-label='show more'
+                      >
+                        <ExpandMoreIcon />
+                      </ExpandMoreMembers>
+                    </Box>
+
+                    <Collapse
+                      in={invitingMemberExpanded}
+                      timeout='auto'
+                      unmountOnExit
+                    >
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
+                        {fridgeData.inviting.map((member) => (
+                          <InvitingMemberCard
+                            key={member._id}
+                            member={member}
+                          />
+                        ))}
+                      </Box>
+                    </Collapse>
+                  </>
+                )}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    alignItems: 'flex-start',
+                    mb: 1,
+                  }}
+                >
+                  <Typography variant='h5' component='div' sx={{ mb: 1 }}>
+                    食材清單
+                  </Typography>
+                  <ExpandMoreIngredients
+                    expand={ingredientExpanded}
+                    onClick={handleIngredientExpandClick}
+                    aria-expanded={ingredientExpanded}
+                    aria-label='show more'
+                  >
+                    <ExpandMoreIcon />
+                  </ExpandMoreIngredients>
+                </Box>
+
+                <Collapse in={ingredientExpanded} timeout='auto' unmountOnExit>
+                  <Button
+                    variant='contained'
+                    size='large'
+                    sx={{
+                      mb: 2,
+                      backgroundColor: '#f59b51',
+                      ':hover': {
+                        backgroundColor: '#C6600C',
+                      },
+                      px: '17px',
+                    }}
+                    onClick={handleCreateItems}
+                  >
+                    新增食材
+                  </Button>
+                  <Box
+                    sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 5 }}
+                  >
+                    {fridgeData.ingredients.map((category) => (
+                      <IngredientCard key={category._id} category={category} />
+                    ))}
+                  </Box>
+                </Collapse>
+                <Typography variant='h5' component='div' sx={{ mb: 5, mt: 3 }}>
+                  食譜推薦清單
+                </Typography>
+                <Grid container spacing={2}>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                    {recipeData.map((recipe) => (
+                      <RecipeCard key={recipe._id} recipe={recipe} />
+                    ))}
+                  </Box>
+                </Grid>
+              </CardContent>
+            </Card>
           </Box>
         </Box>
       )}

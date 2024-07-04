@@ -412,7 +412,12 @@ export default function CreateItems() {
               {previewList.map((item, index) => (
                 <ListItem
                   key={index}
-                  sx={{ bgcolor: '#FAF2D8', my: 2, borderRadius: 3 }}
+                  sx={{
+                    my: 2,
+                    backgroundImage: 'url(/board.png)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
                 >
                   {isEditing && editIndex === index ? (
                     // 編輯模式界面
@@ -425,14 +430,24 @@ export default function CreateItems() {
                         value={item.name}
                         onChange={(e) => handleInputChange(e, index, 'name')}
                         size='small'
-                        sx={{ width: '100%', mb: 2, bgcolor: '#FCF7E8' }}
+                        sx={{
+                          width: '100%',
+                          mb: 2,
+                          bgcolor: '#FCF7E8',
+                          borderRadius: 1,
+                        }}
                       />
                       <TextField
                         type='date'
                         value={item.expired}
                         onChange={(e) => handleInputChange(e, index, 'expired')}
                         size='small'
-                        sx={{ width: '100%', mb: 2, bgcolor: '#FCF7E8' }}
+                        sx={{
+                          width: '100%',
+                          mb: 2,
+                          bgcolor: '#FCF7E8',
+                          borderRadius: 1,
+                        }}
                       />
                       <Select
                         value={item.category}
@@ -440,7 +455,12 @@ export default function CreateItems() {
                           handleInputChange(e, index, 'category')
                         }
                         size='small'
-                        sx={{ width: '100%', mb: 1, bgcolor: '#FCF7E8' }}
+                        sx={{
+                          width: '100%',
+                          mb: 1,
+                          bgcolor: '#FCF7E8',
+                          borderRadius: 1,
+                        }}
                       >
                         {OPTIONS.map((option) => (
                           <MenuItem key={option} value={option}>
@@ -487,7 +507,7 @@ export default function CreateItems() {
                         edge='end'
                         aria-label='delete'
                         onClick={() => handleDelete(index)}
-                        sx={{ ':hover': { bgcolor: '#F6E8B9' } }}
+                        sx={{ ':hover': { bgcolor: '#F6E8B9' }, mr: 0 }}
                       >
                         <DeleteIcon />
                       </IconButton>

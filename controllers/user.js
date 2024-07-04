@@ -120,6 +120,15 @@ export const getUserInfo = async (req, res) => {
   res.send({ userId: id, groupId, userName });
 };
 
+export const getLikedRecipes = async (req, res) => {
+  const { id } = req.user;
+  const likedRecipes = await User.findById(id).populate({
+    path: 'liked_recipes',
+    select: '_id title coverImage tags',
+  });
+  res.send(likedRecipes);
+};
+
 export const searchUser = async (req, res) => {
   const { name } = req.query;
   const results = await User.find({

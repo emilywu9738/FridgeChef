@@ -11,6 +11,8 @@ import {
   ListItem,
   Divider,
   Button,
+  CardHeader,
+  IconButton,
 } from '@mui/material';
 import BookmarksIcon from '@mui/icons-material/Bookmarks';
 
@@ -45,7 +47,7 @@ export default function RecipeDetails() {
         if (err.response && err.response.status === 401) {
           navigate('/login');
         }
-        console.log(err);
+        console.error(err);
       });
 
     if (liked) {
@@ -79,7 +81,6 @@ export default function RecipeDetails() {
       .get(`/fridge/recipeBySimilarity?id=${recipeId}`)
       .then((response) => {
         setRecommendedRecipes(response.data);
-        console.log(response.data);
       })
       .catch((err) => {
         console.error(err);
@@ -105,27 +106,38 @@ export default function RecipeDetails() {
     <Box
       style={{
         display: 'flex',
-        backgroundColor: '#faedcd',
         minHeight: '100vh',
       }}
     >
       <Box sx={{ flex: 3, maxWidth: 800, ml: 'auto', mr: 5, my: 2 }}>
         <Card elevation={10} sx={{ borderRadius: '15px', ml: 1 }}>
-          <CardContent>
-            <Box display='flex' justifyContent='space-between'>
+          <CardHeader
+            title={
               <Typography
                 variant='h4'
                 component='div'
-                sx={{ my: 2, ml: 1, fontSize: 28 }}
+                sx={{
+                  my: 1,
+                  ml: 1,
+                  fontSize: 28,
+                  fontWeight: 500,
+                  letterSpacing: '0.03em',
+                }}
               >
                 {recipe.title}
               </Typography>
-              <Button onClick={handleButtonClick}>
+            }
+            action={
+              <IconButton aria-label='settings' onClick={handleButtonClick}>
                 <BookmarksIcon
                   sx={{ color: liked ? 'red' : 'black', fontSize: '35px' }}
                 />
-              </Button>
-            </Box>
+              </IconButton>
+            }
+            sx={{ bgcolor: '#FFFBF1', pr: 3 }}
+          />
+
+          <CardContent>
             <Box sx={{ mx: 1, mt: 1 }}>
               <CardMedia
                 component='img'
@@ -239,6 +251,7 @@ export default function RecipeDetails() {
                   height: '130px',
                   display: 'flex',
                   borderRadius: '12px',
+                  cursor: 'pointer',
                 }}
               >
                 <CardMedia
@@ -254,7 +267,7 @@ export default function RecipeDetails() {
                     gutterBottom
                     variant='h6'
                     component='div'
-                    sx={{ fontSize: 16, cursor: 'pointer' }}
+                    sx={{ fontSize: 16 }}
                     onClick={(event) =>
                       handleRecommendedRecipeDetails(recRecipe._id, event)
                     }

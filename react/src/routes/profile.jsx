@@ -248,8 +248,7 @@ export default function Profile() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
-            bgcolor: '#faedcd',
+            mt: 10,
           }}
         >
           <Card sx={{ width: 500, textAlign: 'center', borderRadius: 5 }}>

@@ -26,7 +26,7 @@ router
 
 router.get('/notifications', validateJWT, catchAsync(user.getNotifications));
 
-router.get('/info', validateJWT, user.getUserInfo);
+router.get('/info', validateJWT, catchAsync(user.getUserInfo));
 
 router.get(
   '/countNotifications',
@@ -34,6 +34,8 @@ router.get(
   catchAsync(user.countNotifications),
 );
 
-router.post('/updateLikes', validateJWT, user.updateLikes);
+router.post('/updateLikes', validateJWT, catchAsync(user.updateLikes));
+
+router.get('/likedRecipes', validateJWT, catchAsync(user.getLikedRecipes));
 
 export default router;

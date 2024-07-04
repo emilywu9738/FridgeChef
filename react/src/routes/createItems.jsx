@@ -243,7 +243,7 @@ export default function CreateItems() {
             <Card sx={{ maxWidth: 345, mt: 2 }}>
               <CardMedia
                 component='img'
-                height='500'
+                maxWidth='300'
                 image={imagePreview}
                 alt='Uploaded Image'
               />

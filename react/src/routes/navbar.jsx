@@ -16,18 +16,16 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material/';
-import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import BookmarkRoundedIcon from '@mui/icons-material/BookmarkRounded';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import PersonIcon from '@mui/icons-material/Person';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 });
-
-const pages = [];
 
 export default function NavBar() {
   const navigate = useNavigate();
@@ -73,6 +71,10 @@ export default function NavBar() {
         navigate('/login');
       })
       .catch((err) => console.error(err));
+  };
+
+  const handleLikedRecipes = () => {
+    navigate('/user/likedRecipe');
   };
 
   const handleNotifications = async (event) => {
@@ -137,10 +139,10 @@ export default function NavBar() {
   return (
     <AppBar
       socket={socket}
-      position='static'
-      sx={{ bgcolor: '#a98467', height: 80 }}
+      position='sticky'
+      sx={{ bgcolor: '#a98467', height: 80, width: '100%' }}
     >
-      <Container maxWidth='xl' sx={{ width: '100%', mt: 1 }}>
+      <Box sx={{ mt: 1, mx: 3 }}>
         <Toolbar
           disableGutters
           sx={{ justifyContent: 'space-between', width: '100%' }}
@@ -162,61 +164,99 @@ export default function NavBar() {
             />
           </Box>
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            {pages.length > 0 && (
-              <>
-                {' '}
-                <IconButton
-                  size='large'
-                  aria-label='account of current user'
-                  aria-controls='menu-appbar'
-                  aria-haspopup='true'
-                  onClick={handleOpenNavMenu}
-                  color='inherit'
-                >
-                  <MenuIcon />
-                </IconButton>
-                <Menu
-                  id='menu-appbar'
-                  anchorEl={anchorElNav}
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'left',
-                  }}
-                  open={Boolean(anchorElNav)}
-                  onClose={handleCloseNavMenu}
-                  sx={{
-                    display: { xs: 'block', md: 'none' },
-                  }}
-                >
-                  {pages.map((page) => (
-                    <MenuItem key={page} onClick={handleCloseNavMenu}>
-                      <Typography textAlign='center'>{page}</Typography>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </>
-            )}
-          </Box>
-
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
+          <Box sx={{ ml: 'auto' }}>
+            <Tooltip title='Open Liked Recipes'>
+              <IconButton
+                onClick={handleLikedRecipes}
+                sx={{
+                  p: 0,
+                }}
               >
-                {page}
-              </Button>
-            ))}
+                <Avatar sx={{ bgcolor: '#6c584c', ml: 'auto' }}>
+                  <Avatar sx={{ bgcolor: '#faedcd', width: 32, height: 32 }}>
+                    <BookmarkRoundedIcon
+                      sx={{ fontSize: 25, color: '#6c584c' }}
+                    />
+                  </Avatar>
+                </Avatar>
+              </IconButton>
+            </Tooltip>
+            <Menu
+              sx={{ mt: '45px' }}
+              id='menu-notify'
+              anchorEl={anchorElNotify}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(anchorElNotify)}
+              onClose={handleCloseNotifyMenu}
+            >
+              {notifications.map((notification) => (
+                <MenuItem key={notification.id}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      flexWrap: 'wrap',
+                      maxWidth: 200,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        mb: 1,
+                      }}
+                    >
+                      <NotificationsNoneIcon sx={{ mr: 1, fontSize: 20 }} />
+                      <Typography
+                        sx={{
+                          flexGrow: 1,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          fontSize: 14,
+                        }}
+                      >
+                        {notification.topic}
+                      </Typography>
+                    </Box>
+                    <Typography
+                      sx={{
+                        whiteSpace: 'normal',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        fontSize: 13,
+                      }}
+                    >
+                      {notification.content}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        whiteSpace: 'normal',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        fontSize: 11,
+                        mt: 1,
+                        fontStyle: 'italic',
+                        color: 'gray',
+                      }}
+                    >
+                      {notification.time}
+                    </Typography>
+                  </Box>
+                </MenuItem>
+              ))}
+            </Menu>
           </Box>
 
-          <Box sx={{ flexGrow: 0 }}>
+          <Box sx={{ ml: 3 }}>
             <Tooltip title='Open Notifications'>
               <IconButton
                 onClick={handleNotifications}
@@ -227,13 +267,23 @@ export default function NavBar() {
               >
                 {unreadCount > 0 ? (
                   <Badge badgeContent={unreadCount} color='warning'>
-                    <Avatar sx={{ bgcolor: '#6c584c' }}>
-                      <CircleNotificationsIcon sx={{ fontSize: 38 }} />
+                    <Avatar sx={{ bgcolor: '#6c584c', ml: 'auto' }}>
+                      <Avatar
+                        sx={{ bgcolor: '#faedcd', width: 32, height: 32 }}
+                      >
+                        <NotificationsIcon
+                          sx={{ fontSize: 25, color: '#6c584c' }}
+                        />
+                      </Avatar>
                     </Avatar>
                   </Badge>
                 ) : (
-                  <Avatar sx={{ bgcolor: '#6c584c' }}>
-                    <CircleNotificationsIcon sx={{ fontSize: 38 }} />
+                  <Avatar sx={{ bgcolor: '#6c584c', ml: 'auto' }}>
+                    <Avatar sx={{ bgcolor: '#faedcd', width: 32, height: 32 }}>
+                      <NotificationsIcon
+                        sx={{ fontSize: 25, color: '#6c584c' }}
+                      />
+                    </Avatar>
                   </Avatar>
                 )}
               </IconButton>
@@ -316,8 +366,10 @@ export default function NavBar() {
           <Box sx={{ flexGrow: 0, ml: 3 }}>
             <Tooltip title='Open settings'>
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar sx={{ bgcolor: '#6c584c' }}>
-                  <AccountCircleIcon sx={{ fontSize: 38 }} />
+                <Avatar sx={{ bgcolor: '#6c584c', ml: 'auto' }}>
+                  <Avatar sx={{ bgcolor: '#faedcd', width: 32, height: 32 }}>
+                    <PersonIcon sx={{ fontSize: 30, color: '#6c584c' }} />
+                  </Avatar>
                 </Avatar>
               </IconButton>
             </Tooltip>
@@ -368,7 +420,7 @@ export default function NavBar() {
             </Menu>
           </Box>
         </Toolbar>
-      </Container>
+      </Box>
     </AppBar>
   );
 }

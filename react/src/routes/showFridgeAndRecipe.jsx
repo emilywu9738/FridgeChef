@@ -264,59 +264,57 @@ export default function ShowFridgeAndRecipe() {
   function RecipeCard({ recipe }) {
     const image = recipe.coverImage ? recipe.coverImage : '/empty.jpg';
     return (
-      <Grid item xs={12} sm={6} md={4}>
-        <Card
-          elevation={3}
-          sx={{
-            minWidth: 275,
-            minHeight: 390,
-            flexGrow: 1,
-            position: 'relative',
-            m: 2,
-            borderRadius: '10px',
-          }}
-        >
-          <CardContent>
-            <Typography
-              onClick={(event) =>
-                handleRecipeDetails(recipe._id.toString(), event)
-              }
-              sx={{
-                fontSize: 18,
-                mb: 1,
-                fontWeight: 500,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              {recipe.title}
-            </Typography>
-            <CardMedia
-              component='img'
-              height='250'
-              image={image}
-              alt={recipe.title}
-              sx={{ mb: 2 }}
-            />
-            <Typography
-              sx={{
-                fontSize: 12,
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-              color='text.secondary'
-              gutterBottom
-            >
-              食材：{recipe.ingredients.join('、')}
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
+      <Card
+        elevation={3}
+        sx={{
+          minWidth: 275,
+          minHeight: 390,
+          flexGrow: 1,
+          position: 'relative',
+          m: 2,
+          borderRadius: '10px',
+        }}
+      >
+        <CardContent>
+          <Typography
+            onClick={(event) =>
+              handleRecipeDetails(recipe._id.toString(), event)
+            }
+            sx={{
+              fontSize: 18,
+              mb: 1,
+              fontWeight: 500,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {recipe.title}
+          </Typography>
+          <CardMedia
+            component='img'
+            height='250'
+            image={image}
+            alt={recipe.title}
+            sx={{ mb: 2 }}
+          />
+          <Typography
+            sx={{
+              fontSize: 12,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+            color='text.secondary'
+            gutterBottom
+          >
+            食材：{recipe.ingredients.join('、')}
+          </Typography>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -352,199 +350,198 @@ export default function ShowFridgeAndRecipe() {
   return (
     <>
       {Object.keys(fridgeData).length > 0 && (
-        <Box component='div' sx={{ bgcolor: '#faedcd' }}>
-          <Box component='div' sx={{ p: 4, width: '80%', mx: 'auto' }}>
-            <Card
-              elevation={6}
-              sx={{ borderRadius: '15px', bgcolor: '#FCF5E2' }}
-            >
-              <CardContent sx={{ p: 5 }}>
-                <Typography variant='h3' sx={{ fontWeight: 500, mb: 2 }}>
-                  {fridgeData.name}
+        <Box component='div' sx={{ p: 4, width: '80%', mx: 'auto' }}>
+          <Card elevation={6} sx={{ borderRadius: '15px', bgcolor: '#FCF5E2' }}>
+            <CardContent sx={{ p: 5 }}>
+              <Typography
+                variant='h3'
+                sx={{
+                  fontWeight: 550,
+                  mb: 2,
+                  fontSize: '3.1rem',
+                  letterSpacing: '0.1rem',
+                  color: '#635954',
+                }}
+              >
+                {fridgeData.name}
+              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  mb: 4,
+                }}
+              >
+                <FormControl
+                  fullWidth
+                  sx={{
+                    minWidth: 240,
+                    maxWidth: 275,
+                    my: 2,
+                    mx: 1,
+                  }}
+                >
+                  <InputLabel id='recipeCategory-label' color='success'>
+                    食譜類別
+                  </InputLabel>
+                  <Select
+                    labelId='recipeCategory-label'
+                    id='recipeCategory'
+                    value={recommendCategory}
+                    label='食譜類別'
+                    onChange={handleCategoryChange}
+                    color='success'
+                    sx={{ bgcolor: '#FFFBF0' }}
+                  >
+                    <MenuItem value={'All'}>All</MenuItem>
+                    <MenuItem value={'奶蛋素'}>奶蛋素</MenuItem>
+                    <MenuItem value={'全素'}>全素</MenuItem>
+                  </Select>
+                </FormControl>
+                <Button
+                  variant='contained'
+                  size='large'
+                  sx={{
+                    ml: 1,
+                    backgroundColor: '#f59b51',
+                    ':hover': {
+                      backgroundColor: '#C6600C',
+                    },
+                    height: 50,
+                  }}
+                  onClick={handleRecommendRecipes}
+                >
+                  推薦食譜
+                </Button>
+              </Box>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'flex-start',
+                  mb: 3,
+                }}
+              >
+                <Typography variant='h5' component='div' sx={{ mb: 1 }}>
+                  成員名單
                 </Typography>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                    mb: 4,
-                  }}
+
+                <ExpandMoreMembers
+                  expand={memberExpanded}
+                  onClick={handleMemberExpandClick}
+                  aria-expanded={memberExpanded}
+                  aria-label='show more'
                 >
-                  <FormControl
-                    fullWidth
-                    sx={{
-                      minWidth: 240,
-                      maxWidth: 275,
-                      my: 2,
-                      mx: 1,
-                    }}
-                  >
-                    <InputLabel id='recipeCategory-label' color='success'>
-                      食譜類別
-                    </InputLabel>
-                    <Select
-                      labelId='recipeCategory-label'
-                      id='recipeCategory'
-                      value={recommendCategory}
-                      label='食譜類別'
-                      onChange={handleCategoryChange}
-                      color='success'
-                      sx={{ bgcolor: '#FFFBF0' }}
-                    >
-                      <MenuItem value={'All'}>All</MenuItem>
-                      <MenuItem value={'奶蛋素'}>奶蛋素</MenuItem>
-                      <MenuItem value={'全素'}>全素</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <Button
-                    variant='contained'
-                    size='large'
-                    sx={{
-                      ml: 1,
-                      backgroundColor: '#f59b51',
-                      ':hover': {
-                        backgroundColor: '#C6600C',
-                      },
-                      height: 50,
-                    }}
-                    onClick={handleRecommendRecipes}
-                  >
-                    推薦食譜
-                  </Button>
+                  <ExpandMoreIcon />
+                </ExpandMoreMembers>
+              </Box>
+
+              <Collapse in={memberExpanded} timeout='auto' unmountOnExit>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
+                  {fridgeData.members.map((member) => (
+                    <MemberCard
+                      key={member._id}
+                      member={member}
+                      isChecked={checkedMembers[member._id]}
+                      onCheckChange={handleMemberCheckChange}
+                    />
+                  ))}
                 </Box>
-
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'flex-start',
-                    mb: 3,
-                  }}
-                >
-                  <Typography variant='h5' component='div' sx={{ mb: 1 }}>
-                    成員名單
-                  </Typography>
-
-                  <ExpandMoreMembers
-                    expand={memberExpanded}
-                    onClick={handleMemberExpandClick}
-                    aria-expanded={memberExpanded}
-                    aria-label='show more'
-                  >
-                    <ExpandMoreIcon />
-                  </ExpandMoreMembers>
-                </Box>
-
-                <Collapse in={memberExpanded} timeout='auto' unmountOnExit>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
-                    {fridgeData.members.map((member) => (
-                      <MemberCard
-                        key={member._id}
-                        member={member}
-                        isChecked={checkedMembers[member._id]}
-                        onCheckChange={handleMemberCheckChange}
-                      />
-                    ))}
-                  </Box>
-                </Collapse>
-                {Object.keys(fridgeData.inviting).length > 0 && (
-                  <>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        alignItems: 'flex-start',
-                        mb: 3,
-                      }}
-                    >
-                      <Typography variant='h5' component='div' sx={{ mb: 1 }}>
-                        邀請中成員
-                      </Typography>
-
-                      <ExpandMoreMembers
-                        expand={invitingMemberExpanded}
-                        onClick={handleInvitingMemberExpandClick}
-                        aria-expanded={invitingMemberExpanded}
-                        aria-label='show more'
-                      >
-                        <ExpandMoreIcon />
-                      </ExpandMoreMembers>
-                    </Box>
-
-                    <Collapse
-                      in={invitingMemberExpanded}
-                      timeout='auto'
-                      unmountOnExit
-                    >
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
-                        {fridgeData.inviting.map((member) => (
-                          <InvitingMemberCard
-                            key={member._id}
-                            member={member}
-                          />
-                        ))}
-                      </Box>
-                    </Collapse>
-                  </>
-                )}
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'flex-start',
-                    mb: 1,
-                  }}
-                >
-                  <Typography variant='h5' component='div' sx={{ mb: 1 }}>
-                    食材清單
-                  </Typography>
-                  <ExpandMoreIngredients
-                    expand={ingredientExpanded}
-                    onClick={handleIngredientExpandClick}
-                    aria-expanded={ingredientExpanded}
-                    aria-label='show more'
-                  >
-                    <ExpandMoreIcon />
-                  </ExpandMoreIngredients>
-                </Box>
-
-                <Collapse in={ingredientExpanded} timeout='auto' unmountOnExit>
-                  <Button
-                    variant='contained'
-                    size='large'
-                    sx={{
-                      mb: 2,
-                      backgroundColor: '#f59b51',
-                      ':hover': {
-                        backgroundColor: '#C6600C',
-                      },
-                      px: '17px',
-                    }}
-                    onClick={handleCreateItems}
-                  >
-                    新增食材
-                  </Button>
+              </Collapse>
+              {Object.keys(fridgeData.inviting).length > 0 && (
+                <>
                   <Box
-                    sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 5 }}
+                    sx={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      alignItems: 'flex-start',
+                      mb: 3,
+                    }}
                   >
-                    {fridgeData.ingredients.map((category) => (
-                      <IngredientCard key={category._id} category={category} />
-                    ))}
+                    <Typography variant='h5' component='div' sx={{ mb: 1 }}>
+                      邀請中成員
+                    </Typography>
+
+                    <ExpandMoreMembers
+                      expand={invitingMemberExpanded}
+                      onClick={handleInvitingMemberExpandClick}
+                      aria-expanded={invitingMemberExpanded}
+                      aria-label='show more'
+                    >
+                      <ExpandMoreIcon />
+                    </ExpandMoreMembers>
                   </Box>
-                </Collapse>
-                <Typography variant='h5' component='div' sx={{ mb: 5, mt: 3 }}>
-                  食譜推薦清單
+
+                  <Collapse
+                    in={invitingMemberExpanded}
+                    timeout='auto'
+                    unmountOnExit
+                  >
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
+                      {fridgeData.inviting.map((member) => (
+                        <InvitingMemberCard key={member._id} member={member} />
+                      ))}
+                    </Box>
+                  </Collapse>
+                </>
+              )}
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'flex-start',
+                  mb: 1,
+                }}
+              >
+                <Typography variant='h5' component='div' sx={{ mb: 1 }}>
+                  食材清單
                 </Typography>
-                <Grid container spacing={2}>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                    {recipeData.map((recipe) => (
-                      <RecipeCard key={recipe._id} recipe={recipe} />
-                    ))}
-                  </Box>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Box>
+                <ExpandMoreIngredients
+                  expand={ingredientExpanded}
+                  onClick={handleIngredientExpandClick}
+                  aria-expanded={ingredientExpanded}
+                  aria-label='show more'
+                >
+                  <ExpandMoreIcon />
+                </ExpandMoreIngredients>
+              </Box>
+
+              <Collapse in={ingredientExpanded} timeout='auto' unmountOnExit>
+                <Button
+                  variant='contained'
+                  size='large'
+                  sx={{
+                    mb: 2,
+                    backgroundColor: '#f59b51',
+                    ':hover': {
+                      backgroundColor: '#C6600C',
+                    },
+                    px: '17px',
+                  }}
+                  onClick={handleCreateItems}
+                >
+                  新增食材
+                </Button>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 5 }}>
+                  {fridgeData.ingredients.map((category) => (
+                    <IngredientCard key={category._id} category={category} />
+                  ))}
+                </Box>
+              </Collapse>
+              <Typography variant='h5' component='div' sx={{ mb: 5, mt: 3 }}>
+                食譜推薦清單
+              </Typography>
+              <Grid container spacing={2}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                  {recipeData.map((recipe) => (
+                    <RecipeCard key={recipe._id} recipe={recipe} />
+                  ))}
+                </Box>
+              </Grid>
+            </CardContent>
+          </Card>
         </Box>
       )}
     </>

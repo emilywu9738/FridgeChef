@@ -130,6 +130,7 @@ export default function CreateGroup() {
     <>
       <Snackbar
         open={openSuccessSnackbar}
+        autoHideDuration={3000}
         onClose={handleCloseSuccessSnackbar}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
@@ -144,7 +145,7 @@ export default function CreateGroup() {
       </Snackbar>
       <Snackbar
         open={openErrorSnackbar}
-        autoHideDuration={6000}
+        autoHideDuration={3000}
         onClose={handleCloseErrorSnackbar}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
@@ -164,8 +165,7 @@ export default function CreateGroup() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
-            bgcolor: '#faedcd',
+            mt: 10,
           }}
         >
           <Card sx={{ width: 500, textAlign: 'center', borderRadius: 5 }}>

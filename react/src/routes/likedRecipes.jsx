@@ -39,7 +39,7 @@ export default function LikedRecipes() {
   }, []);
 
   return (
-    <Box sx={{ my: 5 }}>
+    <Box sx={{ py: 5 }}>
       <Card
         sx={{
           width: '80%',

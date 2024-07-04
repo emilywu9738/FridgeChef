@@ -216,9 +216,11 @@ export default function ShowFridgeAndRecipe() {
                 expirationDate.setHours(0, 0, 0, 0);
                 let bgcolor = '#FCF8EE';
                 let color = 'inherit';
+                let fontWeight = 400;
                 if (expirationDate < today) {
                   bgcolor = '#C42615';
                   color = 'white';
+                  fontWeight = 600;
                 } else if (expirationDate <= threeDaysLater) {
                   bgcolor = '#fff18a';
                 }
@@ -240,14 +242,19 @@ export default function ShowFridgeAndRecipe() {
                     <Typography
                       variant='body2'
                       component='span'
-                      sx={{ flexGrow: 1, marginLeft: 1, color: color }}
+                      sx={{
+                        flexGrow: 1,
+                        marginLeft: 1,
+                        color: color,
+                        fontWeight: fontWeight,
+                      }}
                     >
                       {item.name}
                     </Typography>
                     <Typography
                       variant='body2'
                       component='span'
-                      sx={{ color: color }}
+                      sx={{ color: color, fontWeight: fontWeight }}
                     >
                       到期日: {expirationDate.toLocaleDateString()}
                     </Typography>
@@ -350,8 +357,14 @@ export default function ShowFridgeAndRecipe() {
   return (
     <>
       {Object.keys(fridgeData).length > 0 && (
-        <Box component='div' sx={{ p: 4, width: '80%', mx: 'auto' }}>
-          <Card elevation={6} sx={{ borderRadius: '15px', bgcolor: '#FCF5E2' }}>
+        <Box
+          component='div'
+          sx={{ p: 4, width: '80%', mx: 'auto', minHeight: '92.5vh' }}
+        >
+          <Card
+            elevation={6}
+            sx={{ borderRadius: '15px', bgcolor: '#FCF5E2', minHeight: '85vh' }}
+          >
             <CardContent sx={{ p: 5 }}>
               <Typography
                 variant='h3'
@@ -424,7 +437,11 @@ export default function ShowFridgeAndRecipe() {
                   mb: 3,
                 }}
               >
-                <Typography variant='h5' component='div' sx={{ mb: 1 }}>
+                <Typography
+                  variant='h5'
+                  component='div'
+                  sx={{ mb: 1, letterSpacing: '0.03em' }}
+                >
                   成員名單
                 </Typography>
 
@@ -460,7 +477,11 @@ export default function ShowFridgeAndRecipe() {
                       mb: 3,
                     }}
                   >
-                    <Typography variant='h5' component='div' sx={{ mb: 1 }}>
+                    <Typography
+                      variant='h5'
+                      component='div'
+                      sx={{ mb: 1, letterSpacing: '0.03em' }}
+                    >
                       邀請中成員
                     </Typography>
 
@@ -495,7 +516,11 @@ export default function ShowFridgeAndRecipe() {
                   mb: 1,
                 }}
               >
-                <Typography variant='h5' component='div' sx={{ mb: 1 }}>
+                <Typography
+                  variant='h5'
+                  component='div'
+                  sx={{ mb: 1, letterSpacing: '0.03em' }}
+                >
                   食材清單
                 </Typography>
                 <ExpandMoreIngredients
@@ -530,7 +555,11 @@ export default function ShowFridgeAndRecipe() {
                   ))}
                 </Box>
               </Collapse>
-              <Typography variant='h5' component='div' sx={{ mb: 5, mt: 3 }}>
+              <Typography
+                variant='h5'
+                component='div'
+                sx={{ mb: 5, mt: 3, letterSpacing: '0.03em' }}
+              >
                 食譜推薦清單
               </Typography>
               <Grid container spacing={2}>

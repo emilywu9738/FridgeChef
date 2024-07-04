@@ -7,7 +7,6 @@ import {
   Box,
   Button,
   Container,
-  CssBaseline,
   FormControl,
   InputLabel,
   MenuItem,
@@ -22,10 +21,15 @@ import {
   CardMedia,
   Snackbar,
   Alert,
+  ToggleButtonGroup,
+  ToggleButton,
+  CardContent,
+  CardHeader,
 } from '@mui/material';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 
 const apiClient = axios.create({
@@ -50,6 +54,8 @@ export default function CreateItems() {
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [alignment, setAlignment] = useState('picture');
+  const [pictureCreate, setPictureCreate] = useState(true);
 
   const handleAddPreview = (event) => {
     event.preventDefault();
@@ -114,8 +120,6 @@ export default function CreateItems() {
             },
           })
           .then((response) => {
-            // 處理返回的數據，可能是 OCR 的結果
-            console.log('OCR result:', response.data);
             const previewListArray = response.data.map((item) => {
               return { name: item, expired: '', category: '' };
             });
@@ -162,20 +166,23 @@ export default function CreateItems() {
     setOpenErrorSnackbar(false);
   };
 
+  const handleAlignment = (event, newAlignment) => {
+    setAlignment(newAlignment);
+  };
+
   return (
     <Container
       component='main'
-      maxWidth='lg'
+      maxWidth='md'
       sx={{
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        minHeight: '100vh',
-        padding: 4,
+        minHeight: '93vh',
+        pt: 4,
       }}
     >
-      <CssBaseline />
       <Snackbar
         open={openSuccessSnackbar}
         onClose={handleCloseSuccessSnackbar}
@@ -205,226 +212,308 @@ export default function CreateItems() {
           {errorMessage}
         </Alert>
       </Snackbar>
-      <Box
+
+      <Card
+        elevation={5}
         sx={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          marginRight: 4,
+          width: '40%',
+          mr: 2,
+          borderRadius: '20px',
+          px: 2,
+          py: 1,
+          bgcolor: '#FFFDFA',
+          mb: 4,
         }}
       >
-        <Avatar sx={{ m: 1, bgcolor: '#386641' }}>
-          <AddPhotoAlternateIcon />
-        </Avatar>
-        <Typography component='h1' variant='h5'>
-          圖片新增食材
-        </Typography>
-        <div style={{ padding: 20 }}>
-          <input
-            accept='image/*'
-            style={{ display: 'none' }}
-            id='raised-button-file'
-            multiple
-            type='file'
-            onChange={handleFileChange}
-          />
-          <label htmlFor='raised-button-file'>
-            <Button
-              variant='contained'
-              component='span'
-              sx={{ bgcolor: '#386641', ':hover': { bgcolor: '#244B2D' } }}
-            >
-              上傳照片
-            </Button>
-          </label>
-
-          {imagePreview && (
-            <Card sx={{ maxWidth: 345, mt: 2 }}>
-              <CardMedia
-                component='img'
-                maxWidth='300'
-                image={imagePreview}
-                alt='Uploaded Image'
-              />
-              <Typography variant='body2' color='text.secondary' sx={{ p: 2 }}>
-                Image Preview
-              </Typography>
-            </Card>
-          )}
-        </div>
-      </Box>
-
-      <Box
-        sx={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          mx: 5,
-        }}
-      >
-        <Avatar sx={{ m: 1, bgcolor: '#386641' }}>
-          <LibraryAddIcon />
-        </Avatar>
-        <Typography component='h1' variant='h5'>
-          新增食材
-        </Typography>
-        <Box
-          component='form'
-          onSubmit={handleAddPreview}
-          noValidate
-          sx={{ mt: 1 }}
-        >
-          <TextField
-            margin='normal'
-            required
-            fullWidth
-            id='name'
-            label='食材名稱'
-            name='name'
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            autoFocus
-            color='success'
-            sx={{ bgcolor: '#fdf7e8' }}
-          />
-          <TextField
-            margin='normal'
-            required
-            fullWidth
-            name='expired'
-            label='過期時間'
-            type='date'
-            id='expired'
-            value={expired}
-            onChange={(e) => setExpired(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            color='success'
-            sx={{ bgcolor: '#fdf7e8' }}
-          />
-          <FormControl fullWidth margin='normal'>
-            <InputLabel id='category-label' color='success' required>
-              類別
-            </InputLabel>
-            <Select
-              labelId='category-label'
-              id='category'
-              value={category}
-              onChange={handleCategoryChange}
-              label='類別'
-              color='success'
-              sx={{ bgcolor: '#fdf7e8' }}
-            >
-              {OPTIONS.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button
-            type='submit'
-            fullWidth
-            variant='contained'
+        <CardContent>
+          <Box
             sx={{
-              mt: 3,
-              mb: 2,
-              bgcolor: '#D4A373',
-              ':hover': { bgcolor: '#BF8852' },
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
             }}
           >
-            加到預覽列表
-          </Button>
-        </Box>
-      </Box>
-      <Box sx={{ flex: 1, ml: 2 }}>
-        <Typography component='h1' variant='h5'>
-          新增預覽
-        </Typography>
-        <List>
-          {previewList.map((item, index) => (
-            <ListItem
-              key={index}
-              sx={{ bgcolor: '#fdf7e8', marginBottom: 1, borderRadius: 1 }}
+            <Avatar sx={{ bgcolor: '#41764C' }}>
+              <LibraryAddIcon sx={{ color: '#FFFDFA' }} />
+            </Avatar>
+
+            <Typography component='h1' variant='h5' sx={{ my: 2 }}>
+              {alignment === 'picture' ? '圖片新增食材' : '手動新增食材'}
+            </Typography>
+            <ToggleButtonGroup
+              value={alignment}
+              exclusive
+              onChange={handleAlignment}
+              aria-label='text alignment'
+              sx={{
+                bgcolor: 'white',
+                width: '100%',
+                height: 40,
+                justifyContent: 'center',
+                my: 1,
+              }}
             >
-              {isEditing && editIndex === index ? (
-                // 編輯模式界面
-                <Box component='form' onSubmit={(e) => handleUpdate(e, index)}>
-                  <TextField
-                    value={item.name}
-                    onChange={(e) => handleInputChange(e, index, 'name')}
-                    size='small'
-                    sx={{ width: '100%', mb: 1 }}
+              <ToggleButton
+                value='picture'
+                aria-label='centered'
+                sx={{ width: '50%' }}
+              >
+                <AddPhotoAlternateIcon />
+              </ToggleButton>
+              <ToggleButton
+                value='write'
+                aria-label='left aligned'
+                sx={{ width: '50%' }}
+              >
+                <DriveFileRenameOutlineIcon />
+              </ToggleButton>
+            </ToggleButtonGroup>
+            {alignment === 'picture' ? (
+              <>
+                <Box sx={{ my: 2, width: '100%' }}>
+                  <input
+                    accept='image/*'
+                    style={{ display: 'none' }}
+                    id='raised-button-file'
+                    multiple
+                    type='file'
+                    onChange={handleFileChange}
                   />
-                  <TextField
-                    type='date'
-                    value={item.expired}
-                    onChange={(e) => handleInputChange(e, index, 'expired')}
-                    size='small'
-                    sx={{ width: '100%', mb: 1 }}
-                  />
-                  <Select
-                    value={item.category}
-                    onChange={(e) => handleInputChange(e, index, 'category')}
-                    size='small'
-                    sx={{ width: '100%', mb: 1 }}
-                  >
-                    {OPTIONS.map((option) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <Button type='submit' sx={{ mr: 1 }}>
-                    儲存
-                  </Button>
-                  <Button onClick={handleCancel}>取消</Button>
+                  <label htmlFor='raised-button-file'>
+                    <Button
+                      variant='contained'
+                      component='span'
+                      sx={{
+                        bgcolor: '#41764C',
+                        ':hover': { bgcolor: '#305738' },
+                        width: '100%',
+                        mb: 2,
+                      }}
+                    >
+                      上傳照片
+                    </Button>
+                  </label>
+
+                  {imagePreview && (
+                    <Card sx={{ mt: 2 }}>
+                      <CardHeader
+                        title={
+                          <Typography variant='body2' color='text.secondary'>
+                            照片預覽
+                          </Typography>
+                        }
+                        sx={{ bgcolor: '#EEEEEE' }}
+                      />
+                      <CardMedia
+                        component='img'
+                        width='100%'
+                        image={imagePreview}
+                        alt='Uploaded Image'
+                      />
+                    </Card>
+                  )}
                 </Box>
-              ) : (
-                // 常規顯示
-                <>
-                  <ListItemText
-                    primary={`${item.name} (${item.category}類)`}
-                    secondary={`過期時間: ${item.expired}`}
+              </>
+            ) : (
+              <>
+                <Box
+                  component='form'
+                  onSubmit={handleAddPreview}
+                  noValidate
+                  sx={{ mt: 1 }}
+                >
+                  <TextField
+                    margin='normal'
+                    required
+                    fullWidth
+                    id='name'
+                    label='食材名稱'
+                    name='name'
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    autoFocus
+                    color='success'
+                    sx={{ bgcolor: '#FBFBFB' }}
                   />
-                  <IconButton
-                    edge='end'
-                    aria-label='edit'
-                    onClick={() => handleEdit(index)}
+                  <TextField
+                    margin='normal'
+                    required
+                    fullWidth
+                    name='expired'
+                    label='過期時間'
+                    type='date'
+                    id='expired'
+                    value={expired}
+                    onChange={(e) => setExpired(e.target.value)}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    color='success'
+                    sx={{ bgcolor: '#FBFBFB' }}
+                  />
+                  <FormControl fullWidth margin='normal'>
+                    <InputLabel id='category-label' color='success' required>
+                      類別
+                    </InputLabel>
+                    <Select
+                      labelId='category-label'
+                      id='category'
+                      value={category}
+                      onChange={handleCategoryChange}
+                      label='類別'
+                      color='success'
+                      sx={{ bgcolor: '#FBFBFB' }}
+                    >
+                      {OPTIONS.map((option) => (
+                        <MenuItem key={option} value={option}>
+                          {option}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Button
+                    type='submit'
+                    fullWidth
+                    variant='contained'
+                    sx={{
+                      mt: 3,
+                      mb: 2,
+                      bgcolor: '#41764C',
+                      ':hover': { bgcolor: '#305738' },
+                    }}
                   >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    edge='end'
-                    aria-label='delete'
-                    onClick={() => handleDelete(index)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </>
-              )}
-            </ListItem>
-          ))}
-        </List>
-        {previewList.length > 0 && (
-          <Button
-            onClick={handleSubmit}
-            fullWidth
-            variant='contained'
-            sx={{
-              mt: 3,
-              mb: 2,
-              bgcolor: '#bc6c25',
-              ':hover': { bgcolor: '#9B5212' },
-            }}
-          >
-            送出更新
-          </Button>
-        )}
-      </Box>
+                    加到預覽列表
+                  </Button>
+                </Box>
+              </>
+            )}
+          </Box>
+        </CardContent>
+      </Card>
+
+      <Card
+        elevation={5}
+        sx={{
+          width: '40%',
+          ml: 2,
+          borderRadius: '20px',
+          pl: 1,
+          py: 1,
+          bgcolor: '#FFFDFA',
+        }}
+      >
+        <CardContent>
+          <Box sx={{ flex: 1 }}>
+            <Typography component='h1' variant='h5' sx={{ my: 1 }}>
+              預覽列表
+            </Typography>
+            <List sx={{ maxHeight: '70vh', overflowY: 'auto', pr: 1 }}>
+              {previewList.map((item, index) => (
+                <ListItem
+                  key={index}
+                  sx={{ bgcolor: '#FAF2D8', my: 2, borderRadius: 3 }}
+                >
+                  {isEditing && editIndex === index ? (
+                    // 編輯模式界面
+                    <Box
+                      component='form'
+                      onSubmit={(e) => handleUpdate(e, index)}
+                      sx={{ pt: 2 }}
+                    >
+                      <TextField
+                        value={item.name}
+                        onChange={(e) => handleInputChange(e, index, 'name')}
+                        size='small'
+                        sx={{ width: '100%', mb: 2, bgcolor: '#FCF7E8' }}
+                      />
+                      <TextField
+                        type='date'
+                        value={item.expired}
+                        onChange={(e) => handleInputChange(e, index, 'expired')}
+                        size='small'
+                        sx={{ width: '100%', mb: 2, bgcolor: '#FCF7E8' }}
+                      />
+                      <Select
+                        value={item.category}
+                        onChange={(e) =>
+                          handleInputChange(e, index, 'category')
+                        }
+                        size='small'
+                        sx={{ width: '100%', mb: 1, bgcolor: '#FCF7E8' }}
+                      >
+                        {OPTIONS.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <Button
+                        type='submit'
+                        sx={{
+                          mr: 1,
+                          color: '#784518',
+                          ':hover': { bgcolor: '#F6E8B9' },
+                        }}
+                      >
+                        儲存
+                      </Button>
+                      <Button
+                        onClick={handleCancel}
+                        sx={{
+                          color: '#784518',
+                          ':hover': { bgcolor: '#F6E8B9' },
+                        }}
+                      >
+                        取消
+                      </Button>
+                    </Box>
+                  ) : (
+                    // 常規顯示
+                    <>
+                      <ListItemText
+                        primary={`${item.name} (${item.category}類)`}
+                        secondary={`過期時間: ${item.expired}`}
+                      />
+                      <IconButton
+                        edge='end'
+                        aria-label='edit'
+                        onClick={() => handleEdit(index)}
+                        sx={{ ':hover': { bgcolor: '#F6E8B9' } }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        edge='end'
+                        aria-label='delete'
+                        onClick={() => handleDelete(index)}
+                        sx={{ ':hover': { bgcolor: '#F6E8B9' } }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </>
+                  )}
+                </ListItem>
+              ))}
+            </List>
+            {previewList.length > 0 && (
+              <Button
+                onClick={handleSubmit}
+                fullWidth
+                variant='contained'
+                sx={{
+                  mt: 1,
+                  mb: 2,
+                  bgcolor: '#bc6c25',
+                  ':hover': { bgcolor: '#9B5212' },
+                }}
+              >
+                送出更新
+              </Button>
+            )}
+          </Box>
+        </CardContent>
+      </Card>
     </Container>
   );
 }

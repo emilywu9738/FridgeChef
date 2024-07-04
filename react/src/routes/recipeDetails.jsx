@@ -63,6 +63,7 @@ export default function RecipeDetails() {
   };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const recipeId = searchParams.get('id');
     apiClient
       .get(`/fridge/recipeDetails?id=${recipeId}`)

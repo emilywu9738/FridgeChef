@@ -21,9 +21,14 @@ import {
   Grid,
   CardMedia,
   Container,
+  Menu,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -65,6 +70,11 @@ export default function ShowFridgeAndRecipe() {
   const [recipeData, setRecipeData] = useState([]);
   const [checkedMembers, setCheckedMembers] = useState({});
   const [recommendCategory, setRecommendCategory] = useState('');
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [reload, setReload] = useState(false);
 
   const handleMemberExpandClick = () => {
     setMemberExpanded(!memberExpanded);
@@ -113,6 +123,14 @@ export default function ShowFridgeAndRecipe() {
 
   const handleCreateItems = () => {
     navigate(`/fridge/create?fridgeId=${fridgeData._id.toString()}`);
+  };
+
+  const handleCloseSuccessSnackbar = () => {
+    setOpenSuccessSnackbar(false);
+  };
+
+  const handleCloseErrorSnackbar = () => {
+    setOpenErrorSnackbar(false);
   };
 
   function MemberCard({ member, isChecked, onCheckChange }) {
@@ -180,7 +198,11 @@ export default function ShowFridgeAndRecipe() {
     );
   }
 
-  function IngredientCard({ category }) {
+  function IngredientCard({ category, onDelete }) {
+    const [isDeleteMode, setIsDeleteMode] = useState(false);
+    const [itemsToDelete, setItemsToDelete] = useState([]);
+    const [anchorEl, setAnchorEl] = useState(null);
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const threeDaysLater = new Date();
@@ -191,6 +213,55 @@ export default function ShowFridgeAndRecipe() {
       (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate),
     );
 
+    const handleMenuClick = (event) => {
+      setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+      setAnchorEl(null);
+    };
+
+    const handleDeleteMode = () => {
+      setIsDeleteMode(true);
+      setAnchorEl(null);
+    };
+
+    const handleDeleteItems = (itemId) => {
+      setItemsToDelete((prevItems) =>
+        prevItems.includes(itemId)
+          ? prevItems.filter((id) => id !== itemId)
+          : [...prevItems, itemId],
+      );
+    };
+
+    const confirmDelete = () => {
+      const fridgeId = searchParams.get('id');
+      apiClient
+        .post(
+          `/fridge/${fridgeId}/deleteItems`,
+          { ids: itemsToDelete },
+          { withCredentials: true },
+        )
+        .then((response) => {
+          setOpenSuccessSnackbar(true);
+          setSuccessMessage(response.data);
+          setReload(!reload);
+          onDelete(itemsToDelete);
+          setItemsToDelete([]);
+          setIsDeleteMode(false);
+        })
+        .catch((error) => {
+          setOpenErrorSnackbar(true);
+          setErrorMessage('食材刪除失敗！');
+          console.error('Error deleting items:', error);
+        });
+    };
+
+    const cancelDelete = () => {
+      setIsDeleteMode(false);
+      setItemsToDelete([]);
+    };
+
     return (
       <Card
         sx={{
@@ -198,71 +269,127 @@ export default function ShowFridgeAndRecipe() {
           m: 1,
           overflow: 'visible',
           bgcolor: '#FEFCF8',
-          minHeight: 277,
+          minHeight: 300,
         }}
       >
         <CardContent>
-          <Typography
-            sx={{ fontSize: 18, mb: 0, fontWeight: 500 }}
-            color='text.primary'
-            gutterBottom
-          >
-            {category.category}類
-          </Typography>
-          <Box sx={{ maxHeight: 210, overflowY: 'auto' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography
+              sx={{ fontSize: 18, mb: 0, fontWeight: 500 }}
+              color='text.primary'
+              gutterBottom
+            >
+              {category.category}類
+            </Typography>
+            <IconButton onClick={handleMenuClick}>
+              <MoreVertIcon />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem onClick={handleDeleteMode}>刪除</MenuItem>
+            </Menu>
+          </Box>
+          <Box sx={{ maxHeight: 220, overflowY: 'auto' }}>
             <List dense>
-              {sortedItems.map((item, index) => {
-                const expirationDate = new Date(item.expirationDate);
-                expirationDate.setHours(0, 0, 0, 0);
-                let bgcolor = '#FCF8EE';
-                let color = 'inherit';
-                let fontWeight = 400;
-                if (expirationDate < today) {
-                  bgcolor = '#C42615';
-                  color = 'white';
-                  fontWeight = 600;
-                } else if (expirationDate <= threeDaysLater) {
-                  bgcolor = '#fff18a';
-                }
+              {sortedItems
+                .filter((item) => !itemsToDelete.includes(item._id))
+                .map((item) => {
+                  const expirationDate = new Date(item.expirationDate);
+                  expirationDate.setHours(0, 0, 0, 0);
+                  let bgcolor = '#FCF8EE';
+                  let color = 'inherit';
+                  let fontWeight = 400;
+                  if (expirationDate < today) {
+                    bgcolor = '#C42615';
+                    color = 'white';
+                    fontWeight = 600;
+                  } else if (expirationDate <= threeDaysLater) {
+                    bgcolor = '#fff18a';
+                  }
 
-                return (
-                  <ListItem
-                    key={item._id}
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      padding: '8px',
-                      margin: '8px 0',
-                      border: '1px solid #ccc',
-                      borderRadius: '4px',
-                      boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                      backgroundColor: bgcolor,
-                    }}
-                  >
-                    <Typography
-                      variant='body2'
-                      component='span'
+                  return (
+                    <ListItem
+                      key={item._id}
                       sx={{
-                        flexGrow: 1,
-                        marginLeft: 1,
-                        color: color,
-                        fontWeight: fontWeight,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        padding: '8px',
+                        margin: '8px 0',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                        backgroundColor: bgcolor,
+                        height: 40,
                       }}
                     >
-                      {item.name}
-                    </Typography>
-                    <Typography
-                      variant='body2'
-                      component='span'
-                      sx={{ color: color, fontWeight: fontWeight }}
-                    >
-                      到期日: {expirationDate.toLocaleDateString()}
-                    </Typography>
-                  </ListItem>
-                );
-              })}
+                      <Typography
+                        variant='body2'
+                        component='span'
+                        sx={{
+                          flexGrow: 1,
+                          marginLeft: 1,
+                          color: color,
+                          fontWeight: fontWeight,
+                        }}
+                      >
+                        {item.name}
+                      </Typography>
+                      <Typography
+                        variant='body2'
+                        component='span'
+                        sx={{ color: color, fontWeight: fontWeight }}
+                      >
+                        到期日: {expirationDate.toLocaleDateString()}
+                      </Typography>
+
+                      {isDeleteMode && (
+                        <IconButton
+                          sx={{
+                            marginLeft: 1,
+                            padding: 0,
+                            '& .MuiSvgIcon-root': {
+                              fontSize: '20px', // 控制圖標大小
+                            },
+                          }}
+                          onClick={() => handleDeleteItems(item._id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      )}
+                    </ListItem>
+                  );
+                })}
             </List>
           </Box>
+          {isDeleteMode && (
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}
+            >
+              <Button
+                variant='contained'
+                onClick={confirmDelete}
+                disabled={itemsToDelete.length === 0}
+                sx={{
+                  backgroundColor: '#f59b51',
+                  ':hover': {
+                    backgroundColor: '#C6600C',
+                  },
+                }}
+              >
+                確認刪除
+              </Button>
+              <Button
+                variant='outlined'
+                onClick={cancelDelete}
+                sx={{ color: 'grey' }}
+              >
+                取消
+              </Button>
+            </Box>
+          )}
         </CardContent>
       </Card>
     );
@@ -351,10 +478,40 @@ export default function ShowFridgeAndRecipe() {
           }
         });
     }
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, reload]);
 
   return (
     <>
+      <Snackbar
+        open={openSuccessSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSuccessSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          elevation={6}
+          severity='success'
+          variant='filled'
+          onClose={handleCloseSuccessSnackbar}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={openErrorSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseErrorSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          elevation={3}
+          severity='error'
+          variant='filled'
+          onClose={handleCloseErrorSnackbar}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       {Object.keys(fridgeData).length > 0 && (
         <Container
           component='main'
@@ -369,9 +526,13 @@ export default function ShowFridgeAndRecipe() {
         >
           <Card
             elevation={6}
-            sx={{ borderRadius: '15px', bgcolor: '#FCF5E2', minHeight: '85vh' }}
+            sx={{
+              borderRadius: '15px',
+              bgcolor: '#FCF5E2',
+              minHeight: '85vh',
+            }}
           >
-            <CardContent sx={{ p: 5 }}>
+            <CardContent sx={{ mt: 3, mx: 3 }}>
               <Typography
                 variant='h3'
                 sx={{
@@ -558,27 +719,23 @@ export default function ShowFridgeAndRecipe() {
                 >
                   新增食材
                 </Button>
+
                 <Grid container>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
                     {fridgeData.ingredients.map((category) => (
-                      <Grid
-                        item
-                        xs={12}
-                        sm={6}
-                        md={4}
-                        xl={3}
-                        key={category._id}
-                      >
+                      <Grid item xs={12} sm={6} md={4} key={category._id}>
                         <IngredientCard category={category} />
                       </Grid>
                     ))}
                   </Box>
                 </Grid>
               </Collapse>
+            </CardContent>
+            <CardContent>
               <Typography
                 variant='h5'
                 component='div'
-                sx={{ mb: 5, mt: 3, letterSpacing: '0.03em' }}
+                sx={{ mb: 3, ml: 2, letterSpacing: '0.06em', fontWeight: 500 }}
               >
                 食譜推薦清單
               </Typography>

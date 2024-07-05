@@ -25,4 +25,6 @@ router.get(
   catchAsync(fridge.recommendRecipeOnDetailPage),
 );
 
+router.post('/:id/deleteItems', validateJWT, catchAsync(fridge.deleteItems));
+
 export default router;

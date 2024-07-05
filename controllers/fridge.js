@@ -255,7 +255,7 @@ export const renderRecipeById = async (req, res) => {
   res.status(200).send(foundRecipe);
 };
 
-function filterItemsExpiringWithinDays(items, days) {
+function filterItemsExpiringWithinDays(items) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -379,4 +379,17 @@ export const recommendRecipeOnDetailPage = async (req, res) => {
   } catch (error) {
     console.error('Error finding similar recipes:', error);
   }
+};
+
+export const deleteItems = async (req, res) => {
+  const { id } = req.params;
+  const ingredientIds = req.body.ids;
+
+  await Fridge.findOneAndUpdate(
+    { _id: id },
+    { $pull: { 'ingredients.$[].items': { _id: { $in: ingredientIds } } } },
+    { new: true },
+  );
+
+  res.status(200).json('食材已刪除！');
 };

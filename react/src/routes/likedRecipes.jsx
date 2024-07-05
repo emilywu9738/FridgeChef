@@ -58,53 +58,55 @@ export default function LikedRecipes() {
           <Grid container>
             <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
               {likedRecipes.map((recipe) => (
-                <Box
-                  onClick={() => handleRecipeDetails(recipe._id)}
-                  key={recipe._id}
-                  sx={{
-                    position: 'relative',
-                    width: 'calc(33.33% - 16px)',
-                    m: 1,
-                    '&:hover .overlay': {
-                      opacity: 1,
-                    },
-                    '&:hover img': {
-                      filter: 'brightness(110%)',
-                    },
-                    cursor: 'pointer',
-                  }}
-                >
-                  <CardMedia
-                    component='img'
-                    image={recipe.coverImage ? recipe.coverImage : '/empty.jpg'}
-                    alt={recipe.title}
-                    sx={{
-                      width: '100%',
-                      height: '300px',
-                      objectFit: 'cover',
-                    }}
-                  />
+                <Grid key={recipe._id} item xs={12} md={6} lg={4}>
                   <Box
-                    className='overlay'
+                    onClick={() => handleRecipeDetails(recipe._id)}
                     sx={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      bgcolor: 'rgba(0, 0, 0, 0.5)',
-                      color: 'white',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      opacity: 0,
-                      transition: 'opacity 0.3s',
-                      p: 2,
+                      position: 'relative',
+                      m: 1,
+                      '&:hover .overlay': {
+                        opacity: 1,
+                      },
+                      '&:hover img': {
+                        filter: 'brightness(110%)',
+                      },
+                      cursor: 'pointer',
                     }}
                   >
-                    <Typography variant='h6'>{recipe.title}</Typography>
+                    <CardMedia
+                      component='img'
+                      image={
+                        recipe.coverImage ? recipe.coverImage : '/empty.jpg'
+                      }
+                      alt={recipe.title}
+                      sx={{
+                        width: '100%',
+                        height: '300px',
+                        objectFit: 'cover',
+                      }}
+                    />
+                    <Box
+                      className='overlay'
+                      sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        bgcolor: 'rgba(0, 0, 0, 0.5)',
+                        color: 'white',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        opacity: 0,
+                        transition: 'opacity 0.3s',
+                        p: 2,
+                      }}
+                    >
+                      <Typography variant='h6'>{recipe.title}</Typography>
+                    </Box>
                   </Box>
-                </Box>
+                </Grid>
               ))}
             </Box>
           </Grid>

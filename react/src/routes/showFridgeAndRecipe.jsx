@@ -20,6 +20,7 @@ import {
   Collapse,
   Grid,
   CardMedia,
+  Container,
 } from '@mui/material';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -121,7 +122,7 @@ export default function ShowFridgeAndRecipe() {
           borderRadius: '10px',
           minWidth: 250,
           position: 'relative',
-          m: 1,
+          m: 2,
           bgcolor: '#FEFCF8',
         }}
       >
@@ -194,11 +195,10 @@ export default function ShowFridgeAndRecipe() {
       <Card
         sx={{
           borderRadius: '10px',
-          minWidth: 270,
-          mr: 1,
-          my: 1,
+          m: 1,
           overflow: 'visible',
           bgcolor: '#FEFCF8',
+          minHeight: 277,
         }}
       >
         <CardContent>
@@ -274,7 +274,6 @@ export default function ShowFridgeAndRecipe() {
       <Card
         elevation={3}
         sx={{
-          minWidth: 275,
           minHeight: 390,
           flexGrow: 1,
           position: 'relative',
@@ -357,9 +356,16 @@ export default function ShowFridgeAndRecipe() {
   return (
     <>
       {Object.keys(fridgeData).length > 0 && (
-        <Box
-          component='div'
-          sx={{ p: 4, width: '80%', mx: 'auto', minHeight: '92.5vh' }}
+        <Container
+          component='main'
+          maxWidth='lg'
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            py: 4,
+          }}
         >
           <Card
             elevation={6}
@@ -456,16 +462,19 @@ export default function ShowFridgeAndRecipe() {
               </Box>
 
               <Collapse in={memberExpanded} timeout='auto' unmountOnExit>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
-                  {fridgeData.members.map((member) => (
-                    <MemberCard
-                      key={member._id}
-                      member={member}
-                      isChecked={checkedMembers[member._id]}
-                      onCheckChange={handleMemberCheckChange}
-                    />
-                  ))}
-                </Box>
+                <Grid container>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
+                    {fridgeData.members.map((member) => (
+                      <Grid item xs={12} sm={6} md={4} xl={3} key={member._id}>
+                        <MemberCard
+                          member={member}
+                          isChecked={checkedMembers[member._id]}
+                          onCheckChange={handleMemberCheckChange}
+                        />
+                      </Grid>
+                    ))}
+                  </Box>
+                </Grid>
               </Collapse>
               {Object.keys(fridgeData.inviting).length > 0 && (
                 <>
@@ -549,11 +558,22 @@ export default function ShowFridgeAndRecipe() {
                 >
                   新增食材
                 </Button>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 5 }}>
-                  {fridgeData.ingredients.map((category) => (
-                    <IngredientCard key={category._id} category={category} />
-                  ))}
-                </Box>
+                <Grid container>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
+                    {fridgeData.ingredients.map((category) => (
+                      <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                        md={4}
+                        xl={3}
+                        key={category._id}
+                      >
+                        <IngredientCard category={category} />
+                      </Grid>
+                    ))}
+                  </Box>
+                </Grid>
               </Collapse>
               <Typography
                 variant='h5'
@@ -562,16 +582,18 @@ export default function ShowFridgeAndRecipe() {
               >
                 食譜推薦清單
               </Typography>
-              <Grid container spacing={2}>
+              <Grid container>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
                   {recipeData.map((recipe) => (
-                    <RecipeCard key={recipe._id} recipe={recipe} />
+                    <Grid item xs={12} md={6} lg={4} key={recipe._id}>
+                      <RecipeCard recipe={recipe} />
+                    </Grid>
                   ))}
                 </Box>
               </Grid>
             </CardContent>
           </Card>
-        </Box>
+        </Container>
       )}
     </>
   );

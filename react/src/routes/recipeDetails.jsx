@@ -266,6 +266,9 @@ export default function RecipeDetails() {
             <List>
               {recommendedRecipes.map((recRecipe, index) => (
                 <Card
+                  onClick={(event) =>
+                    handleRecommendedRecipeDetails(recRecipe._id, event)
+                  }
                   elevation={1}
                   key={index}
                   sx={{
@@ -301,9 +304,6 @@ export default function RecipeDetails() {
                           variant='h6'
                           component='div'
                           sx={{ fontSize: 16 }}
-                          onClick={(event) =>
-                            handleRecommendedRecipeDetails(recRecipe._id, event)
-                          }
                         >
                           {recRecipe.title}
                         </Typography>

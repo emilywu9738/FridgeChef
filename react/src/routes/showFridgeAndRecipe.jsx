@@ -403,6 +403,7 @@ export default function ShowFridgeAndRecipe() {
     return (
       <Card
         elevation={3}
+        onClick={(event) => handleRecipeDetails(recipe._id.toString(), event)}
         sx={{
           minHeight: 390,
           flexGrow: 1,
@@ -413,9 +414,6 @@ export default function ShowFridgeAndRecipe() {
       >
         <CardContent>
           <Typography
-            onClick={(event) =>
-              handleRecipeDetails(recipe._id.toString(), event)
-            }
             sx={{
               fontSize: 18,
               mb: 1,

@@ -87,7 +87,6 @@ export default function SearchRecipes() {
           }}
           sx={{
             mt: 3,
-            ml: 3,
             bgcolor: '#fdf7e8',
             width: '100%',
             borderRadius: '16px 0 0 16px',
@@ -111,7 +110,6 @@ export default function SearchRecipes() {
           onClick={handleSubmit}
           sx={{
             mt: 3,
-            mr: 3,
             height: 55.5,
             borderRadius: '0 16px 16px 0',
             marginLeft: '-1px',
@@ -127,7 +125,7 @@ export default function SearchRecipes() {
           sx={{
             minHeight: '80vh',
             borderRadius: 5,
-            m: 3,
+            my: 3,
           }}
         >
           <CardHeader
@@ -160,7 +158,7 @@ export default function SearchRecipes() {
                       sx={{
                         mb: 3,
                         mx: 2,
-                        height: '250px',
+                        height: { xs: '170px', md: '250px' },
                         borderRadius: '12px',
                         cursor: 'pointer',
                       }}
@@ -178,7 +176,7 @@ export default function SearchRecipes() {
                             sx={{
                               objectFit: 'cover',
                               objectPosition: 'center',
-                              height: '250px',
+                              height: { xs: '170px', md: '250px' },
                             }}
                           />
                         </Grid>
@@ -194,32 +192,62 @@ export default function SearchRecipes() {
                               gutterBottom
                               variant='h5'
                               component='div'
-                              sx={{ fontWeight: 500 }}
+                              sx={{
+                                fontWeight: 500,
+                                fontSize: { xs: 17, md: 25 },
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                              }}
                             >
                               {recipe.title}
                             </Typography>
 
-                            <Typography variant='body2' color='#7C7C7C'>
+                            <Typography
+                              variant='body2'
+                              color='#7C7C7C'
+                              sx={{
+                                fontSize: { xs: 11, md: 14 },
+                                display: '-webkit-box',
+                                WebkitLineClamp: 1,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                              }}
+                            >
                               {recipe.tags.map((tag) => `#${tag}`).join(' ')}
                             </Typography>
                             <Typography
                               variant='body1'
                               color='#424242'
                               sx={{
-                                my: 2,
+                                my: { xs: 1, md: 2 },
                                 display: '-webkit-box',
-                                WebkitLineClamp: 3,
+                                WebkitLineClamp: 2,
                                 WebkitBoxOrient: 'vertical',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
+                                fontSize: { xs: 12, md: 16 },
                               }}
                             >
                               食材：
                               {recipe.ingredients.join('、')}
                             </Typography>
                             <Box display='flex' sx={{ mt: 'auto' }}>
-                              <BookmarkIcon sx={{ color: '#3A3A3A' }} />
-                              <Typography sx={{ ml: 1 }}>
+                              <BookmarkIcon
+                                sx={{
+                                  color: '#3A3A3A',
+                                  fontSize: { xs: 18, md: 24 },
+                                }}
+                              />
+                              <Typography
+                                sx={{
+                                  ml: { xs: 0, md: 1 },
+                                  fontSize: { xs: 12, md: 16 },
+                                }}
+                              >
                                 {recipe.likes} 人收藏
                               </Typography>
                             </Box>

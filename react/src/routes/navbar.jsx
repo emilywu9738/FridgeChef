@@ -146,24 +146,29 @@ export default function NavBar() {
       position='sticky'
       sx={{ bgcolor: '#a98467', height: 80, width: '100%' }}
     >
-      <Box sx={{ mt: 1, mx: 3 }}>
+      <Box sx={{ mt: 1, mx: { xs: 1, md: 3 } }}>
         <Toolbar
           disableGutters
           sx={{ justifyContent: 'space-between', width: '100%' }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <img
+            <Box
+              component='img'
               src='/navbarLogo.png'
-              style={{ maxWidth: 45, height: 'auto', paddingBottom: 4 }}
+              sx={{
+                maxWidth: { xs: 38, md: 45 },
+                height: 'auto',
+                pb: 1, // `paddingBottom` 簡寫
+              }}
             />
-            <img
+            <Box
+              component='img'
               src='/logoText.png'
               alt='Logo'
-              style={{
-                maxWidth: 150,
+              sx={{
+                maxWidth: { xs: 120, md: 150 },
                 height: 'auto',
-                marginLeft: 15,
-                marginRight: 15,
+                mx: { xs: '10px', md: '15px' },
               }}
             />
           </Box>
@@ -188,7 +193,7 @@ export default function NavBar() {
             </Tooltip>
           </Box>
 
-          <Box sx={{ ml: 3 }}>
+          <Box sx={{ ml: { xs: 1, md: 3 } }}>
             <Tooltip title='Open Liked Recipes'>
               <IconButton
                 onClick={handleLikedRecipes}
@@ -207,7 +212,7 @@ export default function NavBar() {
             </Tooltip>
           </Box>
 
-          <Box sx={{ ml: 3 }}>
+          <Box sx={{ ml: { xs: 1, md: 3 } }}>
             <Tooltip title='Open Notifications'>
               <IconButton
                 onClick={handleNotifications}
@@ -314,7 +319,7 @@ export default function NavBar() {
             </Menu>
           </Box>
 
-          <Box sx={{ flexGrow: 0, ml: 3 }}>
+          <Box sx={{ flexGrow: 0, ml: { xs: 1, md: 3 } }}>
             <Tooltip title='Open settings'>
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar sx={{ bgcolor: '#6c584c', ml: 'auto' }}>

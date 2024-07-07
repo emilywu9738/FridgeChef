@@ -138,36 +138,6 @@ export default function Profile() {
 
     return (
       <>
-        <Snackbar
-          open={openSuccessSnackbar}
-          autoHideDuration={6000}
-          onClose={handleCloseSuccessSnackbar}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert
-            elevation={6}
-            severity='success'
-            variant='filled'
-            onClose={handleCloseSuccessSnackbar}
-          >
-            {successMessage}
-          </Alert>
-        </Snackbar>
-        <Snackbar
-          open={openErrorSnackbar}
-          autoHideDuration={6000}
-          onClose={handleCloseErrorSnackbar}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert
-            elevation={3}
-            severity='error'
-            variant='filled'
-            onClose={handleCloseErrorSnackbar}
-          >
-            {errorMessage}
-          </Alert>
-        </Snackbar>
         <Grid item xs={12} md={6}>
           <Card
             elevation={3}
@@ -241,204 +211,254 @@ export default function Profile() {
 
   return (
     <>
-      {Object.keys(userData).length > 0 && (
-        <Box
-          sx={{
-            minHeight: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            mt: 10,
-          }}
+      <Snackbar
+        open={openSuccessSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSuccessSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          elevation={6}
+          severity='success'
+          variant='filled'
+          onClose={handleCloseSuccessSnackbar}
         >
-          <Card sx={{ width: 500, textAlign: 'center', borderRadius: 5 }}>
-            <CardHeader
-              title={
-                <Typography
-                  variant='h5'
-                  sx={{ fontSize: '2.5rem', color: '#5c4742' }}
-                >
-                  {userData.name}
-                </Typography>
-              }
-              subheader={
-                <Typography
-                  variant='subtitle1'
-                  sx={{ color: '#FFFBF1', fontStyle: 'italic' }}
-                >
-                  {userData.email}
-                </Typography>
-              }
-              action={
-                <>
-                  <IconButton aria-label='settings' onClick={handleClick}>
-                    <MoreVertIcon />
-                  </IconButton>
-                  <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-                    <MenuItem onClick={handleEditPreferences}>
-                      <EditIcon />
-                      <Typography sx={{ ml: 1 }}>編輯喜好</Typography>
-                    </MenuItem>
-                    <MenuItem onClick={handleCreateGroup}>
-                      <GroupsIcon />
-                      <Typography sx={{ ml: 1 }}> 新增群組</Typography>
-                    </MenuItem>
-                  </Menu>
-                </>
-              }
-              sx={{ bgcolor: '#ddb892' }}
-            />
-
-            <CardContent sx={{ bgcolor: '#FFFBF1' }}>
-              {editMode ? (
-                <>
-                  <FormControl fullWidth sx={{ minWidth: 240, my: 2 }}>
-                    <InputLabel id='recipeCategory-label' color='success'>
-                      飲食習慣
-                    </InputLabel>
-                    <Select
-                      labelId='recipeCategory-label'
-                      id='recipeCategory'
-                      value={preferCategory}
-                      label='飲食習慣'
-                      onChange={handleCategoryChange}
-                      color='success'
-                    >
-                      <MenuItem value={'無'}>無</MenuItem>
-                      <MenuItem value={'奶蛋素'}>奶蛋素</MenuItem>
-                      <MenuItem value={'全素'}>全素</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <Box
-                    component='form'
-                    onSubmit={handleAddPreview}
-                    noValidate
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      mb: 1,
-                    }}
-                  >
-                    <TextField
-                      id='omit'
-                      label='新增排除食材'
-                      name='omit'
-                      value={omit}
-                      onChange={(e) => setOmit(e.target.value)}
-                      autoFocus
-                      color='success'
-                      sx={{ flexGrow: 1, mr: 1 }}
-                    />
-                    <Button
-                      type='submit'
-                      variant='contained'
+          {successMessage}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={openErrorSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseErrorSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          elevation={3}
+          severity='error'
+          variant='filled'
+          onClose={handleCloseErrorSnackbar}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
+      {Object.keys(userData).length > 0 && (
+        <Grid container>
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                mt: { xs: 5, md: 10 },
+                mx: 1,
+              }}
+            >
+              <Card
+                sx={{ maxWidth: 500, textAlign: 'center', borderRadius: 5 }}
+              >
+                <CardHeader
+                  title={
+                    <Typography
+                      variant='h5'
                       sx={{
-                        bgcolor: '#e2711d',
-                        height: 50,
-                        ':hover': { bgcolor: '#B7560B' },
+                        fontSize: { xs: '2.1rem', md: '2.5rem' },
+                        color: '#5c4742',
                       }}
                     >
-                      新增
-                    </Button>
-                  </Box>
-                  <List sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    {previewList.map((item, index) => (
-                      <ListItem
-                        key={index}
+                      {userData.name}
+                    </Typography>
+                  }
+                  subheader={
+                    <Typography
+                      variant='subtitle1'
+                      sx={{
+                        color: '#FFFBF1',
+                        fontStyle: 'italic',
+                        fontSize: { xs: 13, md: 16 },
+                      }}
+                    >
+                      {userData.email}
+                    </Typography>
+                  }
+                  action={
+                    <>
+                      <IconButton aria-label='settings' onClick={handleClick}>
+                        <MoreVertIcon />
+                      </IconButton>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                      >
+                        <MenuItem onClick={handleEditPreferences}>
+                          <EditIcon />
+                          <Typography sx={{ ml: 1 }}>編輯喜好</Typography>
+                        </MenuItem>
+                        <MenuItem onClick={handleCreateGroup}>
+                          <GroupsIcon />
+                          <Typography sx={{ ml: 1 }}> 新增群組</Typography>
+                        </MenuItem>
+                      </Menu>
+                    </>
+                  }
+                  sx={{ bgcolor: '#ddb892' }}
+                />
+
+                <CardContent sx={{ bgcolor: '#FFFBF1' }}>
+                  {editMode ? (
+                    <>
+                      <FormControl fullWidth sx={{ minWidth: 240, my: 2 }}>
+                        <InputLabel id='recipeCategory-label' color='success'>
+                          飲食習慣
+                        </InputLabel>
+                        <Select
+                          labelId='recipeCategory-label'
+                          id='recipeCategory'
+                          value={preferCategory}
+                          label='飲食習慣'
+                          onChange={handleCategoryChange}
+                          color='success'
+                        >
+                          <MenuItem value={'無'}>無</MenuItem>
+                          <MenuItem value={'奶蛋素'}>奶蛋素</MenuItem>
+                          <MenuItem value={'全素'}>全素</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <Box
+                        component='form'
+                        onSubmit={handleAddPreview}
+                        noValidate
                         sx={{
-                          bgcolor: '#FFEDC0',
-                          marginBottom: 1,
-                          borderRadius: '16px',
-                          height: 30,
-                          width: 'auto',
                           display: 'flex',
-                          justifyContent: 'flex-end',
-                          mr: 1,
+                          alignItems: 'center',
+                          mb: 1,
                         }}
                       >
-                        <Typography variant='body2' sx={{ mr: 1 }}>
-                          {item}
-                        </Typography>
-                        <IconButton
-                          edge='end'
-                          aria-label='delete'
-                          onClick={() => handleDelete(index)}
+                        <TextField
+                          id='omit'
+                          label='新增排除食材'
+                          name='omit'
+                          value={omit}
+                          onChange={(e) => setOmit(e.target.value)}
+                          autoFocus
+                          color='success'
+                          sx={{ flexGrow: 1, mr: 1 }}
+                        />
+                        <Button
+                          type='submit'
+                          variant='contained'
+                          sx={{
+                            bgcolor: '#e2711d',
+                            height: 50,
+                            ':hover': { bgcolor: '#B7560B' },
+                          }}
                         >
-                          <CloseIcon />
-                        </IconButton>
-                      </ListItem>
-                    ))}
-                  </List>
-                  <Button
-                    type='submit'
-                    variant='contained'
-                    onClick={handleSubmit}
-                    sx={{
-                      bgcolor: '#6f5e53',
-                      height: 50,
-                      ':hover': { bgcolor: '#55463E' },
-                    }}
-                  >
-                    上傳更新
-                  </Button>
-                  <Button
-                    onClick={cancelEditPreferences}
-                    sx={{
-                      ml: 2,
-                      color: '#3c1518',
-                      ':hover': { color: '#c3a995', bgcolor: '#FFFBF1' },
-                    }}
-                  >
-                    取消
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Typography
-                    sx={{
-                      mb: 2,
-                      mt: 1.2,
-                      fontSize: '1.2rem',
-                      color: '#6b705c',
-                      fontWeight: 500,
-                    }}
-                  >
-                    飲食習慣: {userData.preference}
-                  </Typography>
-                  <Typography sx={{ color: '#B47552', fontWeight: 500 }}>
-                    排除食材
-                  </Typography>
-                  <Typography
-                    sx={{
-                      mb: 1.5,
-                      color: '#6c584c',
-                    }}
-                  >
-                    {userData.omit.join('、')}
-                  </Typography>
-                  <Typography
-                    sx={{ mb: 1.5, color: '#B47552', fontWeight: 500 }}
-                  >
-                    已收藏食譜
-                    <br />
-                    {Array.isArray(userData.liked_recipes)
-                      ? userData.liked_recipes.length
-                      : 0}
-                  </Typography>
+                          新增
+                        </Button>
+                      </Box>
+                      <List
+                        sx={{ display: 'flex', alignItems: 'center', mb: 2 }}
+                      >
+                        {previewList.map((item, index) => (
+                          <ListItem
+                            key={index}
+                            sx={{
+                              bgcolor: '#FFEDC0',
+                              marginBottom: 1,
+                              borderRadius: '16px',
+                              height: 30,
+                              width: 'auto',
+                              display: 'flex',
+                              justifyContent: 'flex-end',
+                              mr: 1,
+                            }}
+                          >
+                            <Typography variant='body2' sx={{ mr: 1 }}>
+                              {item}
+                            </Typography>
+                            <IconButton
+                              edge='end'
+                              aria-label='delete'
+                              onClick={() => handleDelete(index)}
+                            >
+                              <CloseIcon />
+                            </IconButton>
+                          </ListItem>
+                        ))}
+                      </List>
+                      <Button
+                        type='submit'
+                        variant='contained'
+                        onClick={handleSubmit}
+                        sx={{
+                          bgcolor: '#6f5e53',
+                          height: 50,
+                          ':hover': { bgcolor: '#55463E' },
+                        }}
+                      >
+                        上傳更新
+                      </Button>
+                      <Button
+                        onClick={cancelEditPreferences}
+                        sx={{
+                          ml: 2,
+                          color: '#3c1518',
+                          ':hover': { color: '#c3a995', bgcolor: '#FFFBF1' },
+                        }}
+                      >
+                        取消
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Typography
+                        sx={{
+                          mb: 2,
+                          mt: 1.2,
+                          fontSize: '1.2rem',
+                          color: '#6b705c',
+                          fontWeight: 500,
+                        }}
+                      >
+                        飲食習慣: {userData.preference}
+                      </Typography>
+                      <Typography sx={{ color: '#B47552', fontWeight: 500 }}>
+                        排除食材
+                      </Typography>
+                      <Typography
+                        sx={{
+                          mb: 1.5,
+                          color: '#6c584c',
+                        }}
+                      >
+                        {userData.omit.join('、')}
+                      </Typography>
+                      <Typography
+                        sx={{ mb: 1.5, color: '#B47552', fontWeight: 500 }}
+                      >
+                        已收藏食譜
+                        <br />
+                        {Array.isArray(userData.liked_recipes)
+                          ? userData.liked_recipes.length
+                          : 0}
+                      </Typography>
 
-                  <Typography sx={{ color: '#B47552', fontWeight: 500 }}>
-                    群組
-                  </Typography>
-                  <Grid container justifyContent='center'>
-                    {userFridge.map((fridge) => (
-                      <FridgeCard key={fridge._id} fridge={fridge} />
-                    ))}
-                  </Grid>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </Box>
+                      <Typography sx={{ color: '#B47552', fontWeight: 500 }}>
+                        群組
+                      </Typography>
+                      <Grid container justifyContent='center'>
+                        {userFridge.map((fridge) => (
+                          <FridgeCard key={fridge._id} fridge={fridge} />
+                        ))}
+                      </Grid>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </Box>
+          </Grid>
+        </Grid>
       )}
     </>
   );

@@ -541,8 +541,8 @@ export default function ShowFridgeAndRecipe() {
                 sx={{
                   fontWeight: 550,
                   mb: 2,
-                  fontSize: '3.1rem',
-                  letterSpacing: '0.1rem',
+                  fontSize: { xs: '2.3rem', md: '3.1rem' },
+                  letterSpacing: { xs: 0, md: '0.1rem' },
                   color: '#635954',
                 }}
               >
@@ -551,7 +551,7 @@ export default function ShowFridgeAndRecipe() {
               <Box
                 sx={{
                   display: 'flex',
-                  flexWrap: 'wrap',
+
                   alignItems: 'center',
                   mb: 4,
                 }}
@@ -559,10 +559,10 @@ export default function ShowFridgeAndRecipe() {
                 <FormControl
                   fullWidth
                   sx={{
-                    minWidth: 240,
-                    maxWidth: 275,
+                    minWidth: { xs: 0, md: 240 },
+                    maxWidth: { xs: 150, md: 275 },
                     my: 2,
-                    mx: 1,
+                    mr: 1,
                   }}
                 >
                   <InputLabel id='recipeCategory-label' color='success'>
@@ -575,7 +575,7 @@ export default function ShowFridgeAndRecipe() {
                     label='食譜類別'
                     onChange={handleCategoryChange}
                     color='success'
-                    sx={{ bgcolor: '#FFFBF0' }}
+                    sx={{ bgcolor: '#FFFBF0', width: { xs: 150, md: 262 } }}
                   >
                     <MenuItem value={'All'}>All</MenuItem>
                     <MenuItem value={'奶蛋素'}>奶蛋素</MenuItem>
@@ -583,8 +583,8 @@ export default function ShowFridgeAndRecipe() {
                   </Select>
                 </FormControl>
                 <Button
+                  // size='large'
                   variant='contained'
-                  size='large'
                   sx={{
                     ml: 1,
                     backgroundColor: '#f59b51',
@@ -592,6 +592,7 @@ export default function ShowFridgeAndRecipe() {
                       backgroundColor: '#C6600C',
                     },
                     height: 50,
+                    width: { xs: 90, md: 107 },
                   }}
                   onClick={handleRecommendRecipes}
                 >
@@ -610,7 +611,11 @@ export default function ShowFridgeAndRecipe() {
                 <Typography
                   variant='h5'
                   component='div'
-                  sx={{ mb: 1, letterSpacing: '0.03em' }}
+                  sx={{
+                    mb: 1,
+                    letterSpacing: '0.03em',
+                    fontSize: { xs: 20, md: 24 },
+                  }}
                 >
                   成員名單
                 </Typography>
@@ -653,7 +658,11 @@ export default function ShowFridgeAndRecipe() {
                     <Typography
                       variant='h5'
                       component='div'
-                      sx={{ mb: 1, letterSpacing: '0.03em' }}
+                      sx={{
+                        mb: 1,
+                        letterSpacing: '0.03em',
+                        fontSize: { xs: 20, md: 24 },
+                      }}
                     >
                       邀請中成員
                     </Typography>
@@ -692,7 +701,11 @@ export default function ShowFridgeAndRecipe() {
                 <Typography
                   variant='h5'
                   component='div'
-                  sx={{ mb: 1, letterSpacing: '0.03em' }}
+                  sx={{
+                    mb: 1,
+                    letterSpacing: '0.03em',
+                    fontSize: { xs: 20, md: 24 },
+                  }}
                 >
                   食材清單
                 </Typography>
@@ -738,18 +751,22 @@ export default function ShowFridgeAndRecipe() {
               <Typography
                 variant='h5'
                 component='div'
-                sx={{ mb: 3, ml: 2, letterSpacing: '0.06em', fontWeight: 500 }}
+                sx={{
+                  mb: { xs: 1, md: 3 },
+                  ml: 2,
+                  letterSpacing: '0.06em',
+                  fontWeight: 500,
+                  fontSize: { xs: 20, md: 24 },
+                }}
               >
                 食譜推薦清單
               </Typography>
               <Grid container>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                  {recipeData.map((recipe) => (
-                    <Grid item xs={12} md={6} lg={4} key={recipe._id}>
-                      <RecipeCard recipe={recipe} />
-                    </Grid>
-                  ))}
-                </Box>
+                {recipeData.map((recipe) => (
+                  <Grid item xs={12} md={6} lg={4} key={recipe._id}>
+                    <RecipeCard recipe={recipe} />
+                  </Grid>
+                ))}
               </Grid>
             </CardContent>
           </Card>

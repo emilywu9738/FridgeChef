@@ -22,6 +22,7 @@ import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import BookmarkRoundedIcon from '@mui/icons-material/BookmarkRounded';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PersonIcon from '@mui/icons-material/Person';
+import SearchIcon from '@mui/icons-material/Search';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -75,6 +76,9 @@ export default function NavBar() {
 
   const handleLikedRecipes = () => {
     navigate('/user/likedRecipe');
+  };
+  const handleSearchRecipes = () => {
+    navigate('/searchRecipes');
   };
 
   const handleNotifications = async (event) => {
@@ -165,6 +169,26 @@ export default function NavBar() {
           </Box>
 
           <Box sx={{ ml: 'auto' }}>
+            <Tooltip title='Search Recipes'>
+              <IconButton
+                onClick={handleSearchRecipes}
+                sx={{
+                  p: 0,
+                }}
+              >
+                <Avatar sx={{ bgcolor: '#6c584c', ml: 'auto' }}>
+                  <Avatar sx={{ bgcolor: '#faedcd', width: 32, height: 32 }}>
+                    <img
+                      src='/searchIcon.png'
+                      style={{ width: 20, height: 'auto', color: '#6c584c' }}
+                    />
+                  </Avatar>
+                </Avatar>
+              </IconButton>
+            </Tooltip>
+          </Box>
+
+          <Box sx={{ ml: 3 }}>
             <Tooltip title='Open Liked Recipes'>
               <IconButton
                 onClick={handleLikedRecipes}
@@ -181,79 +205,6 @@ export default function NavBar() {
                 </Avatar>
               </IconButton>
             </Tooltip>
-            <Menu
-              sx={{ mt: '45px' }}
-              id='menu-notify'
-              anchorEl={anchorElNotify}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorElNotify)}
-              onClose={handleCloseNotifyMenu}
-            >
-              {notifications.map((notification) => (
-                <MenuItem key={notification.id}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      flexWrap: 'wrap',
-                      maxWidth: 200,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        mb: 1,
-                      }}
-                    >
-                      <NotificationsNoneIcon sx={{ mr: 1, fontSize: 20 }} />
-                      <Typography
-                        sx={{
-                          flexGrow: 1,
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          fontSize: 14,
-                        }}
-                      >
-                        {notification.topic}
-                      </Typography>
-                    </Box>
-                    <Typography
-                      sx={{
-                        whiteSpace: 'normal',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        fontSize: 13,
-                      }}
-                    >
-                      {notification.content}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        whiteSpace: 'normal',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        fontSize: 11,
-                        mt: 1,
-                        fontStyle: 'italic',
-                        color: 'gray',
-                      }}
-                    >
-                      {notification.time}
-                    </Typography>
-                  </Box>
-                </MenuItem>
-              ))}
-            </Menu>
           </Box>
 
           <Box sx={{ ml: 3 }}>

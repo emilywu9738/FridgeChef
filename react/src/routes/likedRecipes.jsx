@@ -7,11 +7,8 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
+  Container,
   Grid,
-  Icon,
-  IconButton,
-  Menu,
-  MenuItem,
   Typography,
 } from '@mui/material';
 import BookmarkRoundedIcon from '@mui/icons-material/BookmarkRounded';
@@ -39,10 +36,17 @@ export default function LikedRecipes() {
   }, []);
 
   return (
-    <Box sx={{ py: 5 }}>
+    <Container
+      component='main'
+      maxWidth='xl'
+      sx={{
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        py: 4,
+      }}
+    >
       <Card
         sx={{
-          width: '80%',
           minHeight: '80vh',
           textAlign: 'center',
           borderRadius: 5,
@@ -58,7 +62,7 @@ export default function LikedRecipes() {
           <Grid container>
             <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
               {likedRecipes.map((recipe) => (
-                <Grid key={recipe._id} item xs={12} md={6} lg={4}>
+                <Grid key={recipe._id} item xs={12} md={6} lg={4} xl={3}>
                   <Box
                     onClick={() => handleRecipeDetails(recipe._id)}
                     sx={{
@@ -112,6 +116,6 @@ export default function LikedRecipes() {
           </Grid>
         </CardContent>
       </Card>
-    </Box>
+    </Container>
   );
 }

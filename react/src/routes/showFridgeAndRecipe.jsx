@@ -198,7 +198,7 @@ export default function ShowFridgeAndRecipe() {
     );
   }
 
-  function IngredientCard({ category, onDelete }) {
+  function IngredientCard({ category }) {
     const [isDeleteMode, setIsDeleteMode] = useState(false);
     const [itemsToDelete, setItemsToDelete] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
@@ -246,7 +246,6 @@ export default function ShowFridgeAndRecipe() {
           setOpenSuccessSnackbar(true);
           setSuccessMessage(response.data);
           setReload(!reload);
-          onDelete(itemsToDelete);
           setItemsToDelete([]);
           setIsDeleteMode(false);
         })
@@ -384,7 +383,11 @@ export default function ShowFridgeAndRecipe() {
               <Button
                 variant='outlined'
                 onClick={cancelDelete}
-                sx={{ color: 'grey' }}
+                sx={{
+                  color: 'grey',
+                  border: '1px solid grey',
+                  ':hover': { color: 'black', border: '1px solid black' },
+                }}
               >
                 取消
               </Button>

@@ -393,3 +393,10 @@ export const deleteItems = async (req, res) => {
 
   res.status(200).json('食材已刪除！');
 };
+
+export const searchRecipes = async (req, res) => {
+  const { ingredient } = req.query;
+
+  const result = await Recipe.find({ ingredients: ingredient });
+  res.send(result);
+};

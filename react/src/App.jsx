@@ -20,6 +20,7 @@ import RecipeDetails from './routes/recipeDetails';
 import NavBar from './routes/navbar';
 import LikedRecipes from './routes/likedRecipes';
 import { CssBaseline } from '@mui/material';
+import SearchRecipes from './routes/searchRecipe';
 
 const defaultTheme = createTheme({
   palette: {
@@ -79,6 +80,7 @@ function RouteStructure() {
         <Route path='fridge/create' element={<CreateItems />}></Route>
         <Route path='fridge/recipe' element={<ShowFridgeAndRecipe />}></Route>
         <Route path='fridge/recipeDetails' element={<RecipeDetails />}></Route>
+        <Route path='searchRecipes' element={<SearchRecipes />}></Route>
         <Route path='login' element={<Login />}></Route>
         <Route path='register' element={<Register />}></Route>
         <Route path='user/profile' element={<Profile />}></Route>

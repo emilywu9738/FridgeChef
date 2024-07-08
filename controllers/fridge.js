@@ -260,11 +260,13 @@ function filterItemsExpiringWithinDays(items) {
   today.setHours(0, 0, 0, 0);
 
   const dueDate = new Date();
-  dueDate.setDate(dueDate.getDate() + 3);
+
+  dueDate.setDate(dueDate.getDate() + 4);
   dueDate.setHours(0, 0, 0, 1);
 
   return items.filter((item) => {
     const expirationDate = new Date(item.expirationDate);
+
     return expirationDate <= dueDate;
   });
 }
@@ -285,10 +287,13 @@ export const recommendRecipe = async (req, res) => {
     });
   });
   const allOmitIngredients = Array.from(omitIngredients);
+
   const fridgeItems = fridgeData.ingredients.flatMap((c) => c.items);
+
   const fridgeItemNames = fridgeItems.map((item) => item.name);
 
   const filteredItems = filterItemsExpiringWithinDays(fridgeItems, 3);
+
   const expiringIngredientNames = filteredItems.map((item) => item.name);
 
   const omitRegex = generateRegexFromSynonyms(allOmitIngredients);
@@ -301,7 +306,7 @@ export const recommendRecipe = async (req, res) => {
 
   const cypherQuery = `
     MATCH (r:Recipe)-[:CONTAINS]->(i:Ingredient)
-    WHERE i.name =~ $searchRegex
+    WHERE (i.name =~ $searchRegex OR $searchRegex = '.*')
       AND NOT EXISTS {
         MATCH (r)-[:CONTAINS]->(i2:Ingredient)
         WHERE i2.name =~ $omitRegex 
@@ -322,7 +327,10 @@ export const recommendRecipe = async (req, res) => {
 
   try {
     const result = await session.run(cypherQuery, {
-      searchRegex,
+      searchRegex:
+        expiringIngredientNames.length > 0
+          ? generateRegexFromSynonyms(expiringIngredientNames)
+          : '.*',
       omitRegex,
       recipeCategory,
       expiringIngredientNames,
@@ -332,6 +340,7 @@ export const recommendRecipe = async (req, res) => {
     const recommendedRecipes = result.records.map(
       (record) => record.get('r').properties,
     );
+
     const recipeIds = recommendedRecipes.map((r) => r.id);
     const fullRecipes = await Recipe.find({
       _id: { $in: recipeIds },

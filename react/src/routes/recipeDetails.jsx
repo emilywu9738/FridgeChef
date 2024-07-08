@@ -70,6 +70,7 @@ export default function RecipeDetails() {
     apiClient
       .get(`/fridge/recipeDetails?id=${recipeId}`)
       .then((response) => {
+        console.log(response.data);
         setRecipe(response.data);
         setRecipeLikes(response.data.likes);
       })
@@ -194,7 +195,7 @@ export default function RecipeDetails() {
                   }}
                 >
                   <Typography color='gray'>
-                    {recipe.servings.trim() ? '份量' : ''}
+                    {recipe.servings && recipe.servings.trim() ? '份量' : ''}
                   </Typography>
                   <Typography sx={{ mt: '3px', fontSize: '19px' }}>
                     {recipe.servings}

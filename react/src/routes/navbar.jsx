@@ -40,7 +40,7 @@ export default function NavBar() {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [anchorElNotify, setAnchorElNotify] = useState(null);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState(['目前還沒有通知']);
   const [unreadCount, setUnreadCount] = useState(0);
   const [userId, setUserId] = useState('');
   const [groupId, setGroupId] = useState([]);
@@ -329,67 +329,83 @@ export default function NavBar() {
                 open={Boolean(anchorElNotify)}
                 onClose={handleCloseNotifyMenu}
               >
-                {notifications.map((notification) => (
-                  <MenuItem
-                    key={notification.id}
-                    onClick={(e) =>
-                      handleNotificationClick(e, notification.link)
-                    }
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        flexWrap: 'wrap',
-                        maxWidth: 200,
-                      }}
+                {notifications.length > 0 ? (
+                  notifications.map((notification) => (
+                    <MenuItem
+                      key={notification.id}
+                      onClick={(e) =>
+                        handleNotificationClick(e, notification.link)
+                      }
                     >
                       <Box
                         sx={{
                           display: 'flex',
-                          alignItems: 'center',
-                          mb: 1,
+                          flexDirection: 'column',
+                          flexWrap: 'wrap',
+                          maxWidth: 200,
                         }}
                       >
-                        <NotificationsNoneIcon sx={{ mr: 1, fontSize: 20 }} />
-                        <Typography
+                        <Box
                           sx={{
-                            flexGrow: 1,
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            fontSize: 14,
+                            display: 'flex',
+                            alignItems: 'center',
+                            mb: 1,
                           }}
                         >
-                          {notification.topic}
+                          <NotificationsNoneIcon sx={{ mr: 1, fontSize: 20 }} />
+                          <Typography
+                            sx={{
+                              flexGrow: 1,
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              fontSize: 14,
+                            }}
+                          >
+                            {notification.topic}
+                          </Typography>
+                        </Box>
+                        <Typography
+                          sx={{
+                            whiteSpace: 'normal',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            fontSize: 13,
+                          }}
+                        >
+                          {notification.content}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            whiteSpace: 'normal',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            fontSize: 11,
+                            mt: 1,
+                            fontStyle: 'italic',
+                            color: 'gray',
+                          }}
+                        >
+                          {notification.time}
                         </Typography>
                       </Box>
-                      <Typography
-                        sx={{
-                          whiteSpace: 'normal',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          fontSize: 13,
-                        }}
-                      >
-                        {notification.content}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          whiteSpace: 'normal',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          fontSize: 11,
-                          mt: 1,
-                          fontStyle: 'italic',
-                          color: 'gray',
-                        }}
-                      >
-                        {notification.time}
-                      </Typography>
-                    </Box>
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem>
+                    <Typography
+                      sx={{
+                        flexGrow: 1,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        fontSize: 14,
+                      }}
+                    >
+                      目前還沒有通知～
+                    </Typography>
                   </MenuItem>
-                ))}
+                )}
               </Menu>
             </Box>
 

@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   CardHeader,
+  Container,
   FormControl,
   Grid,
   IconButton,
@@ -46,8 +47,19 @@ export default function Profile() {
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [errors, setErrors] = useState({});
+  const [openDialog, setOpenDialog] = useState(false);
 
   const open = Boolean(anchorEl);
+
+  const handleClickOpen = (e) => {
+    e.stopPropagation();
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -76,8 +88,13 @@ export default function Profile() {
 
   const handleAddPreview = (event) => {
     event.preventDefault();
-    setPreviewList([...previewList, omit]);
-    setOmit('');
+    const newErrors = validate();
+    if (Object.keys(newErrors).length === 0) {
+      setPreviewList([...previewList, omit]);
+      setOmit('');
+    } else {
+      setErrors(newErrors);
+    }
   };
 
   const handleSubmit = () => {
@@ -131,63 +148,130 @@ export default function Profile() {
   };
 
   function FridgeCard({ fridge }) {
-    const fridgeMembers = fridge.members.map((m) => m.name).join(' ');
+    const fridgeMembers = fridge.members.map((m) => m.name).join('、');
     const handleFridgeClick = () => {
       navigate(`/fridge/recipe?id=${fridge._id}`);
+    };
+    const expiringItems = fridge.ingredients
+      .map((category) => ({
+        category: category.category,
+        items: category.items.filter((item) => {
+          const today = new Date();
+          const expirationDate = new Date(item.expirationDate);
+          return (
+            expirationDate > today &&
+            (expirationDate - today) / (1000 * 60 * 60 * 24) <= 4
+          );
+        }),
+      }))
+      .filter((category) => category.items.length > 0)
+      .sort((a, b) => new Date(a.expirationDate) - new Date(b.expirationDate));
+
+    const calculateDaysLeft = (expirationDate) => {
+      const today = new Date();
+      const date = new Date(expirationDate);
+      const timeDiff = date - today;
+      const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // 計算剩餘天數
+      return daysLeft;
     };
 
     return (
       <>
-        <Grid item xs={12} md={6}>
-          <Card
-            elevation={3}
-            sx={{
-              flexGrow: 1,
-              position: 'relative',
-              m: 2,
-              borderRadius: 5,
-            }}
-          >
-            <CardHeader
-              title={
-                <Typography
-                  variant='h5'
-                  sx={{
-                    fontSize: '1rem',
-                    color: 'white',
-                    fontWeight: 550,
-                  }}
-                >
-                  {fridge.name}
-                </Typography>
-              }
-              onClick={handleFridgeClick}
-              sx={{
-                bgcolor: '#6c584c',
-                cursor: 'pointer',
-                ':hover': {
-                  backgroundColor: '#9c6644',
-                },
-              }}
-            />
-
-            <CardContent>
+        <Card
+          elevation={3}
+          onClick={handleFridgeClick}
+          sx={{
+            position: 'relative',
+            m: 2,
+            borderRadius: 4,
+            minWidth: 150,
+            cursor: 'pointer',
+            '&:hover .card-header': {
+              bgcolor: '#9c6644',
+            },
+          }}
+        >
+          <CardHeader
+            className='card-header'
+            title={
               <Typography
-                sx={{ fontSize: 14 }}
-                color='text.secondary'
-                component='div'
-                gutterBottom
+                variant='h5'
+                sx={{
+                  fontSize: '1rem',
+                  color: 'white',
+                  fontWeight: 550,
+                }}
               >
-                成員
-                <br />
-                {fridgeMembers}
+                {fridge.name}
               </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+            }
+            sx={{
+              bgcolor: '#6c584c',
+            }}
+          />
+
+          <CardContent sx={{ bgcolor: '#FFFEFC' }}>
+            <Typography
+              sx={{
+                fontSize: 16,
+                m: 1,
+                color: '#4D3F36',
+                fontWeight: 'bold',
+              }}
+              component='div'
+              gutterBottom
+            >
+              成員
+            </Typography>
+            <Typography sx={{ fontSize: 14, mx: 2, mb: 2, color: '#795E58' }}>
+              {fridgeMembers}
+            </Typography>
+            <Typography
+              sx={{ fontSize: 16, m: 1, color: '#4D3F36', fontWeight: 'bold' }}
+            >
+              即將到期
+            </Typography>
+            {expiringItems.length > 0 ? (
+              expiringItems.map((category) => (
+                <Box key={category.category} sx={{ my: 1, mx: 2 }}>
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      fontWeight: 'bold',
+                      mb: 1,
+                      color: '#876A62',
+                    }}
+                  >
+                    {category.category}類
+                  </Typography>
+                  {category.items.map((item) => (
+                    <Typography
+                      key={item._id}
+                      sx={{ fontSize: 14, ml: 2, color: '#342926' }}
+                    >
+                      {item.name} ⇒{' '}
+                      {new Date(item.expirationDate).toLocaleDateString()} ({' '}
+                      {calculateDaysLeft(item.expirationDate)}天後 )
+                    </Typography>
+                  ))}
+                </Box>
+              ))
+            ) : (
+              <Typography sx={{ fontSize: 14, ml: 2 }}>
+                沒有即將到期的項目
+              </Typography>
+            )}
+          </CardContent>
+        </Card>
       </>
     );
   }
+
+  const validate = () => {
+    const newErrors = {};
+    if (!omit) newErrors.omit = '食材名稱不能空白！';
+    return newErrors;
+  };
 
   useEffect(() => {
     apiClient('/user/profile', {
@@ -241,28 +325,29 @@ export default function Profile() {
           {errorMessage}
         </Alert>
       </Snackbar>
+
       {Object.keys(userData).length > 0 && (
-        <Grid container>
-          <Grid item xs={12}>
-            <Box
-              sx={{
-                minHeight: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                mt: { xs: 5, md: 10 },
-                mx: 1,
-              }}
-            >
-              <Card
-                sx={{ maxWidth: 500, textAlign: 'center', borderRadius: 5 }}
-              >
+        <Container
+          component='main'
+          maxWidth='md'
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            minHeight: '93vh',
+            py: 4,
+          }}
+        >
+          <Grid container display='flex' sx={{ minHeight: '93vh' }}>
+            <Grid item xs={12} md={5}>
+              <Card sx={{ textAlign: 'center', borderRadius: 5, m: 2 }}>
                 <CardHeader
                   title={
                     <Typography
                       variant='h5'
                       sx={{
-                        fontSize: { xs: '2.1rem', md: '2.5rem' },
+                        fontSize: 32,
                         color: '#5c4742',
                       }}
                     >
@@ -275,7 +360,7 @@ export default function Profile() {
                       sx={{
                         color: '#FFFBF1',
                         fontStyle: 'italic',
-                        fontSize: { xs: 13, md: 16 },
+                        fontSize: 12,
                       }}
                     >
                       {userData.email}
@@ -297,15 +382,15 @@ export default function Profile() {
                         </MenuItem>
                         <MenuItem onClick={handleCreateGroup}>
                           <GroupsIcon />
-                          <Typography sx={{ ml: 1 }}> 新增群組</Typography>
+                          <Typography sx={{ ml: 1 }}> 新增冰箱</Typography>
                         </MenuItem>
                       </Menu>
                     </>
                   }
-                  sx={{ bgcolor: '#ddb892' }}
+                  sx={{ bgcolor: '#ddb892', pr: 2 }}
                 />
 
-                <CardContent sx={{ bgcolor: '#FFFBF1' }}>
+                <CardContent sx={{ bgcolor: '#FFFBF1', p: 4 }}>
                   {editMode ? (
                     <>
                       <FormControl fullWidth sx={{ minWidth: 240, my: 2 }}>
@@ -319,6 +404,7 @@ export default function Profile() {
                           label='飲食習慣'
                           onChange={handleCategoryChange}
                           color='success'
+                          sx={{ mb: 2 }}
                         >
                           <MenuItem value={'無'}>無</MenuItem>
                           <MenuItem value={'奶蛋素'}>奶蛋素</MenuItem>
@@ -340,25 +426,50 @@ export default function Profile() {
                           label='新增排除食材'
                           name='omit'
                           value={omit}
-                          onChange={(e) => setOmit(e.target.value)}
+                          onChange={(e) => {
+                            setOmit(e.target.value);
+                            setErrors({});
+                          }}
                           autoFocus
                           color='success'
                           sx={{ flexGrow: 1, mr: 1 }}
+                          error={!!errors.omit}
+                          helperText={errors.omit}
                         />
-                        <Button
-                          type='submit'
-                          variant='contained'
-                          sx={{
-                            bgcolor: '#e2711d',
-                            height: 50,
-                            ':hover': { bgcolor: '#B7560B' },
-                          }}
-                        >
-                          新增
-                        </Button>
+                        {Object.keys(errors).length > 0 ? (
+                          <Button
+                            type='submit'
+                            variant='contained'
+                            sx={{
+                              bgcolor: '#e2711d',
+                              height: 50,
+                              ':hover': { bgcolor: '#B7560B' },
+                              mb: 3,
+                            }}
+                          >
+                            新增
+                          </Button>
+                        ) : (
+                          <Button
+                            type='submit'
+                            variant='contained'
+                            sx={{
+                              bgcolor: '#e2711d',
+                              height: 50,
+                              ':hover': { bgcolor: '#B7560B' },
+                            }}
+                          >
+                            新增
+                          </Button>
+                        )}
                       </Box>
                       <List
-                        sx={{ display: 'flex', alignItems: 'center', mb: 2 }}
+                        sx={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          alignItems: 'center',
+                          mb: 2,
+                        }}
                       >
                         {previewList.map((item, index) => (
                           <ListItem
@@ -404,7 +515,10 @@ export default function Profile() {
                         sx={{
                           ml: 2,
                           color: '#3c1518',
-                          ':hover': { color: '#c3a995', bgcolor: '#FFFBF1' },
+                          ':hover': {
+                            color: '#c3a995',
+                            bgcolor: '#FFFBF1',
+                          },
                         }}
                       >
                         取消
@@ -421,9 +535,11 @@ export default function Profile() {
                           fontWeight: 500,
                         }}
                       >
-                        飲食習慣: {userData.preference}
+                        飲食習慣 ⇨ {userData.preference}
                       </Typography>
-                      <Typography sx={{ color: '#B47552', fontWeight: 500 }}>
+                      <Typography
+                        sx={{ color: '#B47552', fontWeight: 500, mb: 1 }}
+                      >
                         排除食材
                       </Typography>
                       <Typography
@@ -443,22 +559,35 @@ export default function Profile() {
                           ? userData.liked_recipes.length
                           : 0}
                       </Typography>
-
-                      <Typography sx={{ color: '#B47552', fontWeight: 500 }}>
-                        群組
-                      </Typography>
-                      <Grid container justifyContent='center'>
-                        {userFridge.map((fridge) => (
-                          <FridgeCard key={fridge._id} fridge={fridge} />
-                        ))}
-                      </Grid>
                     </>
                   )}
                 </CardContent>
               </Card>
-            </Box>
+            </Grid>
+            <Grid item xs={12} md={7}>
+              <Card
+                sx={{
+                  borderRadius: 6,
+                  mx: 2,
+                  px: 1,
+                  pb: 2,
+                  bgcolor: '#FFFBF1',
+                  my: 2,
+                }}
+              >
+                <Typography
+                  variant='h6'
+                  sx={{ mx: 2, mt: 3, mb: 2, color: '#5C4742', fontSize: 22 }}
+                >
+                  我的冰箱
+                </Typography>
+                {userFridge.map((fridge) => (
+                  <FridgeCard key={fridge._id} fridge={fridge} />
+                ))}
+              </Card>
+            </Grid>
           </Grid>
-        </Grid>
+        </Container>
       )}
     </>
   );

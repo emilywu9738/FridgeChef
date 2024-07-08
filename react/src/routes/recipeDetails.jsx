@@ -120,7 +120,10 @@ export default function RecipeDetails() {
     >
       <Grid container display='flex' sx={{ minHeight: '93vh' }}>
         <Grid item xs={12} md={8}>
-          <Card elevation={10} sx={{ borderRadius: '15px', mx: 2, mb: 4 }}>
+          <Card
+            elevation={10}
+            sx={{ borderRadius: '15px', mx: { xs: 0, md: 2 } }}
+          >
             <CardHeader
               title={
                 <Typography
@@ -141,7 +144,7 @@ export default function RecipeDetails() {
                 <IconButton aria-label='settings' onClick={handleButtonClick}>
                   <BookmarksIcon
                     sx={{
-                      color: liked ? 'red' : 'black',
+                      color: liked ? '#FB8A18' : 'black',
                       fontSize: '35px',
                     }}
                   />
@@ -154,9 +157,9 @@ export default function RecipeDetails() {
               <Box sx={{ mx: 1, mt: 1 }}>
                 <CardMedia
                   component='img'
-                  height='400'
                   image={recipe.coverImage ? recipe.coverImage : '/empty.jpg'}
                   alt={recipe.title}
+                  sx={{ height: { xs: 300, sm: 480, md: 450, lg: 480 } }}
                 />
               </Box>
 
@@ -190,7 +193,9 @@ export default function RecipeDetails() {
                     flexDirection: 'column',
                   }}
                 >
-                  <Typography color='gray'>份量</Typography>
+                  <Typography color='gray'>
+                    {recipe.servings.trim() ? '份量' : ''}
+                  </Typography>
                   <Typography sx={{ mt: '3px', fontSize: '19px' }}>
                     {recipe.servings}
                   </Typography>
@@ -209,11 +214,17 @@ export default function RecipeDetails() {
                   sx={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(2, 1fr)',
-                    gap: 1,
+                    gap: { xs: 0, md: 1 },
                   }}
                 >
                   {recipe.ingredientsDetail?.map((ingredient, index) => (
-                    <ListItem key={index} sx={{ py: '5px', color: 'gray' }}>
+                    <ListItem
+                      key={index}
+                      sx={{
+                        color: 'gray',
+                        fontSize: { xs: 14, md: 16 },
+                      }}
+                    >
                       {ingredient}
                     </ListItem>
                   ))}
@@ -223,25 +234,32 @@ export default function RecipeDetails() {
               <List sx={{ mt: 3, p: 1 }}>
                 {recipe.instructions?.map((step, index) => (
                   <Box key={index} sx={{ mt: 2 }}>
-                    <Typography variant='h6'>{`步驟 ${index + 1}`}</Typography>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        mr: 1,
-                        width: '100%',
-                        justifyContent: 'space-between',
-                      }}
-                    >
-                      <Typography sx={{ mt: 1, mr: 1 }}>
-                        {step.stepText}
-                      </Typography>
-                      <CardMedia
-                        component='img'
-                        image={step.stepImage}
-                        alt={`步驟 ${index + 1}`}
-                        sx={{ width: '35%' }}
-                      />
-                    </Box>
+                    <Typography
+                      variant='h6'
+                      sx={{ fontSize: { xs: 15, md: 20 } }}
+                    >{`步驟 ${index + 1}`}</Typography>
+
+                    <Grid container>
+                      <Grid item xs={8}>
+                        <Typography
+                          sx={{ mt: 1, mr: 1, fontSize: { xs: 13, md: 16 } }}
+                        >
+                          {step.stepText}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <CardMedia
+                          component='img'
+                          image={step.stepImage}
+                          alt={`步驟 ${index + 1}`}
+                          sx={{
+                            objectFit: 'cover',
+                            objectPosition: 'center',
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+
                     <Divider sx={{ mt: 2 }} />
                   </Box>
                 ))}
@@ -254,7 +272,7 @@ export default function RecipeDetails() {
             elevation={10}
             sx={{
               borderRadius: '15px',
-              mx: 2,
+              mx: { lg: 2 },
               mb: 4,
               bgcolor: '#FFFBF1',
               p: 1,
@@ -272,9 +290,9 @@ export default function RecipeDetails() {
                   elevation={1}
                   key={index}
                   sx={{
-                    mb: 3,
-                    mx: 2,
-                    height: '130px',
+                    mb: { xs: 2, lg: 3 },
+                    mx: { xs: 1, lg: 2 },
+                    height: { xs: 140, md: 130 },
                     display: 'flex',
                     borderRadius: '12px',
                     cursor: 'pointer',
@@ -293,7 +311,7 @@ export default function RecipeDetails() {
                         sx={{
                           objectFit: 'cover',
                           objectPosition: 'center',
-                          height: '130px',
+                          height: { xs: 140, md: 130 },
                         }}
                       />
                     </Grid>
@@ -303,14 +321,28 @@ export default function RecipeDetails() {
                           gutterBottom
                           variant='h6'
                           component='div'
-                          sx={{ fontSize: 16 }}
+                          sx={{
+                            fontSize: { xs: 14, md: 13, lg: 16 },
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
                         >
                           {recRecipe.title}
                         </Typography>
                         <Typography
                           variant='body2'
                           color='text.secondary'
-                          sx={{ fontSize: 12 }}
+                          sx={{
+                            fontSize: { xs: 10, lg: 12 },
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
                         >
                           {recRecipe.tags.map((tag) => `#${tag}`).join(' ')}
                         </Typography>

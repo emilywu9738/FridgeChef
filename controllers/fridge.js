@@ -168,7 +168,7 @@ export const createIngredients = async (req, res) => {
   const notification = new Notification({
     type: 'create',
     target: { type: 'Fridge', id: fridgeId },
-    content: `${createUser.name} 已更新食材至 ${fridge.name}。 食材列表： ${message}`,
+    content: `【 ${fridge.name} 】${createUser.name} 已更新食材。 食材列表： ${message}`,
   });
 
   await notification.save();

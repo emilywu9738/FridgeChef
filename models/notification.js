@@ -15,6 +15,7 @@ const notificationSchema = new Schema({
   content: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
   readStatus: { type: Boolean, default: false },
+  link: { type: String },
 });
 
 export default mongoose.model('Notification', notificationSchema);

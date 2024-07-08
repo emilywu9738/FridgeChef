@@ -116,17 +116,17 @@ export default function Register() {
           bgcolor: '#FFF9EE',
           p: 5,
           minHeight: '50vh',
-          opacity: '93%',
+          opacity: '90%',
           borderRadius: '15px',
         }}
       >
         <Box
           sx={{
             flex: 1,
-            display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             mr: 5,
+            display: { xs: 'none', sm: 'flex' },
           }}
         >
           <img
@@ -144,8 +144,8 @@ export default function Register() {
             ml: 3,
           }}
         >
-          <Avatar sx={{ m: 2, bgcolor: '#F48C06' }}>
-            <LockOutlinedIcon />
+          <Avatar sx={{ m: 2, bgcolor: '#CC8156' }}>
+            <LockOutlinedIcon sx={{ color: '#F4E0C9' }} />
           </Avatar>
           <Typography component='h1' variant='h5'>
             新戶註冊
@@ -161,6 +161,7 @@ export default function Register() {
               required
               fullWidth
               name='name'
+              color='success'
               label='Username'
               type='text'
               id='name'
@@ -170,6 +171,7 @@ export default function Register() {
             <TextField
               margin='normal'
               required
+              color='success'
               fullWidth
               id='email'
               label='Email Address'
@@ -179,6 +181,7 @@ export default function Register() {
             <TextField
               margin='normal'
               required
+              color='success'
               fullWidth
               name='password'
               label='Password'
@@ -190,12 +193,30 @@ export default function Register() {
               type='submit'
               fullWidth
               variant='contained'
-              sx={{ mt: 3, mb: 2, bgcolor: '#DDA15E' }}
+              sx={{
+                mt: 3,
+                mb: 2,
+                bgcolor: '#DDA15E',
+                ':hover': {
+                  backgroundColor: '#C07A29',
+                },
+              }}
             >
               註冊
             </Button>
             <Typography>
-              <Link href='/login' variant='body2'>
+              <Link
+                href='/login'
+                variant='body2'
+                sx={{
+                  color: '#AD6D25',
+                  textDecorationColor: '#AD6D25',
+                  ':hover': {
+                    color: '#261808',
+                    textDecorationColor: '#261808',
+                  },
+                }}
+              >
                 已經有帳戶了嗎？按這裡登入～
               </Link>
             </Typography>

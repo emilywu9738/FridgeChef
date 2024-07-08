@@ -56,17 +56,35 @@ export default function CreateItems() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [alignment, setAlignment] = useState('picture');
-  const [pictureCreate, setPictureCreate] = useState(true);
+  const [errors, setErrors] = useState({});
 
   const handleAddPreview = (event) => {
     event.preventDefault();
-    setPreviewList([...previewList, { name, expired, category }]);
-    setName('');
-    setExpired('');
-    setCategory('');
+    const newErrors = validate();
+    if (Object.keys(newErrors).length === 0) {
+      setPreviewList([...previewList, { name, expired, category }]);
+      setName('');
+      setExpired('');
+      setCategory('');
+      setErrors({});
+    } else {
+      setErrors(newErrors);
+    }
   };
 
   const handleSubmit = () => {
+    let isValid = true;
+    previewList.forEach((item) => {
+      if (!item.name || !item.expired || !item.category) {
+        isValid = false;
+      }
+    });
+    if (!isValid) {
+      setOpenErrorSnackbar(true);
+      setErrorMessage('請確認每個食材是否都已填入過期時間及類別！');
+      return;
+    }
+
     const fridgeId = searchParams.get('fridgeId');
     apiClient
       .post(`/fridge/create?fridgeId=${fridgeId}`, previewList, {
@@ -92,12 +110,11 @@ export default function CreateItems() {
           setOpenErrorSnackbar(true);
         }
       });
-
-    setPreviewList([]);
   };
 
   const handleCategoryChange = (event) => {
     setCategory(event.target.value);
+    setErrors((prevErrors) => ({ ...prevErrors, category: '' }));
   };
 
   const handleDelete = (index) => {
@@ -169,6 +186,14 @@ export default function CreateItems() {
 
   const handleAlignment = (event, newAlignment) => {
     setAlignment(newAlignment);
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (!name) newErrors.name = '請輸入食材名稱';
+    if (!expired) newErrors.expired = '請輸入食材過期時間';
+    if (!category) newErrors.category = '請選擇食材類別';
+    return newErrors;
   };
 
   return (
@@ -281,6 +306,9 @@ export default function CreateItems() {
                         type='file'
                         onChange={handleFileChange}
                       />
+                      <Typography sx={{ fontSize: 13, mb: 2, color: 'grey' }}>
+                        ✦【圖片新增食材】尚需至預覽列表編輯輸入過期時間及類別
+                      </Typography>
                       <label htmlFor='raised-button-file'>
                         <Button
                           variant='contained'
@@ -335,10 +363,18 @@ export default function CreateItems() {
                         label='食材名稱'
                         name='name'
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => {
+                          setName(e.target.value);
+                          setErrors((prevErrors) => ({
+                            ...prevErrors,
+                            name: '',
+                          }));
+                        }}
                         autoFocus
                         color='success'
                         sx={{ bgcolor: '#FBFBFB' }}
+                        error={!!errors.name}
+                        helperText={errors.name}
                       />
                       <TextField
                         margin='normal'
@@ -349,14 +385,26 @@ export default function CreateItems() {
                         type='date'
                         id='expired'
                         value={expired}
-                        onChange={(e) => setExpired(e.target.value)}
+                        onChange={(e) => {
+                          setExpired(e.target.value);
+                          setErrors((prevErrors) => ({
+                            ...prevErrors,
+                            expired: '',
+                          }));
+                        }}
                         InputLabelProps={{
                           shrink: true,
                         }}
                         color='success'
                         sx={{ bgcolor: '#FBFBFB' }}
+                        error={!!errors.expired}
+                        helperText={errors.expired}
                       />
-                      <FormControl fullWidth margin='normal'>
+                      <FormControl
+                        fullWidth
+                        margin='normal'
+                        error={!!errors.category}
+                      >
                         <InputLabel
                           id='category-label'
                           color='success'
@@ -379,6 +427,18 @@ export default function CreateItems() {
                             </MenuItem>
                           ))}
                         </Select>
+                        {errors.category && (
+                          <Box
+                            sx={{
+                              color: 'error.main',
+                              ml: 2,
+                              mt: 1,
+                              fontSize: 12,
+                            }}
+                          >
+                            {errors.category}
+                          </Box>
+                        )}
                       </FormControl>
                       <Button
                         type='submit'
@@ -424,7 +484,7 @@ export default function CreateItems() {
                         my: 2,
                         backgroundImage: 'url(/board.png)',
                         backgroundSize: 'cover',
-                        backgroundPosition: 'center',
+                        backgroundPosition: 'bottom',
                       }}
                     >
                       {isEditing && editIndex === index ? (

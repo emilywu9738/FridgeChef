@@ -49,7 +49,9 @@ function Invitation() {
         } else if (err.response && err.response.status === 403) {
           navigate('/forbidden');
         } else {
-          setErrorMessage('群組加入失敗');
+          setErrorMessage(
+            err.response.data ? err.response.data : '群組加入失敗',
+          );
           setOpenErrorSnackbar(true);
         }
       });
@@ -71,7 +73,6 @@ function Invitation() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        bgcolor: '#faedcd',
       }}
     >
       <Snackbar
@@ -103,7 +104,7 @@ function Invitation() {
           {errorMessage}
         </Alert>
       </Snackbar>
-      <Card sx={{ width: 500, textAlign: 'center', borderRadius: 5 }}>
+      <Card sx={{ width: 500, textAlign: 'center', borderRadius: 5, mx: 1 }}>
         <CardHeader
           title={
             <Typography
@@ -115,7 +116,7 @@ function Invitation() {
           }
           subheader={
             <Typography variant='subtitle1' sx={{ color: '#FFFBF1' }}>
-              歡迎您來到 FridgeChef
+              歡迎加入 FridgeChef
             </Typography>
           }
           sx={{ bgcolor: '#ddb892' }}

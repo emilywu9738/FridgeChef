@@ -115,9 +115,10 @@ export const getUserInfo = async (req, res) => {
   const { id } = req.user;
   const user = await User.findById(id);
   const userName = user.name;
+  const userEmail = user.email;
   const userFridge = await Fridge.find({ members: id });
   const groupId = userFridge.map((fridge) => fridge._id.toString());
-  res.send({ userId: id, groupId, userName });
+  res.send({ userId: id, groupId, userName, userEmail });
 };
 
 export const getLikedRecipes = async (req, res) => {
@@ -200,7 +201,8 @@ export const createGroup = async (req, res) => {
       const notification = new Notification({
         type: 'invitation',
         target: { type: 'User', id: member._id.toString() },
-        content: `${host.name} 已邀請您至 ${name}。 `,
+        content: `${host.name} 已邀請您至【 ${name}  】，點擊此通知加入。 `,
+        link: `/user/invitation?id=${invitationId}&email=${member.email}`,
       });
 
       await notification.save();
@@ -208,9 +210,14 @@ export const createGroup = async (req, res) => {
 
       const userId = member._id.toString();
 
-      const { socketId } = getUser(userId);
+      const user = getUser(userId);
 
-      io.to(socketId).emit('notification', 'new notification!');
+      if (user && user.socketId) {
+        const { socketId } = user;
+        io.to(socketId).emit('notification', 'new notification!');
+      } else {
+        console.log(`User with ID ${userId} is not online.`);
+      }
     });
     await Promise.all(invitePromises);
   }
@@ -233,6 +240,12 @@ export const validateInvitation = async (req, res) => {
     throw new ExpressError('邀請已過期或不存在', 404);
   }
 
+  const alreadyJoinedGroup = await Fridge.findOne({
+    _id: invitation.groupId,
+    members: user.id,
+  });
+  if (alreadyJoinedGroup) throw new ExpressError('已加入該群組', 400);
+
   const result = await Fridge.findOneAndUpdate(
     { _id: invitation.groupId },
     {
@@ -244,7 +257,7 @@ export const validateInvitation = async (req, res) => {
   const groupNotification = new Notification({
     type: 'invitation',
     target: { type: 'Fridge', id: invitation.groupId },
-    content: `${foundUser.name} 已成功加入群組 ${result.name}`,
+    content: `【 ${result.name} 】${foundUser.name} 已成功加入`,
   });
 
   await groupNotification.save();
@@ -281,7 +294,7 @@ export const getNotifications = async (req, res) => {
     if (notificationType === 'expire') {
       return '過期通知';
     }
-    return '群組邀請';
+    return '冰箱通知';
   }
 
   function timeSince(date) {
@@ -324,6 +337,7 @@ export const getNotifications = async (req, res) => {
     content: notify.content,
     time: timeSince(notify.createdAt),
     readStatus: notify.readStatus,
+    link: notify.link,
   }));
 
   await Notification.updateMany(

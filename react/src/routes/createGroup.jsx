@@ -165,25 +165,37 @@ export default function CreateGroup() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            mt: 10,
           }}
         >
-          <Card sx={{ width: 500, textAlign: 'center', borderRadius: 5 }}>
+          <Card
+            sx={{
+              maxWidth: 480,
+              textAlign: 'center',
+              borderRadius: 5,
+              mt: { xs: 5, md: 10 },
+              mx: 1,
+            }}
+          >
             <CardHeader
               title={
                 <Typography
                   variant='h5'
-                  sx={{ fontSize: '2rem', color: '#5c4742', my: 1 }}
+                  sx={{ fontSize: 27, color: '#5c4742', my: '5px' }}
                 >
-                  新增群組
+                  新增冰箱
                 </Typography>
               }
               subheader={
                 <Typography
                   variant='subtitle1'
-                  sx={{ color: '#FFFBF1', fontStyle: 'italic' }}
+                  sx={{
+                    color: '#FFFBF1',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    fontStyle: 'italic',
+                  }}
                 >
-                  請輸入您的群組名稱及群組描述
+                  請輸入您的冰箱名稱及描述，並選取一起使用冰箱的成員！
                 </Typography>
               }
               sx={{ bgcolor: '#ddb892' }}
@@ -198,25 +210,25 @@ export default function CreateGroup() {
               >
                 <TextField
                   id='name'
-                  label='群組名稱'
+                  label='冰箱名稱'
                   name='name'
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   autoFocus
                   fullWidth
                   color='success'
-                  sx={{ flexGrow: 1, my: 2 }}
+                  sx={{ my: 2 }}
                   required
                 />
                 <TextField
                   id='description'
-                  label='群組描述'
+                  label='冰箱描述'
                   name='description'
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   fullWidth
                   color='success'
-                  sx={{ flexGrow: 1, my: 1 }}
+                  sx={{ my: 1 }}
                 />
 
                 <TextField
@@ -225,6 +237,7 @@ export default function CreateGroup() {
                   variant='outlined'
                   value={input}
                   color='success'
+                  placeholder='請輸入成員名稱或 Email'
                   onChange={(e) => setInput(e.target.value)}
                   sx={{ mt: 2 }}
                 />
@@ -308,13 +321,13 @@ export default function CreateGroup() {
                     ))}
                   </List>
                 )}
-                <Box sx={{ mt: 2 }}>
+                <Box sx={{ mt: 3 }}>
                   <Button
                     type='submit'
                     variant='contained'
                     sx={{
                       bgcolor: '#6f5e53',
-                      height: 50,
+                      height: 40,
                       ':hover': { bgcolor: '#55463E' },
                     }}
                   >

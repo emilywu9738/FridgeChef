@@ -115,7 +115,7 @@ export default function Login() {
             bgcolor: '#FFF9EE',
             p: 5,
             minHeight: '50vh',
-            opacity: '95%',
+            opacity: '90%',
             borderRadius: '15px',
           }}
         >
@@ -125,7 +125,7 @@ export default function Login() {
               justifyContent: 'center',
               alignItems: 'center',
               mr: 5,
-              display: { xs: 'none', md: 'flex' },
+              display: { xs: 'none', sm: 'flex' },
             }}
           >
             <img
@@ -144,7 +144,7 @@ export default function Login() {
             }}
           >
             <Avatar sx={{ m: 2, bgcolor: '#CC8156' }}>
-              <LockOutlinedIcon />
+              <LockOutlinedIcon sx={{ color: '#F4E0C9' }} />
             </Avatar>
             <Typography component='h1' variant='h5'>
               用戶登入
@@ -159,6 +159,7 @@ export default function Login() {
                 margin='normal'
                 required
                 fullWidth
+                color='success'
                 id='email'
                 label='Email Address'
                 type='email'
@@ -170,6 +171,7 @@ export default function Login() {
                 margin='normal'
                 required
                 fullWidth
+                color='success'
                 name='password'
                 label='Password'
                 type='password'
@@ -185,14 +187,25 @@ export default function Login() {
                   mb: 2,
                   bgcolor: '#DDA15E',
                   ':hover': {
-                    backgroundColor: '#e76f51',
+                    backgroundColor: '#C07A29',
                   },
                 }}
               >
                 登入
               </Button>
               <Typography>
-                <Link href='/register' variant='body2'>
+                <Link
+                  href='/register'
+                  variant='body2'
+                  sx={{
+                    color: '#AD6D25',
+                    textDecorationColor: '#AD6D25',
+                    ':hover': {
+                      color: '#261808',
+                      textDecorationColor: '#261808',
+                    },
+                  }}
+                >
                   還沒有帳戶嗎？按這裡註冊新帳戶～
                 </Link>
               </Typography>

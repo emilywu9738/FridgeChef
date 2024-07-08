@@ -266,9 +266,9 @@ export default function ShowFridgeAndRecipe() {
         sx={{
           borderRadius: '10px',
           m: 1,
-          overflow: 'visible',
           bgcolor: '#FEFCF8',
-          minHeight: 300,
+          minHeight: { xs: 0, sm: 300 },
+          minWidth: 250,
         }}
       >
         <CardContent>
@@ -313,12 +313,11 @@ export default function ShowFridgeAndRecipe() {
                     <ListItem
                       key={item._id}
                       sx={{
-                        display: 'flex',
                         justifyContent: 'space-between',
                         padding: '8px',
                         margin: '8px 0',
                         border: '1px solid #ccc',
-                        borderRadius: '4px',
+                        borderRadius: 2,
                         boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
                         backgroundColor: bgcolor,
                         height: 40,
@@ -350,7 +349,7 @@ export default function ShowFridgeAndRecipe() {
                             marginLeft: 1,
                             padding: 0,
                             '& .MuiSvgIcon-root': {
-                              fontSize: '20px', // 控制圖標大小
+                              fontSize: '20px',
                             },
                           }}
                           onClick={() => handleDeleteItems(item._id)}
@@ -406,7 +405,7 @@ export default function ShowFridgeAndRecipe() {
         onClick={(event) => handleRecipeDetails(recipe._id.toString(), event)}
         sx={{
           minHeight: 390,
-          flexGrow: 1,
+
           position: 'relative',
           m: 2,
           borderRadius: '10px',
@@ -518,8 +517,6 @@ export default function ShowFridgeAndRecipe() {
           component='main'
           maxWidth='lg'
           sx={{
-            display: 'flex',
-            flexDirection: 'row',
             justifyContent: 'center',
             alignItems: 'flex-start',
             py: 4,
@@ -581,7 +578,6 @@ export default function ShowFridgeAndRecipe() {
                   </Select>
                 </FormControl>
                 <Button
-                  // size='large'
                   variant='contained'
                   sx={{
                     ml: 1,
@@ -629,18 +625,16 @@ export default function ShowFridgeAndRecipe() {
               </Box>
 
               <Collapse in={memberExpanded} timeout='auto' unmountOnExit>
-                <Grid container>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
-                    {fridgeData.members.map((member) => (
-                      <Grid item xs={12} sm={6} md={4} xl={3} key={member._id}>
-                        <MemberCard
-                          member={member}
-                          isChecked={checkedMembers[member._id]}
-                          onCheckChange={handleMemberCheckChange}
-                        />
-                      </Grid>
-                    ))}
-                  </Box>
+                <Grid container sx={{ mb: 3 }}>
+                  {fridgeData.members.map((member) => (
+                    <Grid item xs={12} sm={6} md={4} xl={3} key={member._id}>
+                      <MemberCard
+                        member={member}
+                        isChecked={checkedMembers[member._id]}
+                        onCheckChange={handleMemberCheckChange}
+                      />
+                    </Grid>
+                  ))}
                 </Grid>
               </Collapse>
               {Object.keys(fridgeData.inviting).length > 0 && (
@@ -735,13 +729,11 @@ export default function ShowFridgeAndRecipe() {
                 </Button>
 
                 <Grid container>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
-                    {fridgeData.ingredients.map((category) => (
-                      <Grid item xs={12} sm={6} md={4} key={category._id}>
-                        <IngredientCard category={category} />
-                      </Grid>
-                    ))}
-                  </Box>
+                  {fridgeData.ingredients.map((category) => (
+                    <Grid item xs={12} sm={6} md={4} key={category._id}>
+                      <IngredientCard category={category} />
+                    </Grid>
+                  ))}
                 </Grid>
               </Collapse>
             </CardContent>
@@ -761,7 +753,7 @@ export default function ShowFridgeAndRecipe() {
               </Typography>
               <Grid container>
                 {recipeData.map((recipe) => (
-                  <Grid item xs={12} md={6} lg={4} key={recipe._id}>
+                  <Grid item xs={12} sm={6} lg={4} key={recipe._id}>
                     <RecipeCard recipe={recipe} />
                   </Grid>
                 ))}

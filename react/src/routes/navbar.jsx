@@ -29,6 +29,7 @@ import BookmarkRoundedIcon from '@mui/icons-material/BookmarkRounded';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PersonIcon from '@mui/icons-material/Person';
 import BackHandIcon from '@mui/icons-material/BackHand';
+import KitchenIcon from '@mui/icons-material/Kitchen';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -80,6 +81,10 @@ export default function NavBar() {
   const handleProfile = () => {
     setAnchorElUser(null);
     navigate('/user/profile');
+  };
+  const handleMyFridge = () => {
+    setAnchorElUser(null);
+    navigate('/user/myfridge');
   };
 
   const handleLogout = () => {
@@ -218,7 +223,10 @@ export default function NavBar() {
             disableGutters
             sx={{ justifyContent: 'space-between', width: '100%' }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box
+              onClick={handleMyFridge}
+              sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+            >
               <Box
                 component='img'
                 src='/navbarLogo.png'
@@ -455,6 +463,12 @@ export default function NavBar() {
                   <AssignmentIndIcon />
                   <Typography textAlign='center' sx={{ ml: 1 }}>
                     個人檔案
+                  </Typography>
+                </MenuItem>
+                <MenuItem onClick={handleMyFridge}>
+                  <KitchenIcon />
+                  <Typography textAlign='center' sx={{ ml: 1 }}>
+                    我的冰箱
                   </Typography>
                 </MenuItem>
                 <MenuItem onClick={(e) => handleClickOpen(e)}>

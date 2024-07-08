@@ -21,6 +21,7 @@ import NavBar from './routes/navbar';
 import LikedRecipes from './routes/likedRecipes';
 import { CssBaseline } from '@mui/material';
 import SearchRecipes from './routes/searchRecipe';
+import MyFridge from './routes/myFridge';
 
 const defaultTheme = createTheme({
   palette: {
@@ -84,6 +85,7 @@ function RouteStructure() {
         <Route path='login' element={<Login />}></Route>
         <Route path='register' element={<Register />}></Route>
         <Route path='user/profile' element={<Profile />}></Route>
+        <Route path='user/myfridge' element={<MyFridge />}></Route>
         <Route path='user/createGroup' element={<CreateGroup />}></Route>
         <Route path='user/invitation' element={<Invitation />}></Route>
         <Route path='user/likedRecipe' element={<LikedRecipes />}></Route>

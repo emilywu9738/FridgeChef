@@ -249,15 +249,17 @@ export default function RecipeDetails() {
                         </Typography>
                       </Grid>
                       <Grid item xs={4}>
-                        <CardMedia
-                          component='img'
-                          image={step.stepImage}
-                          alt={`步驟 ${index + 1}`}
-                          sx={{
-                            objectFit: 'cover',
-                            objectPosition: 'center',
-                          }}
-                        />
+                        {step.stepImage && (
+                          <CardMedia
+                            component='img'
+                            image={step.stepImage}
+                            alt={`步驟 ${index + 1}`}
+                            sx={{
+                              objectFit: 'cover',
+                              objectPosition: 'center',
+                            }}
+                          />
+                        )}
                       </Grid>
                     </Grid>
 

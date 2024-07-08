@@ -48,18 +48,8 @@ export default function Profile() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [errors, setErrors] = useState({});
-  const [openDialog, setOpenDialog] = useState(false);
 
   const open = Boolean(anchorEl);
-
-  const handleClickOpen = (e) => {
-    e.stopPropagation();
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -147,126 +137,6 @@ export default function Profile() {
     setOpenErrorSnackbar(false);
   };
 
-  function FridgeCard({ fridge }) {
-    const fridgeMembers = fridge.members.map((m) => m.name).join('、');
-    const handleFridgeClick = () => {
-      navigate(`/fridge/recipe?id=${fridge._id}`);
-    };
-    const expiringItems = fridge.ingredients
-      .map((category) => ({
-        category: category.category,
-        items: category.items.filter((item) => {
-          const today = new Date();
-          const expirationDate = new Date(item.expirationDate);
-          return (
-            expirationDate > today &&
-            (expirationDate - today) / (1000 * 60 * 60 * 24) <= 4
-          );
-        }),
-      }))
-      .filter((category) => category.items.length > 0)
-      .sort((a, b) => new Date(a.expirationDate) - new Date(b.expirationDate));
-
-    const calculateDaysLeft = (expirationDate) => {
-      const today = new Date();
-      const date = new Date(expirationDate);
-      const timeDiff = date - today;
-      const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // 計算剩餘天數
-      return daysLeft;
-    };
-
-    return (
-      <>
-        <Card
-          elevation={3}
-          onClick={handleFridgeClick}
-          sx={{
-            position: 'relative',
-            m: 2,
-            borderRadius: 4,
-            minWidth: 150,
-            cursor: 'pointer',
-            '&:hover .card-header': {
-              bgcolor: '#9c6644',
-            },
-          }}
-        >
-          <CardHeader
-            className='card-header'
-            title={
-              <Typography
-                variant='h5'
-                sx={{
-                  fontSize: '1rem',
-                  color: 'white',
-                  fontWeight: 550,
-                }}
-              >
-                {fridge.name}
-              </Typography>
-            }
-            sx={{
-              bgcolor: '#6c584c',
-            }}
-          />
-
-          <CardContent sx={{ bgcolor: '#FFFEFC' }}>
-            <Typography
-              sx={{
-                fontSize: 16,
-                m: 1,
-                color: '#4D3F36',
-                fontWeight: 'bold',
-              }}
-              component='div'
-              gutterBottom
-            >
-              成員
-            </Typography>
-            <Typography sx={{ fontSize: 14, mx: 2, mb: 2, color: '#795E58' }}>
-              {fridgeMembers}
-            </Typography>
-            <Typography
-              sx={{ fontSize: 16, m: 1, color: '#4D3F36', fontWeight: 'bold' }}
-            >
-              即將到期
-            </Typography>
-            {expiringItems.length > 0 ? (
-              expiringItems.map((category) => (
-                <Box key={category.category} sx={{ my: 1, mx: 2 }}>
-                  <Typography
-                    sx={{
-                      fontSize: 14,
-                      fontWeight: 'bold',
-                      mb: 1,
-                      color: '#876A62',
-                    }}
-                  >
-                    {category.category}類
-                  </Typography>
-                  {category.items.map((item) => (
-                    <Typography
-                      key={item._id}
-                      sx={{ fontSize: 14, ml: 2, color: '#342926' }}
-                    >
-                      {item.name} ⇒{' '}
-                      {new Date(item.expirationDate).toLocaleDateString()} ({' '}
-                      {calculateDaysLeft(item.expirationDate)}天後 )
-                    </Typography>
-                  ))}
-                </Box>
-              ))
-            ) : (
-              <Typography sx={{ fontSize: 14, ml: 2 }}>
-                沒有即將到期的項目
-              </Typography>
-            )}
-          </CardContent>
-        </Card>
-      </>
-    );
-  }
-
   const validate = () => {
     const newErrors = {};
     if (!omit) newErrors.omit = '食材名稱不能空白！';
@@ -339,9 +209,17 @@ export default function Profile() {
             py: 4,
           }}
         >
-          <Grid container display='flex' sx={{ minHeight: '93vh' }}>
-            <Grid item xs={12} md={5}>
-              <Card sx={{ textAlign: 'center', borderRadius: 5, m: 2 }}>
+          <Grid container sx={{ minHeight: '93vh', justifyContent: 'center' }}>
+            <Grid item xs={12}>
+              <Card
+                sx={{
+                  textAlign: 'center',
+                  borderRadius: 5,
+                  mt: 2,
+                  mx: 'auto',
+                  maxWidth: 500,
+                }}
+              >
                 <CardHeader
                   title={
                     <Typography
@@ -562,28 +440,6 @@ export default function Profile() {
                     </>
                   )}
                 </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} md={7}>
-              <Card
-                sx={{
-                  borderRadius: 6,
-                  mx: 2,
-                  px: 1,
-                  pb: 2,
-                  bgcolor: '#FFFBF1',
-                  my: 2,
-                }}
-              >
-                <Typography
-                  variant='h6'
-                  sx={{ mx: 2, mt: 3, mb: 2, color: '#5C4742', fontSize: 22 }}
-                >
-                  我的冰箱
-                </Typography>
-                {userFridge.map((fridge) => (
-                  <FridgeCard key={fridge._id} fridge={fridge} />
-                ))}
               </Card>
             </Grid>
           </Grid>

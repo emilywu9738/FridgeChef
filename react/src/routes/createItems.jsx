@@ -185,7 +185,9 @@ export default function CreateItems() {
   };
 
   const handleAlignment = (event, newAlignment) => {
-    setAlignment(newAlignment);
+    if (newAlignment !== null) {
+      setAlignment(newAlignment);
+    }
   };
 
   const validate = () => {

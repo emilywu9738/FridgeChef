@@ -290,14 +290,18 @@ export const recommendRecipe = async (req, res) => {
 
   const fridgeItems = fridgeData.ingredients.flatMap((c) => c.items);
 
-  const fridgeItemNames = fridgeItems.map((item) => item.name);
+  const fridgeItemNames = fridgeItems.map((item) => item.name.trim());
+
+  const fridgeRegex =
+    fridgeItemNames.length > 0
+      ? generateRegexFromSynonyms(fridgeItemNames)
+      : '.*';
 
   const filteredItems = filterItemsExpiringWithinDays(fridgeItems, 3);
 
   const expiringIngredientNames = filteredItems.map((item) => item.name);
 
   const omitRegex = generateRegexFromSynonyms(allOmitIngredients);
-  const searchRegex = generateRegexFromSynonyms(expiringIngredientNames);
 
   let additionalQuery = '';
   if (recipeCategory === '全素' || recipeCategory === '奶蛋素') {
@@ -306,16 +310,16 @@ export const recommendRecipe = async (req, res) => {
 
   const cypherQuery = `
     MATCH (r:Recipe)-[:CONTAINS]->(i:Ingredient)
-    WHERE (i.name =~ $searchRegex OR $searchRegex = '.*')
+    WHERE (i.name =~ $fridgeRegex OR $fridgeRegex = '.*')
       AND NOT EXISTS {
         MATCH (r)-[:CONTAINS]->(i2:Ingredient)
         WHERE i2.name =~ $omitRegex 
       }
-    ${additionalQuery}
+  ${additionalQuery}
     WITH r, i,
       CASE 
-        WHEN i.name IN $expiringIngredientNames THEN 1  // 快過期的食材得到更高的得分
-        WHEN i.name IN $fridgeItemNames THEN 1  // 其他冰箱中的食材得到基本得分
+        WHEN i.name IN $expiringIngredientNames THEN 3  // 快過期的食材得到2分
+        WHEN i.name IN $fridgeItemNames THEN 1  // 冰箱中的食材得到1分
         ELSE 0
       END AS ingredientScore
     WITH r, COLLECT(i.name) AS includedIngredients,
@@ -327,26 +331,37 @@ export const recommendRecipe = async (req, res) => {
 
   try {
     const result = await session.run(cypherQuery, {
-      searchRegex:
-        expiringIngredientNames.length > 0
-          ? generateRegexFromSynonyms(expiringIngredientNames)
-          : '.*',
+      fridgeRegex,
       omitRegex,
       recipeCategory,
       expiringIngredientNames,
       fridgeItemNames,
     });
 
-    const recommendedRecipes = result.records.map(
-      (record) => record.get('r').properties,
-    );
+    const recommendedRecipes = result.records.map((record) => {
+      const recipe = record.get('r').properties;
+      const includedIngredients = record.get('includedIngredients');
+      const totalScore = record.get('totalScore').toInt();
+      return { recipe, includedIngredients, totalScore };
+    });
 
-    const recipeIds = recommendedRecipes.map((r) => r.id);
+    const recipeIds = recommendedRecipes.map((r) => r.recipe.id);
     const fullRecipes = await Recipe.find({
       _id: { $in: recipeIds },
     });
 
-    res.json({ fullRecipes });
+    const recipesWithScores = fullRecipes
+      .map((recipe) => {
+        const found = recommendedRecipes.find((r) => r.recipe.id === recipe.id);
+        return {
+          ...recipe.toObject(),
+          includedIngredients: found.includedIngredients,
+          totalScore: found.totalScore,
+        };
+      })
+      .sort((a, b) => b.totalScore - a.totalScore);
+
+    res.json({ recipes: recipesWithScores });
   } catch (error) {
     console.error('Error recommending recipes:', error);
     res.status(500).send('Internal Server Error');

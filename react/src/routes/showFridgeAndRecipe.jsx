@@ -109,8 +109,9 @@ export default function ShowFridgeAndRecipe() {
         fridgeData: fridgeData,
         checkedMembers: checkedMembers,
       });
-      const { fullRecipes } = response.data;
-      setRecipeData(fullRecipes);
+
+      const { recipes } = response.data;
+      setRecipeData(recipes);
     } catch (err) {
       console.error(err);
     }

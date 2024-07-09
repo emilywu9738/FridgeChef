@@ -5,9 +5,9 @@ import 'dotenv/config';
 import Recipe from '../models/recipe.js'; //
 import User from '../models/user.js';
 
-mongoose.connect('mongodb://127.0.0.1:27017/fridgeChef');
+mongoose.connect(process.env.MONGOOSE_CONNECT);
 
-const NUM_OF_NEW_USERS = 10;
+const NUM_OF_NEW_USERS = 100;
 const category = ['無', '全素', '奶蛋素'];
 const dislikedIngredients = [
   '香菜',
@@ -72,6 +72,7 @@ async function generateUsers(userNum) {
     const omit = getOmit(randomNum);
 
     const user = new User({
+      provider: 'native',
       name: randomName,
       email: randomEmail,
       password: hashedPassword,

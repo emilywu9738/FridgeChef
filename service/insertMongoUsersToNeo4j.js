@@ -32,24 +32,24 @@ function getRecipes(allUsers) {
   return Array.from(recipeSet);
 }
 
-async function insertAllRecipes(users) {
-  const allRecipes = getRecipes(users);
+// async function insertAllRecipes(users) {
+//   const allRecipes = getRecipes(users);
 
-  const query = `
-        UNWIND $params AS param
-        CREATE (recipe:Recipe { id: param.id, name: param.title, tags: param.tags, ingredients: param.ingredients})
-      `;
+//   const query = `
+//         UNWIND $params AS param
+//         CREATE (recipe:Recipe { id: param.id, name: param.title, tags: param.tags, ingredients: param.ingredients})
+//       `;
 
-  const allParams = allRecipes.map((r) => {
-    const { _id, title, tags, ingredients } = r;
-    return { id: _id.toString(), title, tags, ingredients };
-  });
+//   const allParams = allRecipes.map((r) => {
+//     const { _id, title, tags, ingredients } = r;
+//     return { id: _id.toString(), title, tags, ingredients };
+//   });
 
-  const params = { params: allParams };
+//   const params = { params: allParams };
 
-  await session.run(query, params);
-  console.log('Recipes created successfully!');
-}
+//   await session.run(query, params);
+//   console.log('Recipes created successfully!');
+// }
 
 async function insertAllUsers(users) {
   const query = `
@@ -96,7 +96,7 @@ async function clearAll() {
   console.log('All data cleared!');
 }
 
-const allRecipes = await getRecipes(allUsers);
+// const allRecipes = await getRecipes(allUsers);
 
 function getRecipeIngredients(recipes) {
   const ingredientSet = new Set();
@@ -136,8 +136,27 @@ async function createRecipeNodeAndRelationShips() {
   console.log('Recipe ingredients and relationship created successfully');
 }
 
+const allRecipes = await Recipe.find();
+
+async function insertAllRecipes(recipes) {
+  const query = `
+    UNWIND $params AS param
+    CREATE (recipe:Recipe { id: param.id, name: param.title, tags: param.tags, ingredients: param.ingredients})
+  `;
+
+  const allParams = recipes.map((r) => {
+    const { _id, title, tags, ingredients } = r;
+    return { id: _id.toString(), title, tags, ingredients };
+  });
+
+  const params = { params: allParams };
+
+  await session.run(query, params);
+  console.log('Recipes created successfully!');
+}
+
 // await clearAll();
-// await insertAllRecipes(allUsers);
+// await insertAllRecipes(allRecipes);
 // await insertAllUsers(allUsers);
 // await createUserRelationShips(allUsers);
 // await insertAllRecipeIngredients(allRecipes);

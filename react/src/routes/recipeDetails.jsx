@@ -70,7 +70,6 @@ export default function RecipeDetails() {
     apiClient
       .get(`/fridge/recipeDetails?id=${recipeId}`)
       .then((response) => {
-        console.log(response.data);
         setRecipe(response.data);
         setRecipeLikes(response.data.likes);
       })
@@ -123,7 +122,7 @@ export default function RecipeDetails() {
         <Grid item xs={12} md={8}>
           <Card
             elevation={10}
-            sx={{ borderRadius: '15px', mx: { xs: 0, md: 2 } }}
+            sx={{ borderRadius: '15px', mx: { xs: 0, md: 2 }, mb: 3 }}
           >
             <CardHeader
               title={

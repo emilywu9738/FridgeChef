@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
 import { faker } from '@faker-js/faker';
+import 'dotenv/config';
 
 import Fridge from '../models/fridge.js';
 import User from '../models/user.js';
 
-mongoose.connect('mongodb://127.0.0.1:27017/fridgeChef');
+mongoose.connect(process.env.MONGOOSE_CONNECT);
 
 async function getRandomUsers() {
   const allUsers = await User.find();

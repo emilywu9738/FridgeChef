@@ -97,6 +97,7 @@ export default function NavBar() {
   };
 
   const handleLikedRecipes = () => {
+    setAnchorElUser(null);
     navigate('/user/likedRecipe');
   };
   const handleSearchRecipes = () => {
@@ -249,7 +250,7 @@ export default function NavBar() {
             </Box>
 
             <Box sx={{ ml: 'auto' }}>
-              <Tooltip title='Search Recipes'>
+              <Tooltip title='搜尋食譜'>
                 <IconButton
                   onClick={handleSearchRecipes}
                   sx={{
@@ -269,18 +270,16 @@ export default function NavBar() {
             </Box>
 
             <Box sx={{ ml: { xs: 1, md: 3 } }}>
-              <Tooltip title='Open Liked Recipes'>
+              <Tooltip title='我的冰箱'>
                 <IconButton
-                  onClick={handleLikedRecipes}
+                  onClick={handleMyFridge}
                   sx={{
                     p: 0,
                   }}
                 >
                   <Avatar sx={{ bgcolor: '#6c584c', ml: 'auto' }}>
                     <Avatar sx={{ bgcolor: '#faedcd', width: 32, height: 32 }}>
-                      <BookmarkRoundedIcon
-                        sx={{ fontSize: 25, color: '#6c584c' }}
-                      />
+                      <KitchenIcon sx={{ fontSize: 25, color: '#6c584c' }} />
                     </Avatar>
                   </Avatar>
                 </IconButton>
@@ -288,7 +287,7 @@ export default function NavBar() {
             </Box>
 
             <Box sx={{ ml: { xs: 1, md: 3 } }}>
-              <Tooltip title='Open Notifications'>
+              <Tooltip title='我的通知'>
                 <IconButton
                   onClick={handleNotifications}
                   sx={{
@@ -418,7 +417,7 @@ export default function NavBar() {
             </Box>
 
             <Box sx={{ flexGrow: 0, ml: { xs: 1, md: 3 } }}>
-              <Tooltip title='Open settings'>
+              <Tooltip title='個人檔案'>
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <Avatar sx={{ bgcolor: '#6c584c', ml: 'auto' }}>
                     <Avatar sx={{ bgcolor: '#faedcd', width: 32, height: 32 }}>
@@ -465,10 +464,10 @@ export default function NavBar() {
                     個人檔案
                   </Typography>
                 </MenuItem>
-                <MenuItem onClick={handleMyFridge}>
-                  <KitchenIcon />
+                <MenuItem onClick={handleLikedRecipes}>
+                  <BookmarkRoundedIcon />
                   <Typography textAlign='center' sx={{ ml: 1 }}>
-                    我的冰箱
+                    我的收藏
                   </Typography>
                 </MenuItem>
                 <MenuItem onClick={(e) => handleClickOpen(e)}>

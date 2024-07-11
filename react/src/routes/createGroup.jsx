@@ -161,10 +161,11 @@ export default function CreateGroup() {
       {Object.keys(userData).length > 0 && (
         <Box
           sx={{
-            minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            justifyContent: 'center',
+            flexGrow: 1,
           }}
         >
           <Card
@@ -172,7 +173,7 @@ export default function CreateGroup() {
               maxWidth: 480,
               textAlign: 'center',
               borderRadius: 5,
-              mt: { xs: 5, md: 10 },
+
               mx: 1,
             }}
           >

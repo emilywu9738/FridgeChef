@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import ShowFridgeAndRecipe from './routes/showFridgeAndRecipe';
+import ShowFridgeAndRecipe from './routes/ShowFridgeAndRecipe/showFridgeAndRecipe';
 import Register from './routes/register';
 import Login from './routes/login';
 import Profile from './routes/profile';
@@ -19,9 +19,11 @@ import Invitation from './routes/invitation';
 import RecipeDetails from './routes/recipeDetails';
 import NavBar from './routes/navbar';
 import LikedRecipes from './routes/likedRecipes';
-import { CssBaseline } from '@mui/material';
+import { Box, CssBaseline } from '@mui/material';
 import SearchRecipes from './routes/searchRecipe';
 import MyFridge from './routes/myFridge';
+import LandingPage from './routes/LandingPage/landingPage';
+import Footer from './routes/footer';
 
 const defaultTheme = createTheme({
   palette: {
@@ -62,7 +64,11 @@ function App() {
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
       <BrowserRouter>
-        <RouteStructure />
+        <Box
+          sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
+        >
+          <RouteStructure />
+        </Box>
       </BrowserRouter>
     </ThemeProvider>
   );
@@ -71,27 +77,33 @@ function App() {
 function RouteStructure() {
   const location = useLocation();
 
-  const pathsWithoutNavBar = ['/login', '/register', '/user/invitation'];
+  const pathsWithoutNavBar = ['/login', '/register', '/user/invitation', '/'];
   const showNavBar = !pathsWithoutNavBar.includes(location.pathname);
 
   return (
     <>
       {showNavBar && <NavBar />}
-      <Routes>
-        <Route path='fridge/create' element={<CreateItems />}></Route>
-        <Route path='fridge/recipe' element={<ShowFridgeAndRecipe />}></Route>
-        <Route path='fridge/recipeDetails' element={<RecipeDetails />}></Route>
-        <Route path='searchRecipes' element={<SearchRecipes />}></Route>
-        <Route path='login' element={<Login />}></Route>
-        <Route path='register' element={<Register />}></Route>
-        <Route path='user/profile' element={<Profile />}></Route>
-        <Route path='user/myfridge' element={<MyFridge />}></Route>
-        <Route path='user/createGroup' element={<CreateGroup />}></Route>
-        <Route path='user/invitation' element={<Invitation />}></Route>
-        <Route path='user/likedRecipe' element={<LikedRecipes />}></Route>
-        <Route path='/forbidden' element={<ForbiddenPage />} />
-        <Route path='/' element={<Navigate to='/user/profile' />}></Route>
-      </Routes>
+      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        <Routes>
+          <Route path='/' element={<LandingPage />}></Route>
+          <Route path='fridge/create' element={<CreateItems />}></Route>
+          <Route path='fridge/recipe' element={<ShowFridgeAndRecipe />}></Route>
+          <Route
+            path='fridge/recipeDetails'
+            element={<RecipeDetails />}
+          ></Route>
+          <Route path='searchRecipes' element={<SearchRecipes />}></Route>
+          <Route path='login' element={<Login />}></Route>
+          <Route path='register' element={<Register />}></Route>
+          <Route path='user/profile' element={<Profile />}></Route>
+          <Route path='user/myfridge' element={<MyFridge />}></Route>
+          <Route path='user/createGroup' element={<CreateGroup />}></Route>
+          <Route path='user/invitation' element={<Invitation />}></Route>
+          <Route path='user/likedRecipe' element={<LikedRecipes />}></Route>
+          <Route path='/forbidden' element={<ForbiddenPage />} />
+        </Routes>
+      </Box>
+      {showNavBar && <Footer />}
     </>
   );
 }

@@ -27,6 +27,7 @@ export default function SearchRecipes() {
   const [search, setSearch] = useState('');
   const [result, setResult] = useState([]);
   const [isComposing, setIsComposing] = useState(false);
+  const [clickGo, setClickGo] = useState(false);
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -35,6 +36,7 @@ export default function SearchRecipes() {
     apiClient(`/fridge/searchRecipe?ingredient=${search}`)
       .then((response) => {
         setResult(response.data);
+        setClickGo(true);
         navigate(`/searchRecipes?ingredient=${search}`);
       })
       .catch((err) => console.error(err));
@@ -49,7 +51,10 @@ export default function SearchRecipes() {
     if (ingredient) {
       setSearch(ingredient);
       apiClient(`/fridge/searchRecipe?ingredient=${ingredient}`)
-        .then((response) => setResult(response.data))
+        .then((response) => {
+          setResult(response.data);
+          setClickGo(true);
+        })
         .catch((err) => console.error(err));
     }
   }, [searchParams]);
@@ -62,7 +67,6 @@ export default function SearchRecipes() {
         justifyContent: 'center',
         alignItems: 'flex-start',
         py: 4,
-        minHeight: '93vh',
       }}
     >
       <Box
@@ -261,6 +265,11 @@ export default function SearchRecipes() {
             </Grid>
           </CardContent>
         </Card>
+      )}
+      {result.length === 0 && clickGo && (
+        <Box sx={{ textAlign: 'center', mt: 4 }}>
+          <Typography sx={{ fontWeight: 'Bold' }}>查無食譜資料</Typography>
+        </Box>
       )}
     </Container>
   );

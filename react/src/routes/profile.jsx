@@ -204,20 +204,16 @@ export default function Profile() {
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'center',
-            alignItems: 'flex-start',
-            minHeight: '93vh',
-            py: 4,
+            alignItems: 'center',
+            flexGrow: 1,
+            textAlign: 'center',
           }}
         >
-          <Grid container sx={{ minHeight: '93vh', justifyContent: 'center' }}>
+          <Grid container>
             <Grid item xs={12}>
               <Card
                 sx={{
-                  textAlign: 'center',
                   borderRadius: 5,
-                  mt: 2,
-                  mx: 'auto',
-                  maxWidth: 500,
                 }}
               >
                 <CardHeader

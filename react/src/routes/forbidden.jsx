@@ -18,12 +18,11 @@ function ForbiddenPage() {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
+        flexGrow: 1,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        bgcolor: '#faedcd',
       }}
     >
       <Card sx={{ width: 500, textAlign: 'center', borderRadius: 5 }}>

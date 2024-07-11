@@ -75,6 +75,11 @@ export default function ShowFridgeAndRecipe() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [reload, setReload] = useState(false);
+  const [isFridgeOpen, setIsFridgeOpen] = useState(false);
+
+  const handleFridgeToggle = () => {
+    setIsFridgeOpen(!isFridgeOpen);
+  };
 
   const handleMemberExpandClick = () => {
     setMemberExpanded(!memberExpanded);
@@ -141,7 +146,8 @@ export default function ShowFridgeAndRecipe() {
           borderRadius: '10px',
           minWidth: 250,
           position: 'relative',
-          m: 2,
+          my: 2,
+          mr: 4,
           bgcolor: '#FEFCF8',
         }}
       >
@@ -177,7 +183,8 @@ export default function ShowFridgeAndRecipe() {
           borderRadius: '10px',
           minWidth: 275,
           position: 'relative',
-          m: 1,
+          my: 2,
+          mr: 4,
           bgcolor: '#FFFBF0',
         }}
       >
@@ -266,7 +273,8 @@ export default function ShowFridgeAndRecipe() {
       <Card
         sx={{
           borderRadius: '10px',
-          m: 1,
+          my: 2,
+          mr: 4,
           bgcolor: '#FEFCF8',
           minHeight: { xs: 0, sm: 300 },
           minWidth: 250,
@@ -453,6 +461,7 @@ export default function ShowFridgeAndRecipe() {
   }
 
   useEffect(() => {
+    setIsFridgeOpen(!isFridgeOpen);
     const fridgeId = searchParams.get('id');
     if (fridgeId) {
       apiClient(`/fridge?id=${fridgeId}`, {
@@ -513,6 +522,7 @@ export default function ShowFridgeAndRecipe() {
           {errorMessage}
         </Alert>
       </Snackbar>
+
       {Object.keys(fridgeData).length > 0 && (
         <Container
           component='main'
@@ -521,8 +531,45 @@ export default function ShowFridgeAndRecipe() {
             justifyContent: 'center',
             alignItems: 'flex-start',
             py: 4,
+            position: 'relative',
           }}
         >
+          {/* 冰箱動畫 */}
+          {/* <Box textAlign='center' mt={4}>
+            <Box
+              sx={{
+                borderRadius: 8,
+                width: '100%',
+                height: '94%',
+                backgroundColor: 'white',
+                position: 'absolute',
+                overflow: 'hidden',
+                mx: 2,
+                left: '50%',
+                transform: `translateX(-50%) ${
+                  isFridgeOpen ? 'rotateY(-120deg)' : 'rotateY(0deg)'
+                }`,
+                transition: 'transform 1s ease-in-out',
+                transformOrigin: 'left',
+                zIndex: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  borderRadius: 8,
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: 'white',
+                  position: 'absolute',
+                  transition: 'transform 1s ease-in-out',
+                  transform: isFridgeOpen
+                    ? 'rotateY(-120deg)'
+                    : 'rotateY(0deg)',
+                  transformOrigin: 'left',
+                }}
+              />
+            </Box>
+          </Box> */}
           <Card
             elevation={6}
             sx={{

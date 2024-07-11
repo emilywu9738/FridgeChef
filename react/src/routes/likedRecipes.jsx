@@ -43,7 +43,7 @@ export default function LikedRecipes() {
         justifyContent: 'center',
         alignItems: 'flex-start',
         py: 4,
-        minHeight: '93vh',
+        flexGrow: 1,
       }}
     >
       <Card

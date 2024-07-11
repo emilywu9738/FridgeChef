@@ -75,7 +75,7 @@ export default function Login() {
       <Container
         component='main'
         maxWidth='md'
-        sx={{ minHeight: '100vh', pt: 10 }}
+        sx={{ display: 'flex', minHeight: '100vh', alignItems: 'center' }}
       >
         <Snackbar
           open={openSuccessSnackbar}

@@ -207,7 +207,7 @@ export default function CreateItems() {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        minHeight: '93vh',
+        flexGrow: 1,
         pt: 4,
       }}
     >

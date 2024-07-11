@@ -76,7 +76,7 @@ export default function Register() {
     <Container
       component='main'
       maxWidth='md'
-      sx={{ minHeight: '100vh', pt: 10 }}
+      sx={{ display: 'flex', minHeight: '100vh', alignItems: 'center' }}
     >
       <Snackbar
         open={openSuccessSnackbar}
@@ -157,36 +157,37 @@ export default function Register() {
             sx={{ mt: 1 }}
           >
             <TextField
+              autoFocus
               margin='normal'
               required
               fullWidth
               name='name'
               color='success'
-              label='Username'
-              type='text'
               id='name'
-              autoFocus
+              type='text'
+              label='Username'
               sx={{ bgcolor: '#fdf7e8' }}
             />
             <TextField
               margin='normal'
               required
-              color='success'
               fullWidth
-              id='email'
-              label='Email Address'
               name='email'
+              color='success'
+              id='email'
+              type='email'
+              label='Email Address'
               sx={{ bgcolor: '#fdf7e8' }}
             />
             <TextField
               margin='normal'
               required
-              color='success'
               fullWidth
               name='password'
-              label='Password'
-              type='password'
+              color='success'
               id='password'
+              type='password'
+              label='Password'
               sx={{ bgcolor: '#fdf7e8' }}
             />
             <Button

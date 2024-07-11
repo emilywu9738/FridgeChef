@@ -170,12 +170,11 @@ export default function MyFridge() {
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'center',
-            alignItems: 'flex-start',
-            minHeight: '93vh',
-            py: 4,
+            alignItems: 'center',
+            flexGrow: 1,
           }}
         >
-          <Grid container display='flex' sx={{ minHeight: '93vh' }}>
+          <Grid container display='flex'>
             <Grid item xs={12}>
               <Card
                 sx={{

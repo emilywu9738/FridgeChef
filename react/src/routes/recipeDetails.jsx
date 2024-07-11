@@ -114,7 +114,7 @@ export default function RecipeDetails() {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        minHeight: '93vh',
+        flexGrow: 1,
         py: 4,
       }}
     >

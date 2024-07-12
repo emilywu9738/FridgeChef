@@ -101,6 +101,7 @@ export default function NavBar() {
                 height: 50,
                 width: 110,
                 fontSize: 18,
+                whiteSpace: 'nowrap',
               }}
             >
               立即體驗

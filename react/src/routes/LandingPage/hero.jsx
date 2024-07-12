@@ -21,14 +21,22 @@ export default function Hero() {
             <Typography
               variant='h3'
               color='text.primary'
-              sx={{ mb: 1, fontWeight: 500 }}
+              sx={{ mb: 1, fontWeight: 500, fontSize: { xs: 40, md: 48 } }}
             >
               剩食不浪費，
             </Typography>
-            <Typography variant='h3' color='text.primary'>
+            <Typography
+              variant='h3'
+              color='text.primary'
+              sx={{ fontSize: { xs: 32, md: 48 } }}
+            >
               美味料理輕鬆上桌！
             </Typography>
-            <Typography variant='h6' color='text.secondary' sx={{ mt: 4 }}>
+            <Typography
+              variant='h6'
+              color='text.secondary'
+              sx={{ mt: 4, fontSize: { xs: 17, md: 20 } }}
+            >
               食譜智慧推薦，拯救剩餘食材，讓每一餐都充滿創意和美味！
             </Typography>
             <Button
@@ -49,27 +57,15 @@ export default function Hero() {
             </Button>
           </Box>
         </Grid>
-        <Grid item xs={12} md={8} sx={{ display: 'flex' }}>
-          <Card
-            variant='outlined'
+        <Grid item xs={12} md={8}>
+          <Box
+            component='img'
             sx={{
-              height: '100%',
               width: '100%',
-              border: 'none',
               pointerEvents: 'none',
-              mx: 2,
             }}
-          >
-            <Box
-              sx={{
-                width: 'auto',
-                height: { xs: 300, sm: 380, md: 350, lg: 500, xl: 600 },
-                backgroundPosition: 'center',
-                backgroundSize: 'cover',
-                backgroundImage: 'url(/landingPageCover.png)',
-              }}
-            />
-          </Card>
+            src='/landingPageCover.png'
+          />
         </Grid>
       </Grid>
     </Container>

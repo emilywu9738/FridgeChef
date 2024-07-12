@@ -8,7 +8,7 @@ const Footer = () => {
         py: 3,
         mx: 'auto',
         mt: 'auto',
-        bgcolor: '#a98467',
+        bgcolor: '#564131',
       }}
     >
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>

@@ -199,7 +199,7 @@ export default function Profile() {
       {Object.keys(userData).length > 0 && (
         <Container
           component='main'
-          maxWidth='md'
+          maxWidth='sm'
           sx={{
             display: 'flex',
             flexDirection: 'row',

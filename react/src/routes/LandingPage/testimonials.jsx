@@ -72,7 +72,11 @@ export default function Testimonials() {
         <Typography
           variant='h3'
           color='text.primary'
-          sx={{ mb: 4, fontSize: 36, fontWeight: 500 }}
+          sx={{
+            mb: { xs: 1, md: 4 },
+            fontSize: { xs: 32, md: 36 },
+            fontWeight: 500,
+          }}
         >
           眾多用戶，真情推薦！
         </Typography>
@@ -81,12 +85,14 @@ export default function Testimonials() {
         {userTestimonials.map((testimonial, index) => (
           <Grid item xs={12} sm={6} key={index} sx={{ display: 'flex' }}>
             <Card
+              elevation={3}
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 flexGrow: 1,
                 p: 1,
+                borderRadius: 4,
               }}
             >
               <CardContent>

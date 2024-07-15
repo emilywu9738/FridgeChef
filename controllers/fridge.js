@@ -111,7 +111,7 @@ export const createIngredients = async (req, res) => {
 
   const fridge = await Fridge.findById(fridgeId).populate({
     path: 'members',
-    select: 'email',
+    select: 'email receiveNotifications',
   });
 
   const ingredients = req.body;
@@ -158,11 +158,13 @@ export const createIngredients = async (req, res) => {
   );
   const message = formatFridgeContents(formattedItems);
   fridge.members.forEach((member) => {
-    sendEmail(
-      member.email,
-      '【FridgeChef】食材庫更新',
-      `${createUser.name} 更新食材至食材庫。\n食材列表：\n${message}`,
-    );
+    if (member.receiveNotifications) {
+      sendEmail(
+        member.email,
+        '【FridgeChef】食材庫更新',
+        `${createUser.name} 更新食材至食材庫。\n食材列表：\n${message}`,
+      );
+    }
   });
 
   const notification = new Notification({

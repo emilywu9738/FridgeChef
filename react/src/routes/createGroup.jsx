@@ -34,6 +34,7 @@ export default function CreateGroup() {
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [nameError, setNameError] = useState(false);
 
   const debouncedSearch = debounce((searchTerm) => {
     apiClient(`/user/search?name=${searchTerm}`)
@@ -53,11 +54,24 @@ export default function CreateGroup() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    if (!name.trim()) {
+      setNameError('冰箱名稱不得為空！');
+      setErrorMessage('群組新增失敗');
+      setOpenErrorSnackbar(true);
+      return;
+    }
+
+    const trimmedName = name.trim();
 
     apiClient
       .post(
         '/user/createGroup',
-        { name, description, host: userData, inviting: previewList },
+        {
+          name: trimmedName,
+          description,
+          host: userData,
+          inviting: previewList,
+        },
         {
           withCredentials: true,
         },
@@ -65,8 +79,8 @@ export default function CreateGroup() {
       .then((response) => {
         setOpenSuccessSnackbar(true);
         setSuccessMessage(response.data);
-        setInterval(() => {
-          navigate('/user/profile');
+        setTimeout(() => {
+          navigate('/user/myfridge');
         }, 2000);
       })
       .catch((err) => {
@@ -78,7 +92,7 @@ export default function CreateGroup() {
             navigate('/login');
           }, 2000);
         } else {
-          setErrorMessage('群組新增失敗！');
+          setErrorMessage('群組新增失敗');
           setOpenErrorSnackbar(true);
         }
       });
@@ -90,7 +104,7 @@ export default function CreateGroup() {
   };
 
   const cancelCreateGroup = () => {
-    navigate('/user/profile');
+    navigate('/user/myfridge');
   };
 
   const handleCloseSuccessSnackbar = () => {
@@ -173,7 +187,6 @@ export default function CreateGroup() {
               maxWidth: 480,
               textAlign: 'center',
               borderRadius: 5,
-
               mx: 1,
             }}
           >
@@ -206,7 +219,7 @@ export default function CreateGroup() {
               <Box
                 component='form'
                 onSubmit={handleSubmit}
-                // noValidate
+                noValidate
                 sx={{ mt: 1 }}
               >
                 <TextField
@@ -214,12 +227,18 @@ export default function CreateGroup() {
                   label='冰箱名稱'
                   name='name'
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setNameError(false);
+                  }}
                   autoFocus
                   fullWidth
                   color='success'
                   sx={{ my: 2 }}
                   required
+                  error={nameError}
+                  helperText={nameError}
+                  inputProps={{ maxLength: 20 }}
                 />
                 <TextField
                   id='description'

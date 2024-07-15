@@ -30,7 +30,7 @@ export default function LikedRecipes() {
   useEffect(() => {
     apiClient('/user/likedRecipes', { withCredentials: true }).then(
       (response) => {
-        setLikedRecipes(response.data.liked_recipes);
+        setLikedRecipes(response.data.liked_recipes.reverse());
       },
     );
   }, []);

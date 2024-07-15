@@ -44,7 +44,7 @@ export const login = async (req, res) => {
   if (provider === 'native') {
     const [foundUser] = await User.find({ email });
     if (!foundUser) {
-      throw new ExpressError('登入失敗！', 403);
+      throw new ExpressError('使用者不存在！將為您導到註冊頁面', 404);
     }
     const hashedPassword = foundUser.password;
     const id = foundUser._id.toString();
@@ -105,7 +105,7 @@ export const getProfileData = async (req, res) => {
   const userData = await User.findById(id);
   const userFridge = await Fridge.find({ members: id }).populate({
     path: 'members',
-    select: 'name preference omit',
+    select: 'name preference omit receiveNotifications',
   });
 
   res.send({ userFridge, userData });
@@ -269,7 +269,9 @@ export const validateInvitation = async (req, res) => {
   const groupUserSocketId = groupUsers.map((u) => u.socketId);
 
   groupUserSocketId.forEach((socketId) => {
+    // if (io.sockets.sockets.get(socketId)) {
     io.to(socketId).emit('notification', 'new notification!');
+    // }
   });
 
   return res.status(200).send('群組加入成功！');
@@ -387,4 +389,22 @@ export const updateLikes = async (req, res) => {
   }
 
   res.status(200).send('資料已更新');
+};
+
+export const updateReceiveNotifications = async (req, res) => {
+  const userId = req.user.id;
+  const { checked } = req.body;
+  if (checked) {
+    await User.findOneAndUpdate(
+      { _id: userId },
+      { receiveNotifications: true },
+    );
+  } else {
+    await User.findOneAndUpdate(
+      { _id: userId },
+      { receiveNotifications: false },
+    );
+  }
+
+  res.status(200).send('通知設定已更新');
 };

@@ -30,6 +30,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import PersonIcon from '@mui/icons-material/Person';
 import BackHandIcon from '@mui/icons-material/BackHand';
 import KitchenIcon from '@mui/icons-material/Kitchen';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -62,6 +63,7 @@ export default function NavBar() {
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -82,6 +84,7 @@ export default function NavBar() {
     setAnchorElUser(null);
     navigate('/user/profile');
   };
+
   const handleMyFridge = () => {
     setAnchorElUser(null);
     navigate('/user/myfridge');
@@ -100,6 +103,7 @@ export default function NavBar() {
     setAnchorElUser(null);
     navigate('/user/likedRecipe');
   };
+
   const handleSearchRecipes = () => {
     navigate('/searchRecipes');
   };
@@ -124,6 +128,10 @@ export default function NavBar() {
   const handleNotificationClick = (e, link) => {
     e.stopPropagation();
     navigate(link);
+  };
+
+  const handleSettings = () => {
+    navigate('/user/settings');
   };
 
   useEffect(() => {
@@ -473,6 +481,10 @@ export default function NavBar() {
                 <MenuItem onClick={(e) => handleClickOpen(e)}>
                   <BackHandIcon />
                   <Typography sx={{ ml: 1 }}> 新手教學</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleSettings}>
+                  <SettingsIcon />
+                  <Typography sx={{ ml: 1 }}> 個人設定</Typography>
                 </MenuItem>
                 <MenuItem onClick={handleLogout}>
                   <LogoutIcon />

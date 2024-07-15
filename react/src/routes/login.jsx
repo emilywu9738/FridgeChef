@@ -7,7 +7,6 @@ import {
   Box,
   Button,
   Container,
-  CssBaseline,
   TextField,
   Typography,
   Link,
@@ -24,13 +23,26 @@ export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const redirect = searchParams.get('redirect');
+
+    const email = data.get('email');
+    const password = data.get('password');
+
+    if (!email || !password) {
+      setErrorMessage('請填寫所有欄位');
+      setOpenErrorSnackbar(true);
+      return;
+    }
+
+    setIsSubmitting(true);
 
     apiClient
       .post(
@@ -58,6 +70,13 @@ export default function Login() {
         }
       })
       .catch((err) => {
+        if (err.response && err.response.status === 404) {
+          setErrorMessage('使用者不存在！將為您導到註冊頁面');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/register');
+          }, 2000);
+        }
         setOpenErrorSnackbar(true);
         console.error(err.message);
       });
@@ -93,7 +112,7 @@ export default function Login() {
         </Snackbar>
         <Snackbar
           open={openErrorSnackbar}
-          autoHideDuration={6000}
+          autoHideDuration={3000}
           onClose={handleCloseErrorSnackbar}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
@@ -103,7 +122,7 @@ export default function Login() {
             variant='filled'
             onClose={handleCloseErrorSnackbar}
           >
-            登入失敗！
+            {errorMessage}
           </Alert>
         </Snackbar>
         <Box
@@ -152,7 +171,7 @@ export default function Login() {
             <Box
               component='form'
               onSubmit={handleSubmit}
-              // noValidate
+              noValidate
               sx={{ mt: 1 }}
             >
               <TextField
@@ -161,7 +180,7 @@ export default function Login() {
                 fullWidth
                 color='success'
                 id='email'
-                label='Email Address'
+                label='電子郵件地址'
                 type='email'
                 name='email'
                 sx={{ bgcolor: '#fdf7e8' }}
@@ -173,7 +192,7 @@ export default function Login() {
                 fullWidth
                 color='success'
                 name='password'
-                label='Password'
+                label='密碼'
                 type='password'
                 id='password'
                 sx={{ bgcolor: '#fdf7e8' }}
@@ -182,6 +201,7 @@ export default function Login() {
                 type='submit'
                 fullWidth
                 variant='contained'
+                disabled={isSubmitting}
                 sx={{
                   mt: 3,
                   mb: 2,

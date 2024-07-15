@@ -24,6 +24,7 @@ import SearchRecipes from './routes/searchRecipe';
 import MyFridge from './routes/myFridge';
 import LandingPage from './routes/LandingPage/landingPage';
 import Footer from './routes/footer';
+import Settings from './routes/settings';
 
 const defaultTheme = createTheme({
   palette: {
@@ -100,6 +101,7 @@ function RouteStructure() {
           <Route path='user/createGroup' element={<CreateGroup />}></Route>
           <Route path='user/invitation' element={<Invitation />}></Route>
           <Route path='user/likedRecipe' element={<LikedRecipes />}></Route>
+          <Route path='user/settings' element={<Settings />}></Route>
           <Route path='/forbidden' element={<ForbiddenPage />} />
         </Routes>
       </Box>

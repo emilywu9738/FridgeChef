@@ -1,15 +1,23 @@
 import axios from 'axios';
 import {
+  Avatar,
   Box,
+  Button,
   Card,
   CardContent,
   CardHeader,
   Container,
   Grid,
+  IconButton,
+  Menu,
+  MenuItem,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import ControlPointIcon from '@mui/icons-material/ControlPoint';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -21,11 +29,27 @@ export default function MyFridge() {
   const [userData, setUserData] = useState({});
   const [userFridge, setUserFridge] = useState([]);
 
+  const handleCreateGroup = () => {
+    navigate('/user/createGroup');
+  };
+
   function FridgeCard({ fridge }) {
     const fridgeMembers = fridge.members.map((m) => m.name).join('、');
     const handleFridgeClick = () => {
       navigate(`/fridge/recipe?id=${fridge._id}`);
     };
+    const expiredItems = fridge.ingredients
+      .map((category) => ({
+        category: category.category,
+        items: category.items.filter((item) => {
+          const today = new Date();
+          const expirationDate = new Date(item.expirationDate);
+          return (expirationDate < today) | (expirationDate === today);
+        }),
+      }))
+      .filter((category) => category.items.length > 0)
+      .sort((a, b) => new Date(a.expirationDate) - new Date(b.expirationDate));
+
     const expiringItems = fridge.ingredients
       .map((category) => ({
         category: category.category,
@@ -45,7 +69,7 @@ export default function MyFridge() {
       const today = new Date();
       const date = new Date(expirationDate);
       const timeDiff = date - today;
-      const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // 計算剩餘天數
+      const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
       return daysLeft;
     };
 
@@ -57,7 +81,7 @@ export default function MyFridge() {
           sx={{
             position: 'relative',
             mx: 2,
-            my: 3,
+            mb: 3,
             borderRadius: 4,
             minWidth: 150,
             cursor: 'pointer',
@@ -104,6 +128,41 @@ export default function MyFridge() {
             <Typography
               sx={{ fontSize: 16, m: 1, color: '#4D3F36', fontWeight: 'bold' }}
             >
+              已過期
+            </Typography>
+            {expiredItems.length > 0 ? (
+              expiredItems.map((category) => (
+                <Box key={category.category} sx={{ my: 1, mx: 2 }}>
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      fontWeight: 'bold',
+                      mb: 1,
+                      color: '#876A62',
+                    }}
+                  >
+                    {category.category}類
+                  </Typography>
+                  {category.items.map((item) => (
+                    <Typography
+                      key={item._id}
+                      sx={{ fontSize: 14, ml: 2, color: '#342926' }}
+                    >
+                      {item.name} ⇒{' '}
+                      {new Date(item.expirationDate).toLocaleDateString()} ({' '}
+                      {-calculateDaysLeft(item.expirationDate)}天前 )
+                    </Typography>
+                  ))}
+                </Box>
+              ))
+            ) : (
+              <Typography sx={{ fontSize: 14, ml: 2 }}>
+                沒有已過期食材
+              </Typography>
+            )}
+            <Typography
+              sx={{ fontSize: 16, m: 1, color: '#4D3F36', fontWeight: 'bold' }}
+            >
               即將到期
             </Typography>
             {expiringItems.length > 0 ? (
@@ -133,7 +192,7 @@ export default function MyFridge() {
               ))
             ) : (
               <Typography sx={{ fontSize: 14, ml: 2 }}>
-                沒有即將到期的項目
+                沒有即將到期食材
               </Typography>
             )}
           </CardContent>
@@ -179,23 +238,43 @@ export default function MyFridge() {
               <Card
                 sx={{
                   borderRadius: 6,
-                  mx: 'auto',
                   px: 1,
                   pb: 2,
+                  mx: 'auto',
+                  my: 3,
                   bgcolor: '#FFFBF1',
-                  my: 2,
                   maxWidth: 600,
                 }}
               >
-                <Typography
-                  variant='h6'
-                  sx={{ mx: 2, mt: 3, mb: 2, color: '#5C4742', fontSize: 22 }}
-                >
-                  我的冰箱
-                </Typography>
-                {userFridge.map((fridge) => (
-                  <FridgeCard key={fridge._id} fridge={fridge} />
-                ))}
+                <CardHeader
+                  title={
+                    <Typography
+                      variant='h6'
+                      sx={{
+                        mx: 2,
+                        mt: 3,
+                        color: '#5C4742',
+                        fontSize: 22,
+                      }}
+                    >
+                      我的冰箱
+                    </Typography>
+                  }
+                  action={
+                    <Tooltip title='新增群組'>
+                      <IconButton onClick={handleCreateGroup}>
+                        <ControlPointIcon
+                          sx={{ fontSize: 30, color: '#f59b51' }}
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  }
+                />
+                <CardContent>
+                  {userFridge.map((fridge) => (
+                    <FridgeCard key={fridge._id} fridge={fridge} />
+                  ))}
+                </CardContent>
               </Card>
             </Grid>
           </Grid>

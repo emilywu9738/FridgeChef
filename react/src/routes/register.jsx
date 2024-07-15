@@ -6,7 +6,6 @@ import {
   Box,
   Button,
   Container,
-  CssBaseline,
   Link,
   Snackbar,
   TextField,
@@ -22,24 +21,71 @@ const apiClient = axios.create({
 export default function Register() {
   const navigate = useNavigate();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('註冊失敗');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [usernameError, setUsernameError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+
+    const name = data.get('name');
+    const email = data.get('email');
+    const password = data.get('password');
+
+    if (!name) {
+      setUsernameError('使用者名稱不能為空');
+      setErrorMessage('註冊失敗');
+      setOpenErrorSnackbar(true);
+      return;
+    }
+
+    if (!email) {
+      setEmailError('電子郵件不能為空');
+      setErrorMessage('註冊失敗');
+      setOpenErrorSnackbar(true);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError('無效的電子郵件格式');
+      setErrorMessage('註冊失敗');
+      setOpenErrorSnackbar(true);
+      return;
+    }
+
+    if (!password) {
+      setPasswordError('密碼不能為空');
+      setErrorMessage('註冊失敗');
+      setOpenErrorSnackbar(true);
+      return;
+    }
+
+    if (password.length < 8) {
+      setPasswordError('密碼長度需大於八位');
+      setErrorMessage('註冊失敗！');
+      setOpenErrorSnackbar(true);
+      return;
+    }
+
+    setIsSubmitting(true);
+
     apiClient
       .post(
         '/user/register',
         {
           provider: 'native',
-          name: data.get('name'),
-          email: data.get('email'),
-          password: data.get('password'),
+          name: name,
+          email: email,
+          password: password,
         },
         {
-          withCredentials: true, // 確保設置了此選項
+          withCredentials: true,
         },
       )
       .then((response) => {
@@ -153,7 +199,7 @@ export default function Register() {
           <Box
             component='form'
             onSubmit={handleSubmit}
-            // noValidate
+            noValidate
             sx={{ mt: 1 }}
           >
             <TextField
@@ -165,8 +211,14 @@ export default function Register() {
               color='success'
               id='name'
               type='text'
-              label='Username'
+              label='使用者名稱'
               sx={{ bgcolor: '#fdf7e8' }}
+              inputProps={{ maxLength: 20 }}
+              onChange={() => {
+                setUsernameError(false);
+              }}
+              error={usernameError}
+              helperText={usernameError}
             />
             <TextField
               margin='normal'
@@ -176,8 +228,13 @@ export default function Register() {
               color='success'
               id='email'
               type='email'
-              label='Email Address'
-              sx={{ bgcolor: '#fdf7e8' }}
+              label='電子郵件地址'
+              sx={{ bgcolor: '#fdf7e8', autoComplete: 'new-email' }}
+              onChange={() => {
+                setEmailError(false);
+              }}
+              error={emailError}
+              helperText={emailError}
             />
             <TextField
               margin='normal'
@@ -187,13 +244,19 @@ export default function Register() {
               color='success'
               id='password'
               type='password'
-              label='Password'
+              label='密碼'
+              onChange={() => {
+                setPasswordError(false);
+              }}
               sx={{ bgcolor: '#fdf7e8' }}
+              error={passwordError}
+              helperText={passwordError}
             />
             <Button
               type='submit'
               fullWidth
               variant='contained'
+              disabled={isSubmitting}
               sx={{
                 mt: 3,
                 mb: 2,

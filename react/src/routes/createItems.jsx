@@ -165,7 +165,7 @@ export default function CreateItems() {
 
   const handleUpdate = (e, index) => {
     e.preventDefault();
-    setIsEditing(false); // 退出編輯模式
+    setIsEditing(false);
   };
 
   const handleCancel = () => {
@@ -377,6 +377,7 @@ export default function CreateItems() {
                         sx={{ bgcolor: '#FBFBFB' }}
                         error={!!errors.name}
                         helperText={errors.name}
+                        inputProps={{ maxLength: 10 }}
                       />
                       <TextField
                         margin='normal'

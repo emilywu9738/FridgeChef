@@ -15,6 +15,8 @@ import {
   IconButton,
   Container,
   Grid,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import BookmarksIcon from '@mui/icons-material/Bookmarks';
 
@@ -30,7 +32,18 @@ export default function RecipeDetails() {
   const [recipeLikes, setRecipeLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [recommendedRecipes, setRecommendedRecipes] = useState([]);
+  const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
+  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
+  const handleCloseSuccessSnackbar = () => {
+    setOpenSuccessSnackbar(false);
+  };
+
+  const handleCloseErrorSnackbar = () => {
+    setOpenErrorSnackbar(false);
+  };
   const handleButtonClick = () => {
     const recipeId = searchParams.get('id');
 
@@ -49,13 +62,19 @@ export default function RecipeDetails() {
         if (err.response && err.response.status === 401) {
           navigate('/login');
         }
+        setOpenErrorSnackbar(true);
+        setErrorMessage('收藏失敗');
         console.error(err);
       });
 
     if (liked) {
       setRecipeLikes((prevCount) => prevCount - 1);
+      setOpenSuccessSnackbar(true);
+      setSuccessMessage('食譜已從收藏清單移除');
     } else {
       setRecipeLikes((prevCount) => prevCount + 1);
+      setOpenSuccessSnackbar(true);
+      setSuccessMessage('食譜已加入收藏');
     }
     setLiked(!liked);
   };
@@ -118,6 +137,36 @@ export default function RecipeDetails() {
         py: 4,
       }}
     >
+      <Snackbar
+        open={openSuccessSnackbar}
+        autoHideDuration={3000}
+        onClose={handleCloseSuccessSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          elevation={6}
+          severity='success'
+          variant='filled'
+          onClose={handleCloseSuccessSnackbar}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={openErrorSnackbar}
+        autoHideDuration={3000}
+        onClose={handleCloseErrorSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          elevation={3}
+          severity='error'
+          variant='filled'
+          onClose={handleCloseErrorSnackbar}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       <Grid container display='flex' sx={{ minHeight: '93vh' }}>
         <Grid item xs={12} md={8}>
           <Card

@@ -36,6 +36,12 @@ router.get(
 
 router.post('/updateLikes', validateJWT, catchAsync(user.updateLikes));
 
+router.post(
+  '/updateReceiveNotifications',
+  validateJWT,
+  catchAsync(user.updateReceiveNotifications),
+);
+
 router.get('/likedRecipes', validateJWT, catchAsync(user.getLikedRecipes));
 
 export default router;

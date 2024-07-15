@@ -10,6 +10,7 @@ const userSchema = new Schema({
   liked_recipes: [{ type: Schema.Types.ObjectId, ref: 'Recipe' }],
   preference: { type: String },
   omit: { type: [String] },
+  receiveNotifications: { type: Boolean, default: true },
 });
 
 export default mongoose.model('User', userSchema);

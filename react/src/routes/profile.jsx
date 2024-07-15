@@ -8,6 +8,7 @@ import {
   CardHeader,
   Container,
   FormControl,
+  FormHelperText,
   Grid,
   IconButton,
   InputLabel,
@@ -38,16 +39,21 @@ export default function Profile() {
   const [userFridge, setUserFridge] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [editMode, setEditMode] = useState(false);
-  const [omit, setOmit] = useState('');
-  const [preferCategory, setPreferCategory] = useState('');
+
   const [originalPreferCategory, setOriginalPreferCategory] = useState('');
   const [previewList, setPreviewList] = useState([]);
   const [originalPreviewList, setOriginalPreviewList] = useState([]);
+
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [errors, setErrors] = useState({});
+
+  const [preferCategory, setPreferCategory] = useState('');
+  const [preferCategoryError, setPreferCategoryError] = useState(false);
+  const [omit, setOmit] = useState('');
+  const [omitError, setOmitError] = useState(false);
 
   const open = Boolean(anchorEl);
 
@@ -61,6 +67,7 @@ export default function Profile() {
 
   const handleCategoryChange = (event) => {
     setPreferCategory(event.target.value);
+    setPreferCategoryError(false);
   };
 
   const handleEditPreferences = () => {
@@ -78,16 +85,24 @@ export default function Profile() {
 
   const handleAddPreview = (event) => {
     event.preventDefault();
-    const newErrors = validate();
-    if (Object.keys(newErrors).length === 0) {
-      setPreviewList([...previewList, omit]);
-      setOmit('');
-    } else {
-      setErrors(newErrors);
-    }
+    if (!omit.trim()) return setOmitError('食材名稱不能空白！');
+    const trimmedOmit = omit.trim();
+    if (previewList.includes(trimmedOmit))
+      return setOmitError('排除列表已經有這個食材嘍！');
+
+    setPreviewList([...previewList, trimmedOmit]);
+    setOmit('');
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!preferCategory) {
+      setPreferCategoryError('請選擇您的飲食習慣！');
+      setErrorMessage('更新失敗');
+      setOpenErrorSnackbar(true);
+      return;
+    }
+
     apiClient
       .post(
         '/user/profile',
@@ -129,18 +144,16 @@ export default function Profile() {
     navigate('/user/createGroup');
   };
 
+  const handleLikedRecipe = () => {
+    navigate('/user/likedRecipe');
+  };
+
   const handleCloseSuccessSnackbar = () => {
     setOpenSuccessSnackbar(false);
   };
 
   const handleCloseErrorSnackbar = () => {
     setOpenErrorSnackbar(false);
-  };
-
-  const validate = () => {
-    const newErrors = {};
-    if (!omit) newErrors.omit = '食材名稱不能空白！';
-    return newErrors;
   };
 
   useEffect(() => {
@@ -268,7 +281,10 @@ export default function Profile() {
                   {editMode ? (
                     <>
                       <FormControl fullWidth sx={{ minWidth: 240, my: 2 }}>
-                        <InputLabel id='recipeCategory-label' color='success'>
+                        <InputLabel
+                          id='recipeCategory-label'
+                          color={preferCategoryError ? 'error' : 'success'}
+                        >
                           飲食習慣
                         </InputLabel>
                         <Select
@@ -278,12 +294,18 @@ export default function Profile() {
                           label='飲食習慣'
                           onChange={handleCategoryChange}
                           color='success'
-                          sx={{ mb: 2 }}
+                          error={preferCategoryError}
+                          helperText={preferCategoryError}
                         >
                           <MenuItem value={'無'}>無</MenuItem>
                           <MenuItem value={'奶蛋素'}>奶蛋素</MenuItem>
                           <MenuItem value={'全素'}>全素</MenuItem>
                         </Select>
+                        {preferCategoryError && (
+                          <FormHelperText sx={{ color: '#c62828' }}>
+                            {preferCategoryError}
+                          </FormHelperText>
+                        )}
                       </FormControl>
                       <Box
                         component='form'
@@ -296,21 +318,22 @@ export default function Profile() {
                         }}
                       >
                         <TextField
+                          autoFocus
                           id='omit'
                           label='新增排除食材'
                           name='omit'
                           value={omit}
                           onChange={(e) => {
                             setOmit(e.target.value);
-                            setErrors({});
+                            setOmitError(false);
                           }}
-                          autoFocus
+                          inputProps={{ maxLength: 12 }}
                           color='success'
                           sx={{ flexGrow: 1, mr: 1 }}
-                          error={!!errors.omit}
-                          helperText={errors.omit}
+                          error={omitError}
+                          helperText={omitError}
                         />
-                        {Object.keys(errors).length > 0 ? (
+                        {omitError ? (
                           <Button
                             type='submit'
                             variant='contained'
@@ -409,7 +432,8 @@ export default function Profile() {
                           fontWeight: 500,
                         }}
                       >
-                        飲食習慣 ⇨ {userData.preference}
+                        飲食習慣 ⇨{' '}
+                        {userData.preference ? userData.preference : '請選擇'}
                       </Typography>
                       <Typography
                         sx={{ color: '#B47552', fontWeight: 500, mb: 1 }}
@@ -422,17 +446,32 @@ export default function Profile() {
                           color: '#6c584c',
                         }}
                       >
-                        {userData.omit.join('、')}
+                        {userData.omit.length > 0
+                          ? userData.omit.join('、')
+                          : '無'}
                       </Typography>
-                      <Typography
-                        sx={{ mb: 1.5, color: '#B47552', fontWeight: 500 }}
-                      >
+                      <Typography sx={{ color: '#B47552', fontWeight: 500 }}>
                         已收藏食譜
-                        <br />
-                        {Array.isArray(userData.liked_recipes)
-                          ? userData.liked_recipes.length
-                          : 0}
                       </Typography>
+                      <Box sx={{ mb: 1.5 }}>
+                        <Typography
+                          onClick={handleLikedRecipe}
+                          sx={{
+                            display: 'inline-block',
+                            color: '#B47552',
+                            fontWeight: 500,
+                            textDecoration: 'underLine',
+                            ':hover': {
+                              cursor: 'pointer',
+                              color: '#754A32',
+                            },
+                          }}
+                        >
+                          {userData.liked_recipes.length > 0
+                            ? userData.liked_recipes.length
+                            : 0}
+                        </Typography>
+                      </Box>
                     </>
                   )}
                 </CardContent>

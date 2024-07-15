@@ -25,6 +25,7 @@ import MyFridge from './routes/myFridge';
 import LandingPage from './routes/LandingPage/landingPage';
 import Footer from './routes/footer';
 import Settings from './routes/settings';
+import AddMembers from './routes/addMembers';
 
 const defaultTheme = createTheme({
   palette: {
@@ -89,6 +90,7 @@ function RouteStructure() {
           <Route path='/' element={<LandingPage />}></Route>
           <Route path='fridge/create' element={<CreateItems />}></Route>
           <Route path='fridge/recipe' element={<ShowFridgeAndRecipe />}></Route>
+          <Route path='fridge/addMembers' element={<AddMembers />}></Route>
           <Route
             path='fridge/recipeDetails'
             element={<RecipeDetails />}

@@ -143,7 +143,13 @@ export const searchUser = async (req, res) => {
 
 export const createGroup = async (req, res) => {
   const { name, description, host, inviting } = req.body;
-  const fridge = new Fridge({ name, description, members: host, inviting });
+  const invitingUserIds = inviting.map((user) => user.id);
+  const fridge = new Fridge({
+    name,
+    description,
+    members: host,
+    inviting: invitingUserIds,
+  });
   const result = await fridge.save();
   const groupId = result._id.toString();
   const onlineUsers = getOnlineUsers();
@@ -200,7 +206,7 @@ export const createGroup = async (req, res) => {
 
       const notification = new Notification({
         type: 'invitation',
-        target: { type: 'User', id: member._id.toString() },
+        target: { type: 'User', id: member.id },
         content: `${host.name} 已邀請您至【 ${name}  】，點擊此通知加入。 `,
         link: `/user/invitation?id=${invitationId}&email=${member.email}`,
       });
@@ -208,7 +214,7 @@ export const createGroup = async (req, res) => {
       await notification.save();
       const getUser = (userId) => onlineUsers.find((u) => u.userId === userId);
 
-      const userId = member._id.toString();
+      const userId = member.id;
 
       const user = getUser(userId);
 

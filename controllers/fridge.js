@@ -12,6 +12,7 @@ import Fridge from '../models/fridge.js';
 import User from '../models/user.js';
 import Recipe from '../models/recipe.js';
 import Notification from '../models/notification.js';
+import Invitation from '../models/invitation.js';
 import ExpressError from '../utils/ExpressError.js';
 import { io, getOnlineUsers } from '../app.js';
 
@@ -46,6 +47,23 @@ const sendEmail = (to, subject, text) => {
     to,
     subject,
     text,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Error sending email:', error);
+    } else {
+      console.log('Email sent:', info.response);
+    }
+  });
+};
+
+const sendEmailByHtml = (to, subject, html) => {
+  const mailOptions = {
+    from: process.env.GMAIL_USER,
+    to,
+    subject,
+    html,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -425,4 +443,123 @@ export const searchRecipes = async (req, res) => {
 
   const result = await Recipe.find({ ingredients: ingredient });
   res.send(result);
+};
+
+export const searchUserForInvite = async (req, res) => {
+  const { id, email } = req.query;
+
+  const [user] = await User.find({ email });
+  if (!user) {
+    throw new ExpressError('使用者不存在，請先註冊', 404);
+  }
+  if (id) {
+    const [result] = await Fridge.find({ _id: id }).populate({
+      path: 'members',
+      select: 'email',
+    });
+    const fridgeMembers = result.members;
+
+    let includeMember = false;
+    fridgeMembers.forEach((m) => {
+      if (m.email === email) {
+        includeMember = true;
+      }
+      return includeMember;
+    });
+    if (includeMember) {
+      throw new ExpressError('使用者已存在此群組，不能重複加入', 409);
+    }
+    res.send({ name: user.name, email: user.email });
+  } else {
+    res.send({ id: user._id, name: user.name, email: user.email });
+  }
+};
+
+export const inviteMember = async (req, res) => {
+  const hostId = req.user.id;
+  const { id, email } = req.query;
+  const [invitedUser] = await User.find({ email });
+
+  const invitedUserId = invitedUser._id;
+
+  const [host] = await User.find({ _id: hostId });
+
+  const onlineUsers = getOnlineUsers();
+
+  const result = await Fridge.findOneAndUpdate(
+    { _id: id },
+    { $push: { inviting: invitedUserId } },
+    { new: true },
+  );
+
+  const invitation = new Invitation({
+    email,
+    groupId: id,
+  });
+  const invitationResult = await invitation.save();
+  const invitationId = invitationResult._id.toString();
+
+  sendEmailByHtml(
+    email,
+    `【FridgeChef】 ${host.name} 邀請您一起加入${result.name}！`,
+    `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            .email-container {
+              width: 100%;
+              max-width: 600px;
+              margin-top: 10px;
+              padding: 20px;
+              border-radius: 8px;
+              border:1px solid;
+              text-align: center;
+            }
+            a.button {
+              background-color: #ea8c55;
+              color: white;
+              padding: 10px 20px;
+              text-decoration: none;
+              border-radius: 5px;
+              display: inline-block;
+            }
+          </style>
+          </head>
+          <body>
+            <div class="email-container">
+              <h2>Invitation</h2>
+              <p>您收到 ${host.name} (${host.email}) 的邀請，歡迎您一起加入 FridgeChef 群組！</p>
+              <p>群組名稱：${result.name}</p>
+              <a href='https://myfridgechef.com/user/invitation?id=${invitationId}&email=${email}' class="button">接受邀請</a>
+              <p>（此連結將於24小時後過期）</p>
+            </div>
+          </body>
+          </html>
+          `,
+  );
+
+  const notification = new Notification({
+    type: 'invitation',
+    target: { type: 'User', id: invitedUserId.toString() },
+    content: `${host.name} 已邀請您至【 ${result.name}  】，點擊此通知加入。 `,
+    link: `/user/invitation?id=${invitationId}&email=${email}`,
+  });
+
+  await notification.save();
+  const getUser = (userId) => onlineUsers.find((u) => u.userId === userId);
+
+  const userId = invitedUserId.toString();
+
+  const socketUser = getUser(userId);
+
+  if (socketUser && socketUser.socketId) {
+    const { socketId } = socketUser;
+    io.to(socketId).emit('notification', 'new notification!');
+  } else {
+    console.log(`User with ID ${userId} is not online.`);
+  }
+
+  res.status(200).send('成員新增成功！');
 };

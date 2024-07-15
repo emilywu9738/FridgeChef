@@ -43,8 +43,10 @@ export default function MyFridge() {
         category: category.category,
         items: category.items.filter((item) => {
           const today = new Date();
+          today.setHours(0, 0, 0, 0);
           const expirationDate = new Date(item.expirationDate);
-          return (expirationDate < today) | (expirationDate === today);
+          expirationDate.setHours(0, 0, 0, 0);
+          return expirationDate < today;
         }),
       }))
       .filter((category) => category.items.length > 0)
@@ -55,11 +57,12 @@ export default function MyFridge() {
         category: category.category,
         items: category.items.filter((item) => {
           const today = new Date();
+          today.setHours(0, 0, 0, 0);
           const expirationDate = new Date(item.expirationDate);
-          return (
-            expirationDate > today &&
-            (expirationDate - today) / (1000 * 60 * 60 * 24) <= 4
-          );
+          expirationDate.setHours(0, 0, 0, 0);
+          const daysDifference =
+            (expirationDate - today) / (1000 * 60 * 60 * 24);
+          return expirationDate >= today && daysDifference <= 3;
         }),
       }))
       .filter((category) => category.items.length > 0)
@@ -132,7 +135,7 @@ export default function MyFridge() {
             </Typography>
             {expiredItems.length > 0 ? (
               expiredItems.map((category) => (
-                <Box key={category.category} sx={{ my: 1, mx: 2 }}>
+                <Box key={category.category} sx={{ mt: 1, mb: 2, mx: 2 }}>
                   <Typography
                     sx={{
                       fontSize: 14,
@@ -163,7 +166,7 @@ export default function MyFridge() {
             <Typography
               sx={{ fontSize: 16, m: 1, color: '#4D3F36', fontWeight: 'bold' }}
             >
-              即將到期
+              即將過期
             </Typography>
             {expiringItems.length > 0 ? (
               expiringItems.map((category) => (
@@ -178,16 +181,19 @@ export default function MyFridge() {
                   >
                     {category.category}類
                   </Typography>
-                  {category.items.map((item) => (
-                    <Typography
-                      key={item._id}
-                      sx={{ fontSize: 14, ml: 2, color: '#342926' }}
-                    >
-                      {item.name} ⇒{' '}
-                      {new Date(item.expirationDate).toLocaleDateString()} ({' '}
-                      {calculateDaysLeft(item.expirationDate)}天後 )
-                    </Typography>
-                  ))}
+                  {category.items.map((item) => {
+                    const daysLeft = calculateDaysLeft(item.expirationDate);
+                    return (
+                      <Typography
+                        key={item._id}
+                        sx={{ fontSize: 14, ml: 2, color: '#342926' }}
+                      >
+                        {item.name} ⇒{' '}
+                        {new Date(item.expirationDate).toLocaleDateString()} ({' '}
+                        {daysLeft > 0 ? `${daysLeft}天後` : '今天過期'} )
+                      </Typography>
+                    );
+                  })}
                 </Box>
               ))
             ) : (

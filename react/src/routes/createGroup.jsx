@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { debounce, wrap } from 'lodash';
 import {
   Alert,
   Box,
@@ -27,7 +26,6 @@ export default function CreateGroup() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [input, setInput] = useState('');
-  const [results, setResults] = useState([]);
   const [userData, setUserData] = useState({});
   const [previewList, setPreviewList] = useState([]);
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
@@ -35,25 +33,48 @@ export default function CreateGroup() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [nameError, setNameError] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
-  const debouncedSearch = debounce((searchTerm) => {
-    apiClient(`/user/search?name=${searchTerm}`)
+  const handleClick = () => {
+    if (input.trim() === '') {
+      setEmailError('請輸入有效的電子郵件');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(input)) {
+      setEmailError('無效的電子郵件格式');
+      return;
+    }
+
+    if (previewList.some((item) => item.email === input)) {
+      setEmailError('成員已存在於列表中');
+      return;
+    }
+
+    apiClient(`/fridge/searchUserForInvite?email=${input}`)
       .then((response) => {
-        setResults(response.data);
+        const user = response.data;
+        setPreviewList((prevList) => [...prevList, user]);
+        console.log(previewList);
+        setInput('');
       })
       .catch((err) => {
-        console.error('Error fetching search results:', err);
+        if (err.response && err.response.status === 409) {
+          setEmailError(err.response.data);
+          return;
+        }
+        if (err.response && err.response.status === 404) {
+          setEmailError(err.response.data);
+          return;
+        }
+        console.error(err);
       });
-  }, 300);
-
-  const handleItemClick = (result) => {
-    if (!previewList.some((item) => item._id === result._id)) {
-      setPreviewList((prevList) => [...prevList, result]);
-    }
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+
     if (!name.trim()) {
       setNameError('冰箱名稱不得為空！');
       setErrorMessage('群組新增失敗');
@@ -61,7 +82,20 @@ export default function CreateGroup() {
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (input) {
+      if (!emailRegex.test(input)) {
+        setEmailError('無效的電子郵件格式');
+        return;
+      }
+    }
     const trimmedName = name.trim();
+    console.log({
+      name: trimmedName,
+      description,
+      host: userData,
+      inviting: previewList,
+    });
 
     apiClient
       .post(
@@ -131,14 +165,6 @@ export default function CreateGroup() {
         }
       });
   }, [navigate]);
-
-  useEffect(() => {
-    if (input.trim().length > 0) {
-      debouncedSearch(input);
-    } else {
-      setResults([]);
-    }
-  }, [input, debouncedSearch]);
 
   return (
     <>
@@ -252,15 +278,36 @@ export default function CreateGroup() {
                 />
 
                 <TextField
-                  fullWidth
                   label='新增成員'
                   variant='outlined'
                   value={input}
                   color='success'
-                  placeholder='請輸入成員名稱或 Email'
-                  onChange={(e) => setInput(e.target.value)}
-                  sx={{ mt: 2 }}
+                  placeholder='請輸入想新增之成員Email'
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                    setEmailError('');
+                  }}
+                  sx={{ mt: 2, width: { xs: '78%', sm: '83%' } }}
+                  error={emailError}
+                  helperText={emailError}
                 />
+                <Button
+                  onClick={handleClick}
+                  variant='contained'
+                  size='large'
+                  sx={{
+                    mt: 2,
+                    height: 55,
+                    backgroundColor: '#f59b51',
+                    ':hover': {
+                      backgroundColor: '#C6600C',
+                    },
+                    px: '17px',
+                    ml: 1,
+                  }}
+                >
+                  新增
+                </Button>
                 {previewList.length > 0 && (
                   <List
                     sx={{
@@ -299,48 +346,6 @@ export default function CreateGroup() {
                   </List>
                 )}
 
-                {results.length > 0 && (
-                  <List
-                    sx={{
-                      border: '1px solid #ccc',
-                      borderRadius: '10px',
-                      px: 1,
-                      mb: 2,
-                      mt: 1,
-                      bgcolor: 'white',
-                    }}
-                  >
-                    {results.map((result) => (
-                      <ListItem
-                        key={result._id}
-                        onClick={() => handleItemClick(result)}
-                        sx={{
-                          border: '1px solid #ccc',
-                          borderRadius: '10px',
-                          boxShadow: '0 2px 2px rgba(0,0,0,0.1)',
-                          width: '100%',
-                          my: 1,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <Typography
-                          variant='body1'
-                          component='span'
-                          sx={{ flexGrow: 1 }}
-                        >
-                          {result.name}
-                        </Typography>
-                        <Typography
-                          variant='body2'
-                          component='span'
-                          sx={{ color: 'gray' }}
-                        >
-                          Email: {result.email}
-                        </Typography>
-                      </ListItem>
-                    ))}
-                  </List>
-                )}
                 <Box sx={{ mt: 3 }}>
                   <Button
                     type='submit'

@@ -29,4 +29,8 @@ router.post('/:id/deleteItems', validateJWT, catchAsync(fridge.deleteItems));
 
 router.get('/searchRecipe', catchAsync(fridge.searchRecipes));
 
+router.get('/searchUserForInvite', catchAsync(fridge.searchUserForInvite));
+
+router.get('/inviteMember', validateJWT, catchAsync(fridge.inviteMember));
+
 export default router;

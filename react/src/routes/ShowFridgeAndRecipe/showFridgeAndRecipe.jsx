@@ -75,10 +75,10 @@ export default function ShowFridgeAndRecipe() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [reload, setReload] = useState(false);
-  const [isFridgeOpen, setIsFridgeOpen] = useState(false);
 
-  const handleFridgeToggle = () => {
-    setIsFridgeOpen(!isFridgeOpen);
+  const handleAddMembers = () => {
+    const fridgeId = searchParams.get('id');
+    navigate(`/fridge/addMembers?id=${fridgeId}`);
   };
 
   const handleMemberExpandClick = () => {
@@ -158,7 +158,7 @@ export default function ShowFridgeAndRecipe() {
         />
         <CardContent>
           <Typography sx={{ fontSize: 14 }} color='text.secondary' gutterBottom>
-            Member
+            成員
           </Typography>
           <Typography variant='h5' component='div' sx={{ mb: 1 }}>
             {member.name}
@@ -169,7 +169,7 @@ export default function ShowFridgeAndRecipe() {
           <Typography variant='body2' sx={{ color: '#bc6c25' }}>
             排除食材：
             <br />
-            {member.omit.join('、')}
+            {member.omit.length > 0 ? member.omit.join('、') : '無'}
           </Typography>
         </CardContent>
       </Card>
@@ -461,7 +461,6 @@ export default function ShowFridgeAndRecipe() {
   }
 
   useEffect(() => {
-    setIsFridgeOpen(!isFridgeOpen);
     const fridgeId = searchParams.get('id');
     if (fridgeId) {
       apiClient(`/fridge?id=${fridgeId}`, {
@@ -534,42 +533,6 @@ export default function ShowFridgeAndRecipe() {
             position: 'relative',
           }}
         >
-          {/* 冰箱動畫 */}
-          {/* <Box textAlign='center' mt={4}>
-            <Box
-              sx={{
-                borderRadius: 8,
-                width: '100%',
-                height: '94%',
-                backgroundColor: 'white',
-                position: 'absolute',
-                overflow: 'hidden',
-                mx: 2,
-                left: '50%',
-                transform: `translateX(-50%) ${
-                  isFridgeOpen ? 'rotateY(-120deg)' : 'rotateY(0deg)'
-                }`,
-                transition: 'transform 1s ease-in-out',
-                transformOrigin: 'left',
-                zIndex: 2,
-              }}
-            >
-              <Box
-                sx={{
-                  borderRadius: 8,
-                  width: '100%',
-                  height: '100%',
-                  backgroundColor: 'white',
-                  position: 'absolute',
-                  transition: 'transform 1s ease-in-out',
-                  transform: isFridgeOpen
-                    ? 'rotateY(-120deg)'
-                    : 'rotateY(0deg)',
-                  transformOrigin: 'left',
-                }}
-              />
-            </Box>
-          </Box> */}
           <Card
             elevation={6}
             sx={{
@@ -647,14 +610,13 @@ export default function ShowFridgeAndRecipe() {
                   display: 'flex',
                   flexWrap: 'wrap',
                   alignItems: 'flex-start',
-                  mb: 3,
+                  mb: 1,
                 }}
               >
                 <Typography
                   variant='h5'
                   component='div'
                   sx={{
-                    mb: 1,
                     letterSpacing: '0.03em',
                     fontSize: { xs: 20, md: 24 },
                   }}
@@ -673,6 +635,21 @@ export default function ShowFridgeAndRecipe() {
               </Box>
 
               <Collapse in={memberExpanded} timeout='auto' unmountOnExit>
+                <Button
+                  variant='contained'
+                  size='large'
+                  sx={{
+                    mb: 2,
+                    backgroundColor: '#f59b51',
+                    ':hover': {
+                      backgroundColor: '#C6600C',
+                    },
+                    px: '17px',
+                  }}
+                  onClick={handleAddMembers}
+                >
+                  新增成員
+                </Button>
                 <Grid container sx={{ mb: 3 }}>
                   {fridgeData.members.map((member) => (
                     <Grid item xs={12} sm={6} md={4} xl={3} key={member._id}>

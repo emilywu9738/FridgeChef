@@ -25,7 +25,7 @@ router.get(
   catchAsync(fridge.recommendRecipeOnDetailPage),
 );
 
-router.post('/:id/deleteItems', validateJWT, catchAsync(fridge.deleteItems));
+router.delete('/:id/deleteItems', validateJWT, catchAsync(fridge.deleteItems));
 
 router.get('/searchRecipe', catchAsync(fridge.searchRecipes));
 

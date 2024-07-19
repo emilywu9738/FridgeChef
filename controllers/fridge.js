@@ -429,11 +429,21 @@ export const deleteItems = async (req, res) => {
   const { id } = req.params;
   const ingredientIds = req.body.ids;
 
-  await Fridge.findOneAndUpdate(
-    { _id: id },
-    { $pull: { 'ingredients.$[].items': { _id: { $in: ingredientIds } } } },
-    { new: true },
-  );
+  // 確保找到目標冰箱
+  const fridge = await Fridge.findOne({ _id: id });
+
+  if (!fridge) {
+    return res.status(404).json({ message: '冰箱不存在！' });
+  }
+
+  // 使用 JavaScript 遍歷和刪除嵌套陣列中的項目
+  fridge.ingredients.forEach((ingredient) => {
+    ingredient.items = ingredient.items.filter(
+      (item) => !ingredientIds.includes(item._id.toString()),
+    );
+  });
+
+  await fridge.save();
 
   res.status(200).json('食材已刪除！');
 };

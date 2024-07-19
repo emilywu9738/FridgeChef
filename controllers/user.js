@@ -10,7 +10,7 @@ import Recipe from '../models/recipe.js';
 import Notification from '../models/notification.js';
 import Invitation from '../models/invitation.js';
 import ExpressError from '../utils/ExpressError.js';
-import { generateJWT } from '../utils/JWT.js';
+import generateJWT from '../utils/generateJWT.js';
 
 mongoose.connect(process.env.MONGOOSE_CONNECT);
 

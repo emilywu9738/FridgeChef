@@ -3,7 +3,7 @@ import 'dotenv/config';
 
 const EXPIRE_TIME = 3600;
 
-export const generateJWT = (id) => {
+export default (id) => {
   const accessToken = jwt.sign(
     {
       id,

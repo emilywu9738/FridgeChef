@@ -1,13 +1,11 @@
-import ReactDOM from 'react-dom/client';
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  useLocation,
-  Navigate,
-} from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { Box, CssBaseline } from '@mui/material';
+
+import Footer from './components/footer';
+import NavBar from './components/navbar';
+
 import ShowFridgeAndRecipe from './routes/ShowFridgeAndRecipe/showFridgeAndRecipe';
 import Register from './routes/register';
 import Login from './routes/login';
@@ -17,15 +15,13 @@ import CreateItems from './routes/createItems';
 import CreateGroup from './routes/createGroup';
 import Invitation from './routes/invitation';
 import RecipeDetails from './routes/recipeDetails';
-import NavBar from './routes/navbar';
 import LikedRecipes from './routes/likedRecipes';
-import { Box, CssBaseline } from '@mui/material';
 import SearchRecipes from './routes/searchRecipe';
 import MyFridge from './routes/myFridge';
 import LandingPage from './routes/LandingPage/landingPage';
-import Footer from './routes/footer';
 import Settings from './routes/settings';
 import AddMembers from './routes/addMembers';
+import NotFound from './routes/notFound';
 
 const defaultTheme = createTheme({
   palette: {
@@ -46,14 +42,14 @@ const defaultTheme = createTheme({
             right: 0,
             bottom: 0,
             backgroundImage: 'url(/bgImage.jpg)',
-            backgroundSize: 'contain', // 確保背景圖像覆蓋整個頁面
+            backgroundSize: 'contain',
             backgroundPosition: 'center',
-            opacity: 0.4, // 設置透明度
-            zIndex: -1, // 確保背景圖像位於所有內容的後面
+            opacity: 0.4,
+            zIndex: -1,
           },
         },
         '#root': {
-          position: 'relative', // 確保應用內容正常顯示在背景圖像之上
+          position: 'relative',
           zIndex: 1,
         },
       },
@@ -99,12 +95,13 @@ function RouteStructure() {
           <Route path='login' element={<Login />}></Route>
           <Route path='register' element={<Register />}></Route>
           <Route path='user/profile' element={<Profile />}></Route>
-          <Route path='user/myfridge' element={<MyFridge />}></Route>
+          <Route path='user/myFridge' element={<MyFridge />}></Route>
           <Route path='user/createGroup' element={<CreateGroup />}></Route>
           <Route path='user/invitation' element={<Invitation />}></Route>
           <Route path='user/likedRecipe' element={<LikedRecipes />}></Route>
           <Route path='user/settings' element={<Settings />}></Route>
           <Route path='/forbidden' element={<ForbiddenPage />} />
+          <Route path='*' element={<NotFound />} />
         </Routes>
       </Box>
       {showNavBar && <Footer />}

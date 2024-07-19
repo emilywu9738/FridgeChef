@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import KitchenIcon from '@mui/icons-material/Kitchen';
 
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 
@@ -254,17 +255,22 @@ export default function MyFridge() {
               >
                 <CardHeader
                   title={
-                    <Typography
-                      variant='h6'
-                      sx={{
-                        mx: 2,
-                        mt: 3,
-                        color: '#5C4742',
-                        fontSize: 22,
-                      }}
-                    >
-                      我的冰箱
-                    </Typography>
+                    <Box sx={{ display: 'flex' }}>
+                      <KitchenIcon
+                        sx={{ mt: 3, ml: 2, color: '#5C4742', fontSize: 30 }}
+                      />
+                      <Typography
+                        variant='h5'
+                        sx={{
+                          ml: 1,
+                          mt: 3,
+                          color: '#5C4742',
+                          fontWeight: 600,
+                        }}
+                      >
+                        我的冰箱
+                      </Typography>
+                    </Box>
                   }
                   action={
                     <Tooltip title='新增群組'>

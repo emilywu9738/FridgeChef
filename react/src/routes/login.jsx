@@ -66,7 +66,7 @@ export default function Login() {
         } else {
           setTimeout(() => {
             navigate('/user/profile');
-          }, 2000);
+          }, 1000);
         }
       })
       .catch((err) => {
@@ -77,7 +77,9 @@ export default function Login() {
             navigate('/register');
           }, 2000);
         }
+        setErrorMessage('登入失敗');
         setOpenErrorSnackbar(true);
+        setIsSubmitting(false);
         console.error(err.message);
       });
   };

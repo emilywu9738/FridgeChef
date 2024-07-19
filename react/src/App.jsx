@@ -4,7 +4,6 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Box, CssBaseline } from '@mui/material';
 
 import Footer from './components/footer';
-import NavBar from './components/navbar';
 
 import ShowFridgeAndRecipe from './routes/ShowFridgeAndRecipe/showFridgeAndRecipe';
 import Register from './routes/register';
@@ -22,6 +21,7 @@ import LandingPage from './routes/LandingPage/landingPage';
 import Settings from './routes/settings';
 import AddMembers from './routes/addMembers';
 import NotFound from './routes/notFound';
+import NavBar from './components/navbar/navbar';
 
 const defaultTheme = createTheme({
   palette: {

@@ -106,6 +106,7 @@ export default function Register() {
         } else {
           setErrorMessage('註冊失敗！');
           setOpenErrorSnackbar(true);
+          setIsSubmitting(false);
         }
       });
   };

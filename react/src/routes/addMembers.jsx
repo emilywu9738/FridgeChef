@@ -78,7 +78,6 @@ export default function AddMembers() {
     apiClient(`/fridge/searchUserForInvite?id=${id}&email=${search}`)
       .then((response) => {
         setUserForInvite(response.data);
-        setClickGo(true);
         navigate(`/fridge/addMembers?id=${id}&email=${search}`);
       })
       .catch((err) => {

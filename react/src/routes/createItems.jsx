@@ -37,12 +37,13 @@ const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
-const OPTIONS = ['蔬菜', '肉品', '海鮮', '調味料', '蛋豆', '主食'];
+const OPTIONS = ['蛋豆', '蔬菜', '肉品', '海鮮', '調味料', '主食'];
 
 export default function CreateItems() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('');
   const [expired, setExpired] = useState('');
   const [category, setCategory] = useState('');
@@ -86,6 +87,7 @@ export default function CreateItems() {
     }
 
     const fridgeId = searchParams.get('fridgeId');
+    setIsSubmitting(true);
     apiClient
       .post(`/fridge/create?fridgeId=${fridgeId}`, previewList, {
         withCredentials: true,
@@ -95,7 +97,7 @@ export default function CreateItems() {
         setSuccessMessage(response.data);
         setTimeout(() => {
           navigate(`/fridge/recipe?id=${fridgeId}`);
-        }, 2000);
+        }, 1000);
       })
       .catch((err) => {
         console.error('Error:', err);
@@ -108,6 +110,7 @@ export default function CreateItems() {
         } else {
           setErrorMessage('食材新增失敗！');
           setOpenErrorSnackbar(true);
+          setIsEditing(false);
         }
       });
   };
@@ -593,6 +596,7 @@ export default function CreateItems() {
                 </List>
                 {previewList.length > 0 && (
                   <Button
+                    disabled={isSubmitting}
                     onClick={handleSubmit}
                     fullWidth
                     variant='contained'

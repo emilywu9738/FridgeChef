@@ -554,6 +554,15 @@ export default function ShowFridgeAndRecipe() {
               >
                 {fridgeData.name}
               </Typography>
+              <Typography
+                variant='body1'
+                sx={{
+                  mb: 2,
+                  color: '#635954',
+                }}
+              >
+                {fridgeData.description}
+              </Typography>
               <Box
                 sx={{
                   display: 'flex',

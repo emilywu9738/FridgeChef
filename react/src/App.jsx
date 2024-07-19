@@ -48,7 +48,7 @@ const defaultTheme = createTheme({
             backgroundImage: 'url(/bgImage.jpg)',
             backgroundSize: 'contain', // 確保背景圖像覆蓋整個頁面
             backgroundPosition: 'center',
-            opacity: 0.6, // 設置透明度
+            opacity: 0.4, // 設置透明度
             zIndex: -1, // 確保背景圖像位於所有內容的後面
           },
         },

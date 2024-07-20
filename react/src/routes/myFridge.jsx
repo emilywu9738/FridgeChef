@@ -1,16 +1,12 @@
 import axios from 'axios';
 import {
-  Avatar,
   Box,
-  Button,
   Card,
   CardContent,
   CardHeader,
   Container,
   Grid,
   IconButton,
-  Menu,
-  MenuItem,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -19,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import KitchenIcon from '@mui/icons-material/Kitchen';
 
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
+import ErrorSnackbar from '../components/errorSnackbar';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -29,8 +26,14 @@ export default function MyFridge() {
 
   const [userData, setUserData] = useState({});
   const [userFridge, setUserFridge] = useState([]);
+  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleCreateGroup = () => {
+  const handleCloseErrorSnackbar = () => {
+    setOpenErrorSnackbar(false);
+  };
+
+  const navigateToCreateGroup = () => {
     navigate('/user/createGroup');
   };
 
@@ -217,17 +220,33 @@ export default function MyFridge() {
         setUserFridge(response.data.userFridge);
       })
       .catch((err) => {
-        console.error(err);
         if (err.response && err.response.status === 401) {
-          navigate('/login');
-        } else if (err.response && err.response.status === 403) {
-          navigate('/forbidden');
+          setErrorMessage('請先登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
+        }
+        if (err.response && err.response.status === 403) {
+          setErrorMessage('請重新登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
         }
       });
   }, [navigate]);
 
   return (
     <>
+      <ErrorSnackbar
+        openErrorSnackbar={openErrorSnackbar}
+        autoHideDuration={3000}
+        handleCloseErrorSnackbar={handleCloseErrorSnackbar}
+        errorMessage={errorMessage}
+      />
       {Object.keys(userData).length > 0 && (
         <Container
           component='main'
@@ -274,7 +293,7 @@ export default function MyFridge() {
                   }
                   action={
                     <Tooltip title='新增群組'>
-                      <IconButton onClick={handleCreateGroup}>
+                      <IconButton onClick={navigateToCreateGroup}>
                         <ControlPointIcon
                           sx={{ fontSize: 30, color: '#f59b51' }}
                         />

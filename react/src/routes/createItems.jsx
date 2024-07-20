@@ -19,8 +19,6 @@ import {
   IconButton,
   Card,
   CardMedia,
-  Snackbar,
-  Alert,
   ToggleButtonGroup,
   ToggleButton,
   CardContent,
@@ -32,12 +30,24 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import SuccessSnackbar from '../components/successSnackbar';
+import ErrorSnackbar from '../components/errorSnackbar';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
-const OPTIONS = ['蛋豆', '蔬菜', '肉品', '海鮮', '調味料', '主食'];
+const OPTIONS = [
+  '蛋豆',
+  '蔬菜',
+  '水果',
+  '肉品',
+  '海鮮',
+  '調味料',
+  '主食',
+  '飲品',
+  '其他',
+];
 
 export default function CreateItems() {
   const navigate = useNavigate();
@@ -100,18 +110,25 @@ export default function CreateItems() {
         }, 1000);
       })
       .catch((err) => {
-        console.error('Error:', err);
         if (err.response && err.response.status === 401) {
-          setErrorMessage('請先登入，將為您轉移至登入頁面');
+          setErrorMessage('請先登入！將為您導向登入頁面...');
           setOpenErrorSnackbar(true);
           setTimeout(() => {
             navigate('/login');
           }, 2000);
-        } else {
-          setErrorMessage('食材新增失敗！');
-          setOpenErrorSnackbar(true);
-          setIsEditing(false);
+          return;
         }
+        if (err.response && err.response.status === 403) {
+          setErrorMessage('請重新登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
+        }
+        setErrorMessage('食材新增失敗！');
+        setOpenErrorSnackbar(true);
+        setIsEditing(false);
       });
   };
 
@@ -127,31 +144,47 @@ export default function CreateItems() {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file && file.type.startsWith('image')) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result); // 創建 FormData 來傳送文件
-        const formData = new FormData();
-        formData.append('image', file);
-        // 發送圖片到後端
-        apiClient
-          .post('/fridge/createByPhoto', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          })
-          .then((response) => {
-            const previewListArray = response.data.map((item) => {
-              return { name: item, expired: '', category: '' };
-            });
-            setPreviewList(previewListArray);
-          })
-          .catch((error) => console.error('Upload error:', error));
-      };
-      reader.readAsDataURL(file);
-    } else {
+
+    if (!file || !file.type.startsWith('image')) {
       setImagePreview(null);
+      setErrorMessage('請選擇有效的圖片文件');
+      setOpenErrorSnackbar(true);
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result); // 創建 FormData 來傳送文件
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      apiClient
+        .post('/fridge/createByPhoto', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          if (response.data.length === 0) {
+            setSuccessMessage('文字辨識完成，未辨識出食材名稱');
+            setOpenSuccessSnackbar(true);
+            return;
+          }
+
+          const previewListArray = response.data.map((item) => {
+            return { name: item, expired: '', category: '' };
+          });
+          setSuccessMessage('食材名稱辨識完成');
+          setOpenSuccessSnackbar(true);
+          setPreviewList(previewListArray);
+        })
+        .catch(() => {
+          setErrorMessage('文字辨識失敗，請稍候再試！');
+          setOpenErrorSnackbar(true);
+        });
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleEdit = (index) => {
@@ -166,7 +199,7 @@ export default function CreateItems() {
     setPreviewList(newPreviewList);
   };
 
-  const handleUpdate = (e, index) => {
+  const handleUpdate = (e) => {
     e.preventDefault();
     setIsEditing(false);
   };
@@ -214,35 +247,18 @@ export default function CreateItems() {
         pt: 4,
       }}
     >
-      <Snackbar
-        open={openSuccessSnackbar}
-        onClose={handleCloseSuccessSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={6}
-          severity='success'
-          variant='filled'
-          onClose={handleCloseSuccessSnackbar}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={openErrorSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseErrorSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={3}
-          severity='error'
-          variant='filled'
-          onClose={handleCloseErrorSnackbar}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+      <SuccessSnackbar
+        openSuccessSnackbar={openSuccessSnackbar}
+        autoHideDuration={3000}
+        handleCloseSuccessSnackbar={handleCloseSuccessSnackbar}
+        successMessage={successMessage}
+      />
+      <ErrorSnackbar
+        openErrorSnackbar={openErrorSnackbar}
+        autoHideDuration={3000}
+        handleCloseErrorSnackbar={handleCloseErrorSnackbar}
+        errorMessage={errorMessage}
+      />
       <Grid container>
         <Grid item xs={12} md={6}>
           <Card

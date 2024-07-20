@@ -1,6 +1,5 @@
 import axios from 'axios';
 import {
-  Alert,
   Card,
   CardContent,
   CardHeader,
@@ -8,12 +7,13 @@ import {
   FormControlLabel,
   FormGroup,
   Grid,
-  Snackbar,
   Switch,
   Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import SuccessSnackbar from '../components/successSnackbar';
+import ErrorSnackbar from '../components/errorSnackbar';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -21,14 +21,10 @@ const apiClient = axios.create({
 
 export default function Settings() {
   const navigate = useNavigate();
-
   const [userData, setUserData] = useState({});
-
   const [checked, setChecked] = useState('');
-
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
-
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -42,18 +38,29 @@ export default function Settings() {
           withCredentials: true,
         },
       )
-      .then((response) => {
+      .then(() => {
         setOpenSuccessSnackbar(true);
         setSuccessMessage('通知設定已更新');
-        console.log(response.data);
       })
       .catch((err) => {
         if (err.response && err.response.status === 401) {
-          navigate('/login');
+          setErrorMessage('請先登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
+        }
+        if (err.response && err.response.status === 403) {
+          setErrorMessage('請重新登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
         }
         setOpenErrorSnackbar(true);
         setErrorMessage('通知設定更新失敗');
-        console.error(err);
       });
   };
 
@@ -74,47 +81,39 @@ export default function Settings() {
         setChecked(response.data.userData.receiveNotifications);
       })
       .catch((err) => {
-        console.error(err);
         if (err.response && err.response.status === 401) {
-          navigate('/login');
-        } else if (err.response && err.response.status === 403) {
-          navigate('/forbidden');
+          setErrorMessage('請先登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
+        }
+        if (err.response && err.response.status === 403) {
+          setErrorMessage('請重新登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
         }
       });
   }, [navigate]);
 
   return (
     <>
-      <Snackbar
-        open={openSuccessSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseSuccessSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={6}
-          severity='success'
-          variant='filled'
-          onClose={handleCloseSuccessSnackbar}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={openErrorSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseErrorSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={3}
-          severity='error'
-          variant='filled'
-          onClose={handleCloseErrorSnackbar}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+      <SuccessSnackbar
+        openSuccessSnackbar={openSuccessSnackbar}
+        autoHideDuration={3000}
+        handleCloseSuccessSnackbar={handleCloseSuccessSnackbar}
+        successMessage={successMessage}
+      />
+      <ErrorSnackbar
+        openErrorSnackbar={openErrorSnackbar}
+        autoHideDuration={3000}
+        handleCloseErrorSnackbar={handleCloseErrorSnackbar}
+        errorMessage={errorMessage}
+      />
 
       {Object.keys(userData).length > 0 && (
         <Container

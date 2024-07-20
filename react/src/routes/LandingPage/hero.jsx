@@ -1,4 +1,4 @@
-import { Box, Button, Card, Container, Grid, Typography } from '@mui/material';
+import { Box, Button, Container, Grid, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 export default function Hero() {

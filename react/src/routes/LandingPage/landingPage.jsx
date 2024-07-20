@@ -5,7 +5,7 @@ import Hero from './hero';
 import Features from './features';
 import Testimonials from './testimonials';
 import NavBar from './navbar';
-import Footer from './footer';
+import Footer from '../../components/footer';
 
 export default function LandingPage() {
   return (

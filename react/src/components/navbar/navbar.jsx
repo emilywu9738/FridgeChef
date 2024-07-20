@@ -126,18 +126,13 @@ export default function NavBar() {
   };
 
   useEffect(() => {
-    apiClient('/user/info', { withCredentials: true })
-      .then((response) => {
-        const { userId, groupId, userName, userEmail } = response.data;
-        setUserId(userId);
-        setGroupId(groupId);
-        setUserName(userName);
-        setUserEmail(userEmail);
-      })
-      .catch(() => {
-        setErrorMessage('使用者資料載入失敗，請稍候再試');
-        setOpenErrorSnackbar(true);
-      });
+    apiClient('/user/info', { withCredentials: true }).then((response) => {
+      const { userId, groupId, userName, userEmail } = response.data;
+      setUserId(userId);
+      setGroupId(groupId);
+      setUserName(userName);
+      setUserEmail(userEmail);
+    });
   }, []);
 
   useEffect(() => {

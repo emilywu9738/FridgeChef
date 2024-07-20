@@ -2,15 +2,15 @@ import axios from 'axios';
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  Alert,
   Box,
   Button,
   Card,
   CardContent,
   CardHeader,
-  Snackbar,
   Typography,
 } from '@mui/material';
+import SuccessSnackbar from '../components/successSnackbar';
+import ErrorSnackbar from '../components/errorSnackbar';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -46,14 +46,12 @@ function Invitation() {
           setTimeout(() => {
             navigate('/login?redirect=invitation');
           }, 2000);
-        } else if (err.response && err.response.status === 403) {
-          navigate('/forbidden');
-        } else {
-          setErrorMessage(
-            err.response.data ? err.response.data : '群組加入失敗',
-          );
-          setOpenErrorSnackbar(true);
         }
+        if (err.response && err.response.status === 403) {
+          navigate('/forbidden');
+        }
+        setErrorMessage(err.response.data ? err.response.data : '群組加入失敗');
+        setOpenErrorSnackbar(true);
       });
   };
 
@@ -75,35 +73,18 @@ function Invitation() {
         justifyContent: 'center',
       }}
     >
-      <Snackbar
-        open={openSuccessSnackbar}
-        onClose={handleCloseSuccessSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={6}
-          severity='success'
-          variant='filled'
-          onClose={handleCloseSuccessSnackbar}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={openErrorSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseErrorSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={3}
-          severity='error'
-          variant='filled'
-          onClose={handleCloseErrorSnackbar}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+      <SuccessSnackbar
+        openSuccessSnackbar={openSuccessSnackbar}
+        autoHideDuration={3000}
+        handleCloseSuccessSnackbar={handleCloseSuccessSnackbar}
+        successMessage={successMessage}
+      />
+      <ErrorSnackbar
+        openErrorSnackbar={openErrorSnackbar}
+        autoHideDuration={3000}
+        handleCloseErrorSnackbar={handleCloseErrorSnackbar}
+        errorMessage={errorMessage}
+      />
       <Card sx={{ width: 500, textAlign: 'center', borderRadius: 5, mx: 1 }}>
         <CardHeader
           title={

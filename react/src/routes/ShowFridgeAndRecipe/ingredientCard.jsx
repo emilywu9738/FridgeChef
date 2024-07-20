@@ -77,10 +77,9 @@ export default function IngredientCard({
         setItemsToDelete([]);
         setIsDeleteMode(false);
       })
-      .catch((error) => {
+      .catch(() => {
         setOpenErrorSnackbar(true);
         setErrorMessage('食材刪除失敗！');
-        console.error('Error deleting items:', error);
       });
   };
 

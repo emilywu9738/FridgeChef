@@ -1,21 +1,22 @@
 import axios from 'axios';
 import {
-  Alert,
   Box,
   Button,
   Card,
   CardContent,
   CardHeader,
+  Grid,
   IconButton,
   List,
   ListItem,
-  Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
+import SuccessSnackbar from '../components/successSnackbar';
+import ErrorSnackbar from '../components/errorSnackbar';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -35,7 +36,7 @@ export default function CreateGroup() {
   const [nameError, setNameError] = useState(false);
   const [emailError, setEmailError] = useState('');
 
-  const handleClick = () => {
+  const handleAddMember = () => {
     if (input.trim() === '') {
       setEmailError('請輸入有效的電子郵件');
       return;
@@ -56,7 +57,6 @@ export default function CreateGroup() {
       .then((response) => {
         const user = response.data;
         setPreviewList((prevList) => [...prevList, user]);
-        console.log(previewList);
         setInput('');
       })
       .catch((err) => {
@@ -68,17 +68,15 @@ export default function CreateGroup() {
           setEmailError(err.response.data);
           return;
         }
-        console.error(err);
       });
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const trimmedName = name.trim();
 
-    if (!name.trim()) {
+    if (!trimmedName) {
       setNameError('冰箱名稱不得為空！');
-      setErrorMessage('群組新增失敗');
-      setOpenErrorSnackbar(true);
       return;
     }
 
@@ -89,13 +87,6 @@ export default function CreateGroup() {
         return;
       }
     }
-    const trimmedName = name.trim();
-    console.log({
-      name: trimmedName,
-      description,
-      host: userData,
-      inviting: previewList,
-    });
 
     apiClient
       .post(
@@ -114,11 +105,10 @@ export default function CreateGroup() {
         setOpenSuccessSnackbar(true);
         setSuccessMessage(response.data);
         setTimeout(() => {
-          navigate('/user/myfridge');
+          navigate('/user/myFridge');
         }, 2000);
       })
       .catch((err) => {
-        console.error(err);
         if (err.response && err.response.status === 401) {
           setErrorMessage('請先登入，將為您轉移至登入頁面');
           setOpenErrorSnackbar(true);
@@ -126,19 +116,19 @@ export default function CreateGroup() {
             navigate('/login');
           }, 2000);
         } else {
-          setErrorMessage('群組新增失敗');
+          setErrorMessage('群組新增失敗，請稍候再試');
           setOpenErrorSnackbar(true);
         }
       });
   };
 
-  const handleDelete = (index) => {
+  const handleDeleteMember = (index) => {
     const newList = previewList.filter((_, i) => i !== index);
     setPreviewList(newList);
   };
 
   const cancelCreateGroup = () => {
-    navigate('/user/myfridge');
+    navigate('/user/myFridge');
   };
 
   const handleCloseSuccessSnackbar = () => {
@@ -157,47 +147,39 @@ export default function CreateGroup() {
         setUserData(response.data.userData);
       })
       .catch((err) => {
-        console.error(err);
         if (err.response && err.response.status === 401) {
-          navigate('/login');
-        } else if (err.response && err.response.status === 403) {
-          navigate('/forbidden');
+          setErrorMessage('請先登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
+        }
+        if (err.response && err.response.status === 403) {
+          setErrorMessage('請重新登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
         }
       });
   }, [navigate]);
 
   return (
     <>
-      <Snackbar
-        open={openSuccessSnackbar}
+      <SuccessSnackbar
+        openSuccessSnackbar={openSuccessSnackbar}
         autoHideDuration={3000}
-        onClose={handleCloseSuccessSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={6}
-          severity='success'
-          variant='filled'
-          onClose={handleCloseSuccessSnackbar}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={openErrorSnackbar}
+        handleCloseSuccessSnackbar={handleCloseSuccessSnackbar}
+        successMessage={successMessage}
+      />
+      <ErrorSnackbar
+        openErrorSnackbar={openErrorSnackbar}
         autoHideDuration={3000}
-        onClose={handleCloseErrorSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={3}
-          severity='error'
-          variant='filled'
-          onClose={handleCloseErrorSnackbar}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+        handleCloseErrorSnackbar={handleCloseErrorSnackbar}
+        errorMessage={errorMessage}
+      />
       {Object.keys(userData).length > 0 && (
         <Box
           sx={{
@@ -276,38 +258,44 @@ export default function CreateGroup() {
                   color='success'
                   sx={{ my: 1 }}
                 />
-
-                <TextField
-                  label='新增成員'
-                  variant='outlined'
-                  value={input}
-                  color='success'
-                  placeholder='請輸入想新增之成員Email'
-                  onChange={(e) => {
-                    setInput(e.target.value);
-                    setEmailError('');
-                  }}
-                  sx={{ mt: 2, width: { xs: '78%', sm: '83%' } }}
-                  error={emailError}
-                  helperText={emailError}
-                />
-                <Button
-                  onClick={handleClick}
-                  variant='contained'
-                  size='large'
-                  sx={{
-                    mt: 2,
-                    height: 55,
-                    backgroundColor: '#f59b51',
-                    ':hover': {
-                      backgroundColor: '#C6600C',
-                    },
-                    px: '17px',
-                    ml: 1,
-                  }}
-                >
-                  新增
-                </Button>
+                <Grid container spacing={2}>
+                  <Grid item xs={9} sm={9.5}>
+                    <TextField
+                      label='新增成員'
+                      variant='outlined'
+                      value={input}
+                      color='success'
+                      placeholder='請輸入想新增之成員Email'
+                      onChange={(e) => {
+                        setInput(e.target.value);
+                        setEmailError('');
+                      }}
+                      sx={{ mt: 2 }}
+                      error={emailError}
+                      helperText={emailError}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={3} sm={2.5}>
+                    <Button
+                      onClick={handleAddMember}
+                      variant='contained'
+                      size='large'
+                      sx={{
+                        mt: 2,
+                        height: 55,
+                        backgroundColor: '#f59b51',
+                        ':hover': {
+                          backgroundColor: '#C6600C',
+                        },
+                        px: '17px',
+                      }}
+                      fullWidth
+                    >
+                      新增
+                    </Button>
+                  </Grid>
+                </Grid>
                 {previewList.length > 0 && (
                   <List
                     sx={{
@@ -337,7 +325,7 @@ export default function CreateGroup() {
                         <IconButton
                           edge='end'
                           aria-label='delete'
-                          onClick={() => handleDelete(index)}
+                          onClick={() => handleDeleteMember(index)}
                         >
                           <CloseIcon />
                         </IconButton>

@@ -10,15 +10,14 @@ import {
   List,
   ListItem,
   Divider,
-  Button,
   CardHeader,
   IconButton,
   Container,
   Grid,
-  Snackbar,
-  Alert,
 } from '@mui/material';
 import BookmarksIcon from '@mui/icons-material/Bookmarks';
+import SuccessSnackbar from '../components/successSnackbar';
+import ErrorSnackbar from '../components/errorSnackbar';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -55,28 +54,38 @@ export default function RecipeDetails() {
           withCredentials: true,
         },
       )
-      .then((response) => {
-        console.log(response.data);
+      .then(() => {
+        if (liked) {
+          setRecipeLikes((prevCount) => prevCount - 1);
+          setOpenSuccessSnackbar(true);
+          setSuccessMessage('食譜已從收藏清單移除');
+        } else {
+          setRecipeLikes((prevCount) => prevCount + 1);
+          setOpenSuccessSnackbar(true);
+          setSuccessMessage('食譜已加入收藏');
+        }
+        setLiked(!liked);
       })
       .catch((err) => {
         if (err.response && err.response.status === 401) {
-          navigate('/login');
+          setErrorMessage('請先登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
+        }
+        if (err.response && err.response.status === 403) {
+          setErrorMessage('請重新登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
         }
         setOpenErrorSnackbar(true);
         setErrorMessage('收藏失敗');
-        console.error(err);
       });
-
-    if (liked) {
-      setRecipeLikes((prevCount) => prevCount - 1);
-      setOpenSuccessSnackbar(true);
-      setSuccessMessage('食譜已從收藏清單移除');
-    } else {
-      setRecipeLikes((prevCount) => prevCount + 1);
-      setOpenSuccessSnackbar(true);
-      setSuccessMessage('食譜已加入收藏');
-    }
-    setLiked(!liked);
   };
 
   const handleRecommendedRecipeDetails = (id) => {
@@ -92,8 +101,9 @@ export default function RecipeDetails() {
         setRecipe(response.data);
         setRecipeLikes(response.data.likes);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
+        setErrorMessage('食譜載入失敗，請稍候再試！');
+        setOpenErrorSnackbar(true);
       });
   }, [searchParams]);
 
@@ -104,8 +114,11 @@ export default function RecipeDetails() {
       .then((response) => {
         setRecommendedRecipes(response.data);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
+        setTimeout(() => {
+          setErrorMessage('無法取得食譜推薦，請稍候再試！');
+          setOpenErrorSnackbar(true);
+        }, 3500);
       });
   }, [searchParams]);
 
@@ -121,8 +134,26 @@ export default function RecipeDetails() {
           (likedRecipe) => likedRecipe === recipeId,
         );
         setLiked(isLiked);
+      })
+      .catch((err) => {
+        if (err.response && err.response.status === 401) {
+          setErrorMessage('請先登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
+        }
+        if (err.response && err.response.status === 403) {
+          setErrorMessage('請重新登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
+        }
       });
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   return (
     <Container
@@ -137,36 +168,18 @@ export default function RecipeDetails() {
         py: 4,
       }}
     >
-      <Snackbar
-        open={openSuccessSnackbar}
+      <SuccessSnackbar
+        openSuccessSnackbar={openSuccessSnackbar}
         autoHideDuration={3000}
-        onClose={handleCloseSuccessSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={6}
-          severity='success'
-          variant='filled'
-          onClose={handleCloseSuccessSnackbar}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={openErrorSnackbar}
+        handleCloseSuccessSnackbar={handleCloseSuccessSnackbar}
+        successMessage={successMessage}
+      />
+      <ErrorSnackbar
+        openErrorSnackbar={openErrorSnackbar}
         autoHideDuration={3000}
-        onClose={handleCloseErrorSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={3}
-          severity='error'
-          variant='filled'
-          onClose={handleCloseErrorSnackbar}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+        handleCloseErrorSnackbar={handleCloseErrorSnackbar}
+        errorMessage={errorMessage}
+      />
       <Grid container display='flex' sx={{ minHeight: '93vh' }}>
         <Grid item xs={12} md={8}>
           <Card

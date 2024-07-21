@@ -1,11 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { Server } from 'socket.io';
-import http from 'http';
 
 import fridge from './routers/fridge.js';
 import user from './routers/user.js';
+import { initializeSocket } from './utils/socket.js';
 
 const app = express();
 
@@ -35,35 +34,6 @@ app.use((err, req, res, next) => {
   console.error(err);
 });
 
-const server = http.createServer(app);
-export const io = new Server(server, {
-  cors: {
-    origin: true,
-    credentials: true,
-  },
-});
-
-let onlineUsers = [];
-
-const addNewUser = (userId, groupId, socketId) =>
-  !onlineUsers.some((u) => u.userId === userId) &&
-  onlineUsers.push({ userId, groupId, socketId });
-
-const removeUser = (socketId) => {
-  onlineUsers = onlineUsers.filter((u) => u.socketId !== socketId);
-};
-
-io.on('connection', (socket) => {
-  console.log('user connected');
-  socket.on('newUser', (userInfo) => {
-    addNewUser(userInfo.userId, userInfo.groupId, socket.id);
-  });
-
-  socket.on('disconnect', () => {
-    removeUser(socket.id);
-  });
-});
-
-export const getOnlineUsers = () => onlineUsers;
+const { server } = initializeSocket(app);
 
 server.listen(PORT, () => console.log(`Listening on port ${PORT}`));

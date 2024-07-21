@@ -2,11 +2,10 @@ import mongoose from 'mongoose';
 import nodemailer from 'nodemailer';
 import neo4j from 'neo4j-driver';
 import fs from 'fs-extra';
-import path from 'path';
+import path, { dirname } from 'path';
 import 'dotenv/config';
 import { createWorker } from 'tesseract.js';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 import Fridge from '../models/fridge.js';
 import User from '../models/user.js';
@@ -14,7 +13,7 @@ import Recipe from '../models/recipe.js';
 import Notification from '../models/notification.js';
 import Invitation from '../models/invitation.js';
 import ExpressError from '../utils/ExpressError.js';
-import { io, getOnlineUsers } from '../app.js';
+import { getOnlineUsers, io } from '../utils/socket.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

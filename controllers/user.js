@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
-import { io, getOnlineUsers } from '../app.js';
+import { getOnlineUsers, io } from '../utils/socket.js';
 
 import User from '../models/user.js';
 import Fridge from '../models/fridge.js';
@@ -275,9 +275,7 @@ export const validateInvitation = async (req, res) => {
   const groupUserSocketId = groupUsers.map((u) => u.socketId);
 
   groupUserSocketId.forEach((socketId) => {
-    // if (io.sockets.sockets.get(socketId)) {
     io.to(socketId).emit('notification', 'new notification!');
-    // }
   });
 
   return res.status(200).send('群組加入成功！');

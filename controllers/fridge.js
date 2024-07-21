@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import nodemailer from 'nodemailer';
 import neo4j from 'neo4j-driver';
 import fs from 'fs-extra';
@@ -14,6 +13,7 @@ import Notification from '../models/notification.js';
 import Invitation from '../models/invitation.js';
 import ExpressError from '../utils/ExpressError.js';
 import { getOnlineUsers, io } from '../utils/socket.js';
+import sendEmail from '../utils/sendEmail.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,8 +24,6 @@ const password = process.env.NEO4J_PASSWORD;
 
 const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
 const session = driver.session();
-
-mongoose.connect(process.env.MONGOOSE_CONNECT);
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -38,40 +36,6 @@ const transporter = nodemailer.createTransport({
 // 定義同義詞字典
 const synonymMap = {
   蕃茄: '番茄',
-};
-
-const sendEmail = (to, subject, text) => {
-  const mailOptions = {
-    from: process.env.GMAIL_USER,
-    to,
-    subject,
-    text,
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error('Error sending email:', error);
-    } else {
-      console.log('Email sent:', info.response);
-    }
-  });
-};
-
-const sendEmailByHtml = (to, subject, html) => {
-  const mailOptions = {
-    from: process.env.GMAIL_USER,
-    to,
-    subject,
-    html,
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error('Error sending email:', error);
-    } else {
-      console.log('Email sent:', info.response);
-    }
-  });
 };
 
 const standardizeIngredientName = (name) => {
@@ -179,7 +143,8 @@ export const createIngredients = async (req, res) => {
       sendEmail(
         member.email,
         '【FridgeChef】食材庫更新',
-        `${createUser.name} 更新食材至食材庫。\n食材列表：\n${message}`,
+        `${createUser.name} 已新增食材至【 ${fridge.name} 】。\n食材列表：\n${message}`,
+        false,
       );
     }
   });
@@ -187,7 +152,7 @@ export const createIngredients = async (req, res) => {
   const notification = new Notification({
     type: 'create',
     target: { type: 'Fridge', id: fridgeId },
-    content: `【 ${fridge.name} 】${createUser.name} 已更新食材。 食材列表： ${message}`,
+    content: `【 ${fridge.name} 】${createUser.name} 已新增食材。 食材列表： ${message}`,
   });
 
   await notification.save();
@@ -444,7 +409,7 @@ export const deleteItems = async (req, res) => {
 
   await fridge.save();
 
-  res.status(200).json('食材已刪除！');
+  return res.status(200).json('食材已刪除！');
 };
 
 export const searchRecipes = async (req, res) => {
@@ -508,7 +473,7 @@ export const inviteMember = async (req, res) => {
   const invitationResult = await invitation.save();
   const invitationId = invitationResult._id.toString();
 
-  sendEmailByHtml(
+  await sendEmail(
     email,
     `【FridgeChef】 ${host.name} 邀請您一起加入${result.name}！`,
     `<!DOCTYPE html>
@@ -547,6 +512,7 @@ export const inviteMember = async (req, res) => {
           </body>
           </html>
           `,
+    true,
   );
 
   const notification = new Notification({

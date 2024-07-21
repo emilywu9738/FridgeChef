@@ -1,7 +1,5 @@
-import mongoose from 'mongoose';
 import 'dotenv/config';
 import bcrypt from 'bcrypt';
-import nodemailer from 'nodemailer';
 import { getOnlineUsers, io } from '../utils/socket.js';
 
 import User from '../models/user.js';
@@ -11,33 +9,7 @@ import Notification from '../models/notification.js';
 import Invitation from '../models/invitation.js';
 import ExpressError from '../utils/ExpressError.js';
 import generateJWT from '../utils/generateJWT.js';
-
-mongoose.connect(process.env.MONGOOSE_CONNECT);
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASSWORD,
-  },
-});
-
-const sendEmail = (to, subject, html) => {
-  const mailOptions = {
-    from: process.env.GMAIL_USER,
-    to,
-    subject,
-    html,
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error('Error sending email:', error);
-    } else {
-      console.log('Email sent:', info.response);
-    }
-  });
-};
+import sendEmail from '../utils/sendEmail.js';
 
 export const login = async (req, res) => {
   const { provider, email, password } = req.body;
@@ -202,6 +174,7 @@ export const createGroup = async (req, res) => {
           </body>
           </html>
           `,
+        true,
       );
 
       const notification = new Notification({

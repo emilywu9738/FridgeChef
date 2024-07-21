@@ -1,5 +1,3 @@
-import nodemailer from 'nodemailer';
-import neo4j from 'neo4j-driver';
 import fs from 'fs-extra';
 import path, { dirname } from 'path';
 import 'dotenv/config';
@@ -14,49 +12,128 @@ import Invitation from '../models/invitation.js';
 import ExpressError from '../utils/ExpressError.js';
 import { getOnlineUsers, io } from '../utils/socket.js';
 import sendEmail from '../utils/sendEmail.js';
+import {
+  recommendedRecipe,
+  recommendedRecipeOnDetailPage,
+} from '../models/cypherQuery.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const uri = 'neo4j+s://aa84db4b.databases.neo4j.io:7687';
-const user = process.env.NEO4J_USER;
-const password = process.env.NEO4J_PASSWORD;
+const synonymMap = [
+  ['番茄', '蕃茄'],
+  ['洋芋', '馬鈴薯'],
+  ['豆腐', '雞蛋豆腐', '板豆腐'],
+];
 
-const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
-const session = driver.session();
-
-// 定義同義詞字典
-const synonymMap = {
-  蕃茄: '番茄',
+const getSynonyms = (ingredient) => {
+  const synonymGroup = synonymMap.find((group) => group.includes(ingredient));
+  return synonymGroup ? Array.from(synonymGroup) : [ingredient];
 };
 
-const standardizeIngredientName = (name) => {
-  for (const [key, value] of Object.entries(synonymMap)) {
-    if (value === name) {
-      return key;
-    }
-  }
-  return synonymMap[name] || name;
-};
-
-const getAllSynonyms = (ingredient) => {
-  const synonyms = new Set();
-  const standardName = standardizeIngredientName(ingredient);
-  synonyms.add(standardName);
-  for (const [key, value] of Object.entries(synonymMap)) {
-    if (value === standardName) {
-      synonyms.add(key);
-    }
-  }
-  return Array.from(synonyms);
-};
-
-const generateRegexFromSynonyms = (omitIngredients) => {
-  const regexParts = omitIngredients.flatMap((ingredient) => {
-    const synonyms = getAllSynonyms(ingredient);
+const generateRegexFromSynonyms = (ingredientNames) => {
+  const regexParts = ingredientNames.flatMap((ingredient) => {
+    const synonyms = getSynonyms(ingredient);
     return synonyms.map((synonym) => `(?i).*${synonym}.*`);
   });
   return `(${regexParts.join('|')})`;
+};
+
+function filterItemsExpiringWithinDays(items) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const dueDate = new Date();
+
+  dueDate.setDate(dueDate.getDate() + 4);
+  dueDate.setHours(0, 0, 0, 1);
+
+  return items.filter((item) => {
+    const expirationDate = new Date(item.expirationDate);
+
+    return expirationDate <= dueDate;
+  });
+}
+
+export const recommendRecipe = async (req, res) => {
+  const { recipeCategory, fridgeData, membersCheckStatus } = req.body;
+
+  const checkedIds = Object.keys(membersCheckStatus).filter(
+    (key) => membersCheckStatus[key] === true,
+  );
+
+  const checkedUsers = await User.find({ _id: { $in: checkedIds } });
+
+  const allOmitIngredients = Array.from(
+    checkedUsers
+      .flatMap((user) => user.omit)
+      .flatMap((omit) => getSynonyms(omit))
+      .reduce((set, synonym) => set.add(synonym), new Set()),
+  );
+
+  const fridgeItemNames = fridgeData.ingredients
+    .flatMap((c) => c.items)
+    .map((item) => item.name.trim());
+
+  if (fridgeItemNames.length === 0) {
+    throw new ExpressError('冰箱無食材，無法推薦食譜', 404);
+  }
+
+  const fridgeRegex =
+    fridgeItemNames.length > 0
+      ? generateRegexFromSynonyms(fridgeItemNames)
+      : null;
+
+  const expiringIngredientNames = filterItemsExpiringWithinDays(
+    fridgeItemNames,
+    3,
+  ).map((item) => item.name);
+
+  const omitRegex = generateRegexFromSynonyms(allOmitIngredients);
+
+  let additionalQuery = '';
+  if (recipeCategory === '全素' || recipeCategory === '奶蛋素') {
+    additionalQuery = 'AND ANY(tag IN r.tags WHERE tag = $recipeCategory)';
+  }
+
+  try {
+    const recipes = await recommendedRecipe(
+      additionalQuery,
+      fridgeRegex,
+      omitRegex,
+      recipeCategory,
+      expiringIngredientNames,
+      fridgeItemNames,
+    );
+
+    res.status(200).json({ recipes });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error recommending recipes:', error);
+    throw new ExpressError('食譜推薦錯誤', 500);
+  }
+};
+
+export const recommendRecipeOnDetailPage = async (req, res) => {
+  const { id } = req.query;
+
+  if (!id) {
+    throw new ExpressError('Page Not Found', 404);
+  }
+
+  try {
+    const recommendedRecipes = await recommendedRecipeOnDetailPage(id);
+
+    const recipeIds = recommendedRecipes.map((r) => r.recipe.id);
+    const fullRecipes = await Recipe.find({
+      _id: { $in: recipeIds },
+    });
+    res.status(200).json(fullRecipes);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error recommending recipes:', error);
+    throw new ExpressError('食譜推薦錯誤', 500);
+  }
 };
 
 function formatFridgeContents(contents) {
@@ -168,6 +245,7 @@ async function loadIngredients() {
     const ingredients = await fs.readJson(filePath);
     return ingredients;
   } catch (error) {
+    // eslint-disable-next-line no-console
     return console.error('Failed to load ingredients:', error);
   }
 }
@@ -191,10 +269,11 @@ export const createByPhoto = async (req, res) => {
       dataWithoutSpace.toLowerCase().includes(ingredient.toLowerCase()),
     );
 
-    res.send(matchIngredients); // 返回 OCR 處理結果
+    res.status(200).json(matchIngredients); // 返回 OCR 處理結果
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('OCR error:', error);
-    res.status(500).send('Failed to process image');
+    throw new ExpressError('Failed to process image', 500);
   }
 };
 
@@ -207,8 +286,11 @@ export const renderFridgeById = async (req, res) => {
       path: 'members',
       select: 'name preference omit',
     },
-    { path: 'inviting', select: 'name email' },
+    { path: 'inviting', select: 'userName email' },
   ]);
+  if (!foundFridge) {
+    throw new ExpressError('找不到此冰箱', 404);
+  }
 
   const isMember = foundFridge.members.some(
     (member) => member._id.toString() === userId,
@@ -218,7 +300,7 @@ export const renderFridgeById = async (req, res) => {
     throw new ExpressError('Authentication failed!', 403);
   }
 
-  res.send(foundFridge);
+  res.status(200).json(foundFridge);
 };
 
 export const renderRecipeById = async (req, res) => {
@@ -228,157 +310,7 @@ export const renderRecipeById = async (req, res) => {
   }
   const foundRecipe = await Recipe.findById(id);
 
-  res.status(200).send(foundRecipe);
-};
-
-function filterItemsExpiringWithinDays(items) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const dueDate = new Date();
-
-  dueDate.setDate(dueDate.getDate() + 4);
-  dueDate.setHours(0, 0, 0, 1);
-
-  return items.filter((item) => {
-    const expirationDate = new Date(item.expirationDate);
-
-    return expirationDate <= dueDate;
-  });
-}
-
-export const recommendRecipe = async (req, res) => {
-  const { recipeCategory, fridgeData, checkedMembers } = req.body;
-
-  const trueIds = Object.keys(checkedMembers).filter(
-    (key) => checkedMembers[key] === true,
-  );
-  const checkedUsersPromises = trueIds.map((id) => User.findById(id));
-  const checkedUsers = await Promise.all(checkedUsersPromises);
-
-  const omitIngredients = new Set();
-  checkedUsers.forEach((u) => {
-    u.omit.forEach((o) => {
-      getAllSynonyms(o).forEach((synonym) => omitIngredients.add(synonym));
-    });
-  });
-  const allOmitIngredients = Array.from(omitIngredients);
-
-  const fridgeItems = fridgeData.ingredients.flatMap((c) => c.items);
-
-  const fridgeItemNames = fridgeItems.map((item) => item.name.trim());
-
-  const fridgeRegex =
-    fridgeItemNames.length > 0
-      ? generateRegexFromSynonyms(fridgeItemNames)
-      : '.*';
-
-  const filteredItems = filterItemsExpiringWithinDays(fridgeItems, 3);
-
-  const expiringIngredientNames = filteredItems.map((item) => item.name);
-
-  const omitRegex = generateRegexFromSynonyms(allOmitIngredients);
-
-  let additionalQuery = '';
-  if (recipeCategory === '全素' || recipeCategory === '奶蛋素') {
-    additionalQuery = 'AND ANY(tag IN r.tags WHERE tag = $recipeCategory)';
-  }
-
-  const cypherQuery = `
-    MATCH (r:Recipe)-[:CONTAINS]->(i:Ingredient)
-    WHERE (i.name =~ $fridgeRegex OR $fridgeRegex = '.*')
-      AND NOT EXISTS {
-        MATCH (r)-[:CONTAINS]->(i2:Ingredient)
-        WHERE i2.name =~ $omitRegex 
-      }
-  ${additionalQuery}
-    WITH r, i,
-      CASE 
-        WHEN i.name IN $expiringIngredientNames THEN 3  // 快過期的食材得到2分
-        WHEN i.name IN $fridgeItemNames THEN 1  // 冰箱中的食材得到1分
-        ELSE 0
-      END AS ingredientScore
-    WITH r, COLLECT(i.name) AS includedIngredients,
-      SUM(ingredientScore) AS totalScore
-    RETURN r, includedIngredients, totalScore
-    ORDER BY totalScore DESC
-    LIMIT 6
-  `;
-
-  try {
-    const result = await session.run(cypherQuery, {
-      fridgeRegex,
-      omitRegex,
-      recipeCategory,
-      expiringIngredientNames,
-      fridgeItemNames,
-    });
-
-    const recommendedRecipes = result.records.map((record) => {
-      const recipe = record.get('r').properties;
-      const includedIngredients = record.get('includedIngredients');
-      const totalScore = record.get('totalScore').toInt();
-      return { recipe, includedIngredients, totalScore };
-    });
-
-    const recipeIds = recommendedRecipes.map((r) => r.recipe.id);
-    const fullRecipes = await Recipe.find({
-      _id: { $in: recipeIds },
-    });
-
-    const recipesWithScores = fullRecipes
-      .map((recipe) => {
-        const found = recommendedRecipes.find((r) => r.recipe.id === recipe.id);
-        return {
-          ...recipe.toObject(),
-          includedIngredients: found.includedIngredients,
-          totalScore: found.totalScore,
-        };
-      })
-      .sort((a, b) => b.totalScore - a.totalScore);
-
-    res.json({ recipes: recipesWithScores });
-  } catch (error) {
-    console.error('Error recommending recipes:', error);
-    res.status(500).send('Internal Server Error');
-  }
-};
-
-export const recommendRecipeOnDetailPage = async (req, res) => {
-  const { id } = req.query;
-
-  if (!id) {
-    throw new ExpressError('Page Not Found', 404);
-  }
-
-  const query = `
-        MATCH (currentRecipe:Recipe {id: $id})-[:CONTAINS]->(ingredient:Ingredient)
-        WITH currentRecipe, collect(ingredient) AS currentIngredients
-        MATCH (recommendedRecipe:Recipe)-[:CONTAINS]->(ingredient:Ingredient)
-        WHERE currentRecipe <> recommendedRecipe
-        WITH recommendedRecipe, currentIngredients, collect(ingredient) AS otherIngredients
-        WITH recommendedRecipe, 
-             size(apoc.coll.intersection(currentIngredients, otherIngredients)) AS intersection,
-             size(apoc.coll.union(currentIngredients, otherIngredients)) AS union
-        RETURN recommendedRecipe, intersection * 1.0 / union AS jaccardIndex
-        ORDER BY jaccardIndex DESC
-        LIMIT 5
-    `;
-
-  try {
-    const result = await session.run(query, { id });
-    const recommendedRecipes = result.records.map((record) => ({
-      recipe: record.get('recommendedRecipe').properties,
-      jaccardIndex: record.get('jaccardIndex'),
-    }));
-    const recipeIds = recommendedRecipes.map((r) => r.recipe.id);
-    const fullRecipes = await Recipe.find({
-      _id: { $in: recipeIds },
-    });
-    res.json(fullRecipes);
-  } catch (error) {
-    console.error('Error finding similar recipes:', error);
-  }
+  res.status(200).json(foundRecipe);
 };
 
 export const deleteItems = async (req, res) => {
@@ -389,10 +321,9 @@ export const deleteItems = async (req, res) => {
   const fridge = await Fridge.findOne({ _id: id });
 
   if (!fridge) {
-    return res.status(404).json({ message: '冰箱不存在！' });
+    throw new ExpressError('冰箱不存在！', 404);
   }
 
-  // 使用 JavaScript 遍歷和刪除嵌套陣列中的項目
   fridge.ingredients.forEach((ingredient) => {
     ingredient.items = ingredient.items.filter(
       (item) => !ingredientIds.includes(item._id.toString()),
@@ -401,14 +332,14 @@ export const deleteItems = async (req, res) => {
 
   await fridge.save();
 
-  return res.status(200).json('食材已刪除！');
+  return res.status(200).json({ message: '食材已刪除！' });
 };
 
 export const searchRecipes = async (req, res) => {
   const { ingredient } = req.query;
 
   const result = await Recipe.find({ ingredients: ingredient });
-  res.send(result);
+  res.status(200).json(result);
 };
 
 export const searchUserForInvite = async (req, res) => {
@@ -435,9 +366,9 @@ export const searchUserForInvite = async (req, res) => {
     if (includeMember) {
       throw new ExpressError('使用者已存在此群組，不能重複加入', 409);
     }
-    res.send({ name: user.name, email: user.email });
+    res.status(200).json({ name: user.name, email: user.email });
   } else {
-    res.send({ id: user._id, name: user.name, email: user.email });
+    res.status(200).json({ id: user._id, name: user.name, email: user.email });
   }
 };
 
@@ -452,18 +383,19 @@ export const inviteMember = async (req, res) => {
 
   const onlineUsers = getOnlineUsers();
 
-  const result = await Fridge.findOneAndUpdate(
-    { _id: id },
-    { $push: { inviting: invitedUserId } },
-    { new: true },
-  );
-
   const invitation = new Invitation({
+    userName: invitedUser.name,
     email,
     groupId: id,
   });
   const invitationResult = await invitation.save();
   const invitationId = invitationResult._id.toString();
+
+  const result = await Fridge.findOneAndUpdate(
+    { _id: id },
+    { $push: { inviting: invitationId } },
+    { new: true },
+  );
 
   await sendEmail(
     email,
@@ -525,6 +457,7 @@ export const inviteMember = async (req, res) => {
     const { socketId } = socketUser;
     io.to(socketId).emit('notification', 'new notification!');
   } else {
+    // eslint-disable-next-line no-console
     console.log(`User with ID ${userId} is not online.`);
   }
 

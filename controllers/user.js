@@ -205,6 +205,7 @@ export const createGroup = async (req, res) => {
         const { socketId } = user;
         io.to(socketId).emit('notification', 'new notification!');
       } else {
+        // eslint-disable-next-line no-console
         console.log(`User with ID ${userId} is not online.`);
       }
     });

@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { faker } from '@faker-js/faker';
 import 'dotenv/config';
 
 import Fridge from '../models/fridge.js';

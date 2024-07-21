@@ -64,7 +64,7 @@ export default function ShowFridgeAndRecipe() {
     inviting: [],
   });
   const [recipeData, setRecipeData] = useState([]);
-  const [checkedMembers, setCheckedMembers] = useState({});
+  const [membersCheckStatus, setMemberCheckStatus] = useState({});
   const [recommendCategory, setRecommendCategory] = useState('');
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
@@ -87,7 +87,7 @@ export default function ShowFridgeAndRecipe() {
   };
 
   const handleMemberCheckChange = (memberId, isChecked) => {
-    setCheckedMembers((prev) => ({
+    setMemberCheckStatus((prev) => ({
       ...prev,
       [memberId]: isChecked,
     }));
@@ -104,8 +104,8 @@ export default function ShowFridgeAndRecipe() {
       const fridgeId = searchParams.get('id');
       const response = await apiClient.post(`/fridge/recipe?id=${fridgeId}`, {
         recipeCategory: recommendCategory,
-        fridgeData: fridgeData,
-        checkedMembers: checkedMembers,
+        fridgeData,
+        membersCheckStatus,
       });
 
       const { recipes } = response.data;
@@ -154,13 +154,22 @@ export default function ShowFridgeAndRecipe() {
             }),
             {},
           );
-          setCheckedMembers(initialChecks);
+          setMemberCheckStatus(initialChecks);
         })
         .catch((err) => {
           if (err.response && err.response.status === 401) {
             navigate('/login');
-          } else if (err.response && err.response.status === 403) {
+            return;
+          }
+          if (err.response && err.response.status === 403) {
             navigate('/forbidden');
+            return;
+          }
+          if (err.response && err.response.status === 404) {
+            setErrorMessage(err.response.data);
+            setOpenErrorSnackbar(true);
+            setTimeout(() => navigate('/user/myFridge'), 2000);
+            return;
           }
           setErrorMessage('讀取冰箱資料失敗，請稍候再試');
           setOpenErrorSnackbar(true);
@@ -325,7 +334,7 @@ export default function ShowFridgeAndRecipe() {
                     <Grid item xs={12} sm={6} md={4} xl={3} key={member._id}>
                       <MemberCard
                         member={member}
-                        isChecked={checkedMembers[member._id]}
+                        isChecked={membersCheckStatus[member._id]}
                         onCheckChange={handleMemberCheckChange}
                       />
                     </Grid>
@@ -370,8 +379,11 @@ export default function ShowFridgeAndRecipe() {
                     unmountOnExit
                   >
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
-                      {fridgeData.inviting.map((member) => (
-                        <InvitingMemberCard key={member._id} member={member} />
+                      {fridgeData.inviting.map((invitation) => (
+                        <InvitingMemberCard
+                          key={invitation._id}
+                          invitation={invitation}
+                        />
                       ))}
                     </Box>
                   </Collapse>

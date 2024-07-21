@@ -104,7 +104,7 @@ export default function CreateItems() {
       })
       .then((response) => {
         setOpenSuccessSnackbar(true);
-        setSuccessMessage(response.data);
+        setSuccessMessage(response.data.message);
         setTimeout(() => {
           navigate(`/fridge/recipe?id=${fridgeId}`);
         }, 1000);

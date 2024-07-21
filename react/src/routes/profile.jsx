@@ -96,7 +96,7 @@ export default function Profile() {
     }
 
     apiClient
-      .post(
+      .put(
         '/user/profile',
         {
           preferCategory,
@@ -106,7 +106,7 @@ export default function Profile() {
       )
       .then((response) => {
         setOpenSuccessSnackbar(true);
-        setSuccessMessage(response.data);
+        setSuccessMessage(response.data.message);
         setReload(!reload);
         setEditMode(false);
       })
@@ -117,6 +117,7 @@ export default function Profile() {
           setTimeout(() => {
             navigate('/login');
           }, 2000);
+          return;
         }
         if (err.response && err.response.status === 403) {
           setErrorMessage('請重新登入！');
@@ -124,8 +125,9 @@ export default function Profile() {
           setTimeout(() => {
             navigate('/login');
           }, 2000);
+          return;
         }
-        setErrorMessage('更新失敗');
+        setErrorMessage(err.response.data || '更新失敗');
         setOpenErrorSnackbar(true);
       });
   };

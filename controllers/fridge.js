@@ -25,14 +25,6 @@ const password = process.env.NEO4J_PASSWORD;
 const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
 const session = driver.session();
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASSWORD,
-  },
-});
-
 // 定義同義詞字典
 const synonymMap = {
   蕃茄: '番茄',
@@ -167,7 +159,7 @@ export const createIngredients = async (req, res) => {
     io.to(socketId).emit('notification', 'new notification!');
   });
 
-  res.status(200).send('食材已成功新增');
+  res.status(200).json({ message: '食材已成功新增' });
 };
 
 async function loadIngredients() {
@@ -536,5 +528,5 @@ export const inviteMember = async (req, res) => {
     console.log(`User with ID ${userId} is not online.`);
   }
 
-  res.status(200).send('成員新增成功！');
+  res.status(200).json({ message: '成員新增成功！' });
 };

@@ -31,7 +31,7 @@ export default function Settings() {
   const handleChange = (event) => {
     setChecked(event.target.checked);
     apiClient
-      .post(
+      .put(
         '/user/updateReceiveNotifications',
         { checked: !checked },
         {

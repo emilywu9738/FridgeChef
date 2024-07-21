@@ -103,7 +103,7 @@ export default function CreateGroup() {
       )
       .then((response) => {
         setOpenSuccessSnackbar(true);
-        setSuccessMessage(response.data);
+        setSuccessMessage(response.data.message);
         setTimeout(() => {
           navigate('/user/myFridge');
         }, 2000);
@@ -115,10 +115,10 @@ export default function CreateGroup() {
           setTimeout(() => {
             navigate('/login');
           }, 2000);
-        } else {
-          setErrorMessage('群組新增失敗，請稍候再試');
-          setOpenErrorSnackbar(true);
+          return;
         }
+        setErrorMessage('群組新增失敗，請稍候再試');
+        setOpenErrorSnackbar(true);
       });
   };
 

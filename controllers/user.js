@@ -30,13 +30,14 @@ export const login = async (req, res) => {
       secure: true,
       sameSite: 'none',
     });
-    res.json('登入成功');
+
+    res.status(200).json({ message: '登入成功' });
   }
 };
 
 export const logout = (req, res) => {
   res.clearCookie('JWT');
-  res.status(200).send('logout!');
+  res.status(200).json({ message: 'logout!' });
 };
 
 export const register = async (req, res) => {
@@ -58,39 +59,58 @@ export const register = async (req, res) => {
     secure: true,
     sameSite: 'none',
   });
-  res.status(200).send('註冊成功');
+  res.status(200).json({ message: '註冊成功' });
 };
 
 export const updatePreferenceAndOmit = async (req, res) => {
   const { id } = req.user;
   const { preferCategory, previewList } = req.body;
 
-  await User.findOneAndUpdate(
+  if (!preferCategory || !previewList) {
+    throw new ExpressError('請提供完整的喜好和預覽列表', 400);
+  }
+
+  const user = await User.findOneAndUpdate(
     { _id: id },
     { preference: preferCategory, omit: previewList },
   );
-  res.status(200).send('喜好已成功更新！');
+
+  if (!user) {
+    throw new ExpressError('找不到此用戶', 404);
+  }
+
+  res.status(200).json({ message: '喜好已成功更新！' });
 };
 
 export const getProfileData = async (req, res) => {
   const { id } = req.user;
   const userData = await User.findById(id);
+  if (!userData) {
+    throw new ExpressError('未找到用戶', 404);
+  }
+
   const userFridge = await Fridge.find({ members: id }).populate({
     path: 'members',
     select: 'name preference omit receiveNotifications',
   });
 
-  res.send({ userFridge, userData });
+  res.status(200).json({ userFridge, userData });
 };
 
 export const getUserInfo = async (req, res) => {
   const { id } = req.user;
   const user = await User.findById(id);
+  if (!user) {
+    throw new ExpressError('未找到用戶', 404);
+  }
+
   const userName = user.name;
   const userEmail = user.email;
   const userFridge = await Fridge.find({ members: id });
+
   const groupId = userFridge.map((fridge) => fridge._id.toString());
-  res.send({ userId: id, groupId, userName, userEmail });
+
+  res.status(200).json({ userId: id, groupId, userName, userEmail });
 };
 
 export const getLikedRecipes = async (req, res) => {
@@ -99,18 +119,8 @@ export const getLikedRecipes = async (req, res) => {
     path: 'liked_recipes',
     select: '_id title coverImage tags',
   });
-  res.send(likedRecipes);
-};
 
-export const searchUser = async (req, res) => {
-  const { name } = req.query;
-  const results = await User.find({
-    $or: [
-      { name: { $regex: name, $options: 'i' } },
-      { email: { $regex: name, $options: 'i' } },
-    ],
-  });
-  res.json(results);
+  res.status(200).json(likedRecipes);
 };
 
 export const createGroup = async (req, res) => {
@@ -201,7 +211,7 @@ export const createGroup = async (req, res) => {
     await Promise.all(invitePromises);
   }
 
-  res.status(200).send('群組新增成功！');
+  res.status(200).json({ message: '群組新增成功！' });
 };
 
 export const validateInvitation = async (req, res) => {
@@ -223,6 +233,7 @@ export const validateInvitation = async (req, res) => {
     _id: invitation.groupId,
     members: user.id,
   });
+
   if (alreadyJoinedGroup) throw new ExpressError('已加入該群組', 400);
 
   const result = await Fridge.findOneAndUpdate(
@@ -251,7 +262,7 @@ export const validateInvitation = async (req, res) => {
     io.to(socketId).emit('notification', 'new notification!');
   });
 
-  return res.status(200).send('群組加入成功！');
+  return res.status(200).json({ message: '群組加入成功！' });
 };
 
 export const getNotifications = async (req, res) => {
@@ -365,7 +376,7 @@ export const updateLikes = async (req, res) => {
     await Recipe.findOneAndUpdate({ _id: recipeId }, { $inc: { likes: -1 } });
   }
 
-  res.status(200).send('資料已更新');
+  res.status(200).json({ message: '資料已更新' });
 };
 
 export const updateReceiveNotifications = async (req, res) => {
@@ -383,5 +394,5 @@ export const updateReceiveNotifications = async (req, res) => {
     );
   }
 
-  res.status(200).send('通知設定已更新');
+  res.status(200).json({ message: '通知設定已更新' });
 };

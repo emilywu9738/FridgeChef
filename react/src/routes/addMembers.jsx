@@ -54,9 +54,11 @@ export default function AddMembers() {
       .catch((err) => {
         if (err.response && err.response.status === 409) {
           setSearchError(err.response.data);
+          return;
         }
         if (err.response && err.response.status === 404) {
           setSearchError(err.response.data);
+          return;
         }
         setErrorMessage('成員新增失敗，請稍候再試');
         setOpenErrorSnackbar(true);

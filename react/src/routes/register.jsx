@@ -103,6 +103,7 @@ export default function Register() {
           setTimeout(() => {
             navigate('/login');
           }, 2000);
+          return;
         }
         setErrorMessage('註冊失敗');
         setOpenErrorSnackbar(true);

@@ -9,8 +9,7 @@ export const validateUser = (req, res, next) => {
   if (error) {
     // eslint-disable-next-line no-console
     console.log(error);
-    res.status(400).send(error.details[0].message);
-    return;
+    throw new ExpressError(error.details[0].message, 400);
   }
   next();
 };

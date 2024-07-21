@@ -34,7 +34,7 @@ function Invitation() {
     })
       .then((response) => {
         setOpenSuccessSnackbar(true);
-        setSuccessMessage(response.data);
+        setSuccessMessage(response.data.message);
         setTimeout(() => {
           navigate('/user/profile');
         }, 2000);
@@ -46,9 +46,11 @@ function Invitation() {
           setTimeout(() => {
             navigate('/login?redirect=invitation');
           }, 2000);
+          return;
         }
         if (err.response && err.response.status === 403) {
           navigate('/forbidden');
+          return;
         }
         setErrorMessage(err.response.data ? err.response.data : '群組加入失敗');
         setOpenErrorSnackbar(true);

@@ -78,6 +78,7 @@ export default function Login() {
           setTimeout(() => {
             navigate('/register');
           }, 2000);
+          return;
         }
         setErrorMessage('登入失敗');
         setOpenErrorSnackbar(true);

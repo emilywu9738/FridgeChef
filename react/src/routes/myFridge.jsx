@@ -236,6 +236,8 @@ export default function MyFridge() {
           }, 2000);
           return;
         }
+        setErrorMessage('發生錯誤，請稍候再試');
+        setOpenErrorSnackbar(true);
       });
   }, [navigate]);
 

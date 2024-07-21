@@ -1,6 +1,6 @@
 import { Card, CardContent, Typography } from '@mui/material';
 
-export default function InvitingMemberCard({ member }) {
+export default function InvitingMemberCard({ invitation }) {
   return (
     <Card
       sx={{
@@ -17,13 +17,13 @@ export default function InvitingMemberCard({ member }) {
           邀請中
         </Typography>
         <Typography variant='h5' component='div' sx={{ mb: 1 }}>
-          {member.name}
+          {invitation.userName}
         </Typography>
         <Typography
           sx={{ fontSize: 13, fontStyle: 'italic' }}
           color='text.secondary'
         >
-          {member.email}
+          {invitation.email}
         </Typography>
       </CardContent>
     </Card>

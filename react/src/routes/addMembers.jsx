@@ -48,7 +48,7 @@ export default function AddMembers() {
     })
       .then((response) => {
         setOpenSuccessSnackbar(true);
-        setSuccessMessage(response.data);
+        setSuccessMessage(response.data.message);
         setTimeout(() => navigate(`/fridge/recipe?id=${id}`), 2000);
       })
       .catch((err) => {

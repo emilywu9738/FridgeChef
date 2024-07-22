@@ -3,8 +3,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 
-import fridge from './routers/fridgeRouters.js';
-import user from './routers/userRouters.js';
+import fridgeRouters from './routers/fridgeRouters.js';
+import userRouters from './routers/userRouters.js';
 import { initializeSocket } from './utils/socket.js';
 
 const app = express();
@@ -31,8 +31,8 @@ app.use(
   }),
 );
 
-app.use('/fridge', fridge);
-app.use('/user', user);
+app.use('/fridge', fridgeRouters);
+app.use('/user', userRouters);
 
 app.get('/health', (req, res) => {
   res.status(200).send('OK');

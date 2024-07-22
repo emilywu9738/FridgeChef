@@ -4,11 +4,11 @@ import 'dotenv/config';
 import { createWorker } from 'tesseract.js';
 import { fileURLToPath } from 'url';
 
-import Fridge from '../models/fridge.js';
-import User from '../models/user.js';
-import Recipe from '../models/recipe.js';
-import Notification from '../models/notification.js';
-import Invitation from '../models/invitation.js';
+import Fridge from '../models/fridgeModel.js';
+import User from '../models/userModel.js';
+import Recipe from '../models/recipeModel.js';
+import Notification from '../models/notificationModel.js';
+import Invitation from '../models/invitationModel.js';
 import ExpressError from '../utils/ExpressError.js';
 import { getOnlineUsers, io } from '../utils/socket.js';
 import sendEmail from '../utils/sendEmail.js';

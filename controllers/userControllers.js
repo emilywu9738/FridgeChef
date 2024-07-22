@@ -2,11 +2,11 @@ import 'dotenv/config';
 import bcrypt from 'bcrypt';
 import { getOnlineUsers, io } from '../utils/socket.js';
 
-import User from '../models/user.js';
-import Fridge from '../models/fridge.js';
-import Recipe from '../models/recipe.js';
-import Notification from '../models/notification.js';
-import Invitation from '../models/invitation.js';
+import User from '../models/userModel.js';
+import Fridge from '../models/fridgeModel.js';
+import Recipe from '../models/recipeModel.js';
+import Notification from '../models/notificationModel.js';
+import Invitation from '../models/invitationModel.js';
 import ExpressError from '../utils/ExpressError.js';
 import generateJWT from '../utils/generateJWT.js';
 import sendEmail from '../utils/sendEmail.js';

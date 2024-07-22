@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import 'dotenv/config';
 
-import Fridge from '../models/fridge.js';
-import User from '../models/user.js';
+import Fridge from '../models/fridgeModel.js';
+import User from '../models/userModel.js';
 
 mongoose.connect(process.env.MONGOOSE_CONNECT);
 

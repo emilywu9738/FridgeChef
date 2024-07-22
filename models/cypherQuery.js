@@ -1,7 +1,7 @@
 import neo4j from 'neo4j-driver';
 import 'dotenv/config';
 
-import Recipe from './recipe.js';
+import Recipe from './recipeModel.js';
 
 const uri = 'neo4j+s://aa84db4b.databases.neo4j.io:7687';
 const user = process.env.NEO4J_USER;

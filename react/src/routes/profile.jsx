@@ -1,6 +1,5 @@
 import axios from 'axios';
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -17,7 +16,6 @@ import {
   Menu,
   MenuItem,
   Select,
-  Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
@@ -27,6 +25,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CloseIcon from '@mui/icons-material/Close';
 import GroupsIcon from '@mui/icons-material/Groups';
 import EditIcon from '@mui/icons-material/Edit';
+import SuccessSnackbar from '../components/successSnackbar';
+import ErrorSnackbar from '../components/errorSnackbar';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -36,32 +36,26 @@ export default function Profile() {
   const navigate = useNavigate();
   const [reload, setReload] = useState(false);
   const [userData, setUserData] = useState({});
-  const [userFridge, setUserFridge] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [editMode, setEditMode] = useState(false);
-
   const [originalPreferCategory, setOriginalPreferCategory] = useState('');
   const [previewList, setPreviewList] = useState([]);
   const [originalPreviewList, setOriginalPreviewList] = useState([]);
-
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
-
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-
   const [preferCategory, setPreferCategory] = useState('');
   const [preferCategoryError, setPreferCategoryError] = useState(false);
   const [omit, setOmit] = useState('');
   const [omitError, setOmitError] = useState(false);
-
   const open = Boolean(anchorEl);
 
-  const handleClick = (event) => {
+  const handleClickMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleCloseMenu = () => {
     setAnchorEl(null);
   };
 
@@ -74,7 +68,7 @@ export default function Profile() {
     setOriginalPreviewList([...previewList]);
     setOriginalPreferCategory(preferCategory);
     setEditMode(true);
-    handleClose();
+    handleCloseMenu();
   };
 
   const cancelEditPreferences = () => {
@@ -98,13 +92,11 @@ export default function Profile() {
     e.preventDefault();
     if (!preferCategory) {
       setPreferCategoryError('請選擇您的飲食習慣！');
-      setErrorMessage('更新失敗');
-      setOpenErrorSnackbar(true);
       return;
     }
 
     apiClient
-      .post(
+      .put(
         '/user/profile',
         {
           preferCategory,
@@ -114,24 +106,29 @@ export default function Profile() {
       )
       .then((response) => {
         setOpenSuccessSnackbar(true);
-        setSuccessMessage(response.data);
+        setSuccessMessage(response.data.message);
         setReload(!reload);
         setEditMode(false);
       })
       .catch((err) => {
-        console.error(err);
         if (err.response && err.response.status === 401) {
           setErrorMessage('請先登入，將為您轉移至登入頁面');
           setOpenErrorSnackbar(true);
           setTimeout(() => {
             navigate('/login');
           }, 2000);
-        } else if (err.response && err.response.status === 403) {
-          navigate('/forbidden');
-        } else {
-          setErrorMessage('更新失敗');
-          setOpenErrorSnackbar(true);
+          return;
         }
+        if (err.response && err.response.status === 403) {
+          setErrorMessage('請重新登入！');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
+        }
+        setErrorMessage(err.response.data || '更新失敗');
+        setOpenErrorSnackbar(true);
       });
   };
 
@@ -162,52 +159,43 @@ export default function Profile() {
     })
       .then((response) => {
         setUserData(response.data.userData);
-        setUserFridge(response.data.userFridge);
         setPreferCategory(response.data.userData.preference);
         setPreviewList(response.data.userData.omit);
       })
       .catch((err) => {
-        console.error(err);
         if (err.response && err.response.status === 401) {
-          navigate('/login');
-        } else if (err.response && err.response.status === 403) {
-          navigate('/forbidden');
+          setErrorMessage('請先登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
+        }
+        if (err.response && err.response.status === 403) {
+          setErrorMessage('請重新登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
         }
       });
   }, [navigate, reload]);
 
   return (
     <>
-      <Snackbar
-        open={openSuccessSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseSuccessSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={6}
-          severity='success'
-          variant='filled'
-          onClose={handleCloseSuccessSnackbar}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={openErrorSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseErrorSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={3}
-          severity='error'
-          variant='filled'
-          onClose={handleCloseErrorSnackbar}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+      <SuccessSnackbar
+        openSuccessSnackbar={openSuccessSnackbar}
+        autoHideDuration={3000}
+        handleCloseSuccessSnackbar={handleCloseSuccessSnackbar}
+        successMessage={successMessage}
+      />
+      <ErrorSnackbar
+        openErrorSnackbar={openErrorSnackbar}
+        autoHideDuration={3000}
+        handleCloseErrorSnackbar={handleCloseErrorSnackbar}
+        errorMessage={errorMessage}
+      />
 
       {Object.keys(userData).length > 0 && (
         <Container
@@ -255,13 +243,16 @@ export default function Profile() {
                   }
                   action={
                     <>
-                      <IconButton aria-label='settings' onClick={handleClick}>
+                      <IconButton
+                        aria-label='settings'
+                        onClick={handleClickMenu}
+                      >
                         <MoreVertIcon />
                       </IconButton>
                       <Menu
                         anchorEl={anchorEl}
                         open={open}
-                        onClose={handleClose}
+                        onClose={handleCloseMenu}
                       >
                         <MenuItem onClick={handleEditPreferences}>
                           <EditIcon />

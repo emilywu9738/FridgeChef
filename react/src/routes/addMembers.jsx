@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -11,31 +10,28 @@ import {
   CardHeader,
   Container,
   InputAdornment,
-  Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import SuccessSnackbar from '../components/successSnackbar';
+import ErrorSnackbar from '../components/errorSnackbar';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
 export default function AddMembers() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [search, setSearch] = useState('');
-
   const [userForInvite, setUserForInvite] = useState({});
   const [isComposing, setIsComposing] = useState(false);
   const [searchError, setSearchError] = useState(false);
-
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
-
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   const handleCloseSuccessSnackbar = () => {
     setOpenSuccessSnackbar(false);
@@ -51,23 +47,25 @@ export default function AddMembers() {
       withCredentials: true,
     })
       .then((response) => {
-        console.log(response.data);
         setOpenSuccessSnackbar(true);
-        setSuccessMessage(response.data);
+        setSuccessMessage(response.data.message);
         setTimeout(() => navigate(`/fridge/recipe?id=${id}`), 2000);
       })
       .catch((err) => {
         if (err.response && err.response.status === 409) {
           setSearchError(err.response.data);
+          return;
         }
         if (err.response && err.response.status === 404) {
           setSearchError(err.response.data);
+          return;
         }
-        console.error(err);
+        setErrorMessage('成員新增失敗，請稍候再試');
+        setOpenErrorSnackbar(true);
       });
   };
 
-  const handleSubmit = () => {
+  const handleMemberSearchSubmit = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(search)) {
       setSearchError('無效的電子郵件格式');
@@ -84,11 +82,14 @@ export default function AddMembers() {
         setUserForInvite('');
         if (err.response && err.response.status === 409) {
           setSearchError(err.response.data);
+          return;
         }
         if (err.response && err.response.status === 404) {
           setSearchError(err.response.data);
+          return;
         }
-        console.error(err);
+        setErrorMessage('搜尋失敗，請稍候再試');
+        setOpenErrorSnackbar(true);
       });
   };
 
@@ -102,36 +103,18 @@ export default function AddMembers() {
         py: 4,
       }}
     >
-      <Snackbar
-        open={openSuccessSnackbar}
+      <SuccessSnackbar
+        openSuccessSnackbar={openSuccessSnackbar}
         autoHideDuration={6000}
-        onClose={handleCloseSuccessSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={6}
-          severity='success'
-          variant='filled'
-          onClose={handleCloseSuccessSnackbar}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={openErrorSnackbar}
+        handleCloseSuccessSnackbar={handleCloseSuccessSnackbar}
+        successMessage={successMessage}
+      />
+      <ErrorSnackbar
+        openErrorSnackbar={openErrorSnackbar}
         autoHideDuration={6000}
-        onClose={handleCloseErrorSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={3}
-          severity='error'
-          variant='filled'
-          onClose={handleCloseErrorSnackbar}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+        handleCloseErrorSnackbar={handleCloseErrorSnackbar}
+        errorMessage={errorMessage}
+      />
       <Box
         sx={{
           display: 'flex',
@@ -159,7 +142,7 @@ export default function AddMembers() {
           onCompositionEnd={() => setIsComposing(false)}
           onKeyDown={(e) => {
             if (!isComposing && e.key === 'Enter') {
-              handleSubmit();
+              handleMemberSearchSubmit();
             }
           }}
           sx={{
@@ -182,7 +165,7 @@ export default function AddMembers() {
         <Button
           variant='contained'
           color='primary'
-          onClick={handleSubmit}
+          onClick={handleMemberSearchSubmit}
           sx={{
             mt: 3,
             height: 55.5,

@@ -7,9 +7,6 @@ import {
   Button,
   Card,
   CardContent,
-  Checkbox,
-  List,
-  ListItem,
   Select,
   Typography,
   FormControl,
@@ -19,16 +16,16 @@ import {
   styled,
   Collapse,
   Grid,
-  CardMedia,
   Container,
-  Menu,
-  Snackbar,
-  Alert,
 } from '@mui/material';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import DeleteIcon from '@mui/icons-material/Delete';
+import SuccessSnackbar from '../../components/successSnackbar';
+import ErrorSnackbar from '../../components/errorSnackbar';
+import InvitingMemberCard from './invitingMemberCard';
+import MemberCard from './memberCard';
+import RecipeCard from './recipeCard';
+import IngredientCard from './ingredientCard';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -57,7 +54,6 @@ const ExpandMoreIngredients = styled((props) => {
 export default function ShowFridgeAndRecipe() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-
   const [memberExpanded, setMemberExpanded] = useState(true);
   const [invitingMemberExpanded, setInvitingMemberExpanded] = useState(true);
   const [ingredientExpanded, setIngredientExpanded] = useState(true);
@@ -68,7 +64,7 @@ export default function ShowFridgeAndRecipe() {
     inviting: [],
   });
   const [recipeData, setRecipeData] = useState([]);
-  const [checkedMembers, setCheckedMembers] = useState({});
+  const [membersCheckStatus, setMemberCheckStatus] = useState({});
   const [recommendCategory, setRecommendCategory] = useState('');
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
@@ -76,10 +72,7 @@ export default function ShowFridgeAndRecipe() {
   const [successMessage, setSuccessMessage] = useState('');
   const [reload, setReload] = useState(false);
 
-  const handleAddMembers = () => {
-    const fridgeId = searchParams.get('id');
-    navigate(`/fridge/addMembers?id=${fridgeId}`);
-  };
+  const fridgeId = searchParams.get('id');
 
   const handleMemberExpandClick = () => {
     setMemberExpanded(!memberExpanded);
@@ -94,7 +87,7 @@ export default function ShowFridgeAndRecipe() {
   };
 
   const handleMemberCheckChange = (memberId, isChecked) => {
-    setCheckedMembers((prev) => ({
+    setMemberCheckStatus((prev) => ({
       ...prev,
       [memberId]: isChecked,
     }));
@@ -111,24 +104,16 @@ export default function ShowFridgeAndRecipe() {
       const fridgeId = searchParams.get('id');
       const response = await apiClient.post(`/fridge/recipe?id=${fridgeId}`, {
         recipeCategory: recommendCategory,
-        fridgeData: fridgeData,
-        checkedMembers: checkedMembers,
+        fridgeData,
+        membersCheckStatus,
       });
 
       const { recipes } = response.data;
       setRecipeData(recipes);
     } catch (err) {
-      console.error(err);
+      setErrorMessage('食譜推薦失敗，請稍候再試');
+      setOpenErrorSnackbar(true);
     }
-  };
-
-  const handleRecipeDetails = (id, event) => {
-    event.stopPropagation();
-    navigate(`/fridge/recipeDetails?id=${id}`);
-  };
-
-  const handleCreateItems = () => {
-    navigate(`/fridge/create?fridgeId=${fridgeData._id.toString()}`);
   };
 
   const handleCloseSuccessSnackbar = () => {
@@ -139,326 +124,19 @@ export default function ShowFridgeAndRecipe() {
     setOpenErrorSnackbar(false);
   };
 
-  function MemberCard({ member, isChecked, onCheckChange }) {
-    return (
-      <Card
-        sx={{
-          borderRadius: '10px',
-          minWidth: 250,
-          position: 'relative',
-          my: 2,
-          mr: 4,
-          bgcolor: '#FEFCF8',
-        }}
-      >
-        <Checkbox
-          checked={isChecked}
-          onChange={(event) => onCheckChange(member._id, event.target.checked)}
-          sx={{ position: 'absolute', top: 8, right: 8 }}
-        />
-        <CardContent>
-          <Typography sx={{ fontSize: 14 }} color='text.secondary' gutterBottom>
-            成員
-          </Typography>
-          <Typography variant='h5' component='div' sx={{ mb: 1 }}>
-            {member.name}
-          </Typography>
-          <Typography sx={{ mb: 1.5, color: '#606c38' }}>
-            飲食習慣: {member.preference}
-          </Typography>
-          <Typography variant='body2' sx={{ color: '#bc6c25' }}>
-            排除食材：
-            <br />
-            {member.omit.length > 0 ? member.omit.join('、') : '無'}
-          </Typography>
-        </CardContent>
-      </Card>
-    );
-  }
+  const navigateToAddMembers = () => {
+    const fridgeId = searchParams.get('id');
+    navigate(`/fridge/addMembers?id=${fridgeId}`);
+  };
 
-  function InvitingMemberCard({ member }) {
-    return (
-      <Card
-        sx={{
-          borderRadius: '10px',
-          minWidth: 275,
-          position: 'relative',
-          my: 2,
-          mr: 4,
-          bgcolor: '#FFFBF0',
-        }}
-      >
-        <CardContent>
-          <Typography sx={{ fontSize: 14 }} color='text.secondary' gutterBottom>
-            邀請中
-          </Typography>
-          <Typography variant='h5' component='div' sx={{ mb: 1 }}>
-            {member.name}
-          </Typography>
-          <Typography
-            sx={{ fontSize: 13, fontStyle: 'italic' }}
-            color='text.secondary'
-          >
-            {member.email}
-          </Typography>
-        </CardContent>
-      </Card>
-    );
-  }
+  const navigateToRecipeDetails = (id, event) => {
+    event.stopPropagation();
+    navigate(`/fridge/recipeDetails?id=${id}`);
+  };
 
-  function IngredientCard({ category }) {
-    const [isDeleteMode, setIsDeleteMode] = useState(false);
-    const [itemsToDelete, setItemsToDelete] = useState([]);
-    const [anchorEl, setAnchorEl] = useState(null);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const threeDaysLater = new Date();
-    threeDaysLater.setHours(0, 0, 0, 0);
-    threeDaysLater.setDate(threeDaysLater.getDate() + 3);
-
-    const sortedItems = [...category.items].sort(
-      (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate),
-    );
-
-    const handleMenuClick = (event) => {
-      setAnchorEl(event.currentTarget);
-    };
-
-    const handleMenuClose = () => {
-      setAnchorEl(null);
-    };
-
-    const handleDeleteMode = () => {
-      setIsDeleteMode(true);
-      setAnchorEl(null);
-    };
-
-    const handleDeleteItems = (itemId) => {
-      setItemsToDelete((prevItems) =>
-        prevItems.includes(itemId)
-          ? prevItems.filter((id) => id !== itemId)
-          : [...prevItems, itemId],
-      );
-    };
-
-    const confirmDelete = () => {
-      const fridgeId = searchParams.get('id');
-      apiClient
-        .post(
-          `/fridge/${fridgeId}/deleteItems`,
-          { ids: itemsToDelete },
-          { withCredentials: true },
-        )
-        .then((response) => {
-          setOpenSuccessSnackbar(true);
-          setSuccessMessage(response.data);
-          setReload(!reload);
-          setItemsToDelete([]);
-          setIsDeleteMode(false);
-        })
-        .catch((error) => {
-          setOpenErrorSnackbar(true);
-          setErrorMessage('食材刪除失敗！');
-          console.error('Error deleting items:', error);
-        });
-    };
-
-    const cancelDelete = () => {
-      setIsDeleteMode(false);
-      setItemsToDelete([]);
-    };
-
-    return (
-      <Card
-        sx={{
-          borderRadius: '10px',
-          my: 2,
-          mr: 4,
-          bgcolor: '#FEFCF8',
-          minHeight: { xs: 0, sm: 300 },
-          minWidth: 250,
-        }}
-      >
-        <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography
-              sx={{ fontSize: 18, mb: 0, fontWeight: 500 }}
-              color='text.primary'
-              gutterBottom
-            >
-              {category.category}類
-            </Typography>
-            <IconButton onClick={handleMenuClick}>
-              <MoreVertIcon />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-            >
-              <MenuItem onClick={handleDeleteMode}>刪除</MenuItem>
-            </Menu>
-          </Box>
-          <Box sx={{ maxHeight: 220, overflowY: 'auto' }}>
-            <List dense>
-              {sortedItems
-                .filter((item) => !itemsToDelete.includes(item._id))
-                .map((item) => {
-                  const expirationDate = new Date(item.expirationDate);
-                  expirationDate.setHours(0, 0, 0, 0);
-                  let bgcolor = '#FCF8EE';
-                  let color = 'inherit';
-                  let fontWeight = 400;
-                  if (expirationDate < today) {
-                    bgcolor = '#C42615';
-                    color = 'white';
-                    fontWeight = 600;
-                  } else if (expirationDate <= threeDaysLater) {
-                    bgcolor = '#fff18a';
-                  }
-
-                  return (
-                    <ListItem
-                      key={item._id}
-                      sx={{
-                        justifyContent: 'space-between',
-                        padding: '8px',
-                        margin: '8px 0',
-                        border: '1px solid #ccc',
-                        borderRadius: 2,
-                        boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                        backgroundColor: bgcolor,
-                        height: 40,
-                      }}
-                    >
-                      <Typography
-                        variant='body2'
-                        component='span'
-                        sx={{
-                          flexGrow: 1,
-                          marginLeft: 1,
-                          color: color,
-                          fontWeight: fontWeight,
-                        }}
-                      >
-                        {item.name}
-                      </Typography>
-                      <Typography
-                        variant='body2'
-                        component='span'
-                        sx={{ color: color, fontWeight: fontWeight }}
-                      >
-                        到期日: {expirationDate.toLocaleDateString()}
-                      </Typography>
-
-                      {isDeleteMode && (
-                        <IconButton
-                          sx={{
-                            marginLeft: 1,
-                            padding: 0,
-                            '& .MuiSvgIcon-root': {
-                              fontSize: '20px',
-                            },
-                          }}
-                          onClick={() => handleDeleteItems(item._id)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      )}
-                    </ListItem>
-                  );
-                })}
-            </List>
-          </Box>
-          {isDeleteMode && (
-            <Box
-              sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}
-            >
-              <Button
-                variant='contained'
-                onClick={confirmDelete}
-                disabled={itemsToDelete.length === 0}
-                sx={{
-                  backgroundColor: '#f59b51',
-                  ':hover': {
-                    backgroundColor: '#C6600C',
-                  },
-                }}
-              >
-                確認刪除
-              </Button>
-              <Button
-                variant='outlined'
-                onClick={cancelDelete}
-                sx={{
-                  color: 'grey',
-                  border: '1px solid grey',
-                  ':hover': { color: 'black', border: '1px solid black' },
-                }}
-              >
-                取消
-              </Button>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
-    );
-  }
-
-  function RecipeCard({ recipe }) {
-    const image = recipe.coverImage ? recipe.coverImage : '/empty.jpg';
-    return (
-      <Card
-        elevation={3}
-        onClick={(event) => handleRecipeDetails(recipe._id.toString(), event)}
-        sx={{
-          minHeight: 390,
-
-          position: 'relative',
-          m: 2,
-          borderRadius: '10px',
-        }}
-      >
-        <CardContent>
-          <Typography
-            sx={{
-              fontSize: 18,
-              mb: 1,
-              fontWeight: 500,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {recipe.title}
-          </Typography>
-          <CardMedia
-            component='img'
-            height='250'
-            image={image}
-            alt={recipe.title}
-            sx={{ mb: 2 }}
-          />
-          <Typography
-            sx={{
-              fontSize: 12,
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-            color='text.secondary'
-            gutterBottom
-          >
-            食材：{recipe.ingredients.join('、')}
-          </Typography>
-        </CardContent>
-      </Card>
-    );
-  }
+  const navigateToCreateItems = () => {
+    navigate(`/fridge/create?fridgeId=${fridgeData._id.toString()}`);
+  };
 
   useEffect(() => {
     const fridgeId = searchParams.get('id');
@@ -476,51 +154,43 @@ export default function ShowFridgeAndRecipe() {
             }),
             {},
           );
-          setCheckedMembers(initialChecks);
+          setMemberCheckStatus(initialChecks);
         })
         .catch((err) => {
-          console.error('Failed to fetch fridge data:', err);
           if (err.response && err.response.status === 401) {
             navigate('/login');
-          } else if (err.response && err.response.status === 403) {
-            navigate('/forbidden');
+            return;
           }
+          if (err.response && err.response.status === 403) {
+            navigate('/forbidden');
+            return;
+          }
+          if (err.response && err.response.status === 404) {
+            setErrorMessage(err.response.data);
+            setOpenErrorSnackbar(true);
+            setTimeout(() => navigate('/user/myFridge'), 2000);
+            return;
+          }
+          setErrorMessage('讀取冰箱資料失敗，請稍候再試');
+          setOpenErrorSnackbar(true);
         });
     }
   }, [searchParams, navigate, reload]);
 
   return (
     <>
-      <Snackbar
-        open={openSuccessSnackbar}
+      <SuccessSnackbar
+        openSuccessSnackbar={openSuccessSnackbar}
         autoHideDuration={6000}
-        onClose={handleCloseSuccessSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={6}
-          severity='success'
-          variant='filled'
-          onClose={handleCloseSuccessSnackbar}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={openErrorSnackbar}
+        handleCloseSuccessSnackbar={handleCloseSuccessSnackbar}
+        successMessage={successMessage}
+      />
+      <ErrorSnackbar
+        openErrorSnackbar={openErrorSnackbar}
         autoHideDuration={6000}
-        onClose={handleCloseErrorSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={3}
-          severity='error'
-          variant='filled'
-          onClose={handleCloseErrorSnackbar}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+        handleCloseErrorSnackbar={handleCloseErrorSnackbar}
+        errorMessage={errorMessage}
+      />
 
       {Object.keys(fridgeData).length > 0 && (
         <Container
@@ -655,7 +325,7 @@ export default function ShowFridgeAndRecipe() {
                     },
                     px: '17px',
                   }}
-                  onClick={handleAddMembers}
+                  onClick={navigateToAddMembers}
                 >
                   新增成員
                 </Button>
@@ -664,7 +334,7 @@ export default function ShowFridgeAndRecipe() {
                     <Grid item xs={12} sm={6} md={4} xl={3} key={member._id}>
                       <MemberCard
                         member={member}
-                        isChecked={checkedMembers[member._id]}
+                        isChecked={membersCheckStatus[member._id]}
                         onCheckChange={handleMemberCheckChange}
                       />
                     </Grid>
@@ -709,8 +379,11 @@ export default function ShowFridgeAndRecipe() {
                     unmountOnExit
                   >
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 5 }}>
-                      {fridgeData.inviting.map((member) => (
-                        <InvitingMemberCard key={member._id} member={member} />
+                      {fridgeData.inviting.map((invitation) => (
+                        <InvitingMemberCard
+                          key={invitation._id}
+                          invitation={invitation}
+                        />
                       ))}
                     </Box>
                   </Collapse>
@@ -757,7 +430,7 @@ export default function ShowFridgeAndRecipe() {
                     },
                     px: '17px',
                   }}
-                  onClick={handleCreateItems}
+                  onClick={navigateToCreateItems}
                 >
                   新增食材
                 </Button>
@@ -765,7 +438,17 @@ export default function ShowFridgeAndRecipe() {
                 <Grid container>
                   {fridgeData.ingredients.map((category) => (
                     <Grid item xs={12} sm={6} md={4} key={category._id}>
-                      <IngredientCard category={category} />
+                      <IngredientCard
+                        category={category}
+                        setOpenSuccessSnackbar={setOpenSuccessSnackbar}
+                        setSuccessMessage={setSuccessMessage}
+                        setReload={setReload}
+                        setOpenErrorSnackbar={setOpenErrorSnackbar}
+                        setErrorMessage={setErrorMessage}
+                        apiClient={apiClient}
+                        fridgeId={fridgeId}
+                        reload={reload}
+                      />
                     </Grid>
                   ))}
                 </Grid>
@@ -788,7 +471,10 @@ export default function ShowFridgeAndRecipe() {
               <Grid container>
                 {recipeData.map((recipe) => (
                   <Grid item xs={12} sm={6} lg={4} key={recipe._id}>
-                    <RecipeCard recipe={recipe} />
+                    <RecipeCard
+                      recipe={recipe}
+                      handleRecipeDetails={navigateToRecipeDetails}
+                    />
                   </Grid>
                 ))}
               </Grid>

@@ -1,18 +1,18 @@
 import axios from 'axios';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import {
-  Alert,
   Avatar,
   Box,
   Button,
   Container,
   Link,
-  Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import SuccessSnackbar from '../components/successSnackbar';
+import ErrorSnackbar from '../components/errorSnackbar';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -24,6 +24,7 @@ export default function Register() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [usernameError, setUsernameError] = useState(false);
   const [emailError, setEmailError] = useState(false);
@@ -88,9 +89,9 @@ export default function Register() {
           withCredentials: true,
         },
       )
-      .then((response) => {
+      .then(() => {
+        setSuccessMessage('註冊成功');
         setOpenSuccessSnackbar(true);
-        console.log(response.data);
         setTimeout(() => {
           navigate('/user/profile');
         }, 2000);
@@ -99,15 +100,14 @@ export default function Register() {
         if (err.response && err.response.status === 403) {
           setErrorMessage('使用者已存在，將為您跳轉至登入頁面');
           setOpenErrorSnackbar(true);
-          console.error(err);
           setTimeout(() => {
             navigate('/login');
           }, 2000);
-        } else {
-          setErrorMessage('註冊失敗！');
-          setOpenErrorSnackbar(true);
-          setIsSubmitting(false);
+          return;
         }
+        setErrorMessage('註冊失敗');
+        setOpenErrorSnackbar(true);
+        setIsSubmitting(false);
       });
   };
 
@@ -125,35 +125,18 @@ export default function Register() {
       maxWidth='md'
       sx={{ display: 'flex', minHeight: '100vh', alignItems: 'center' }}
     >
-      <Snackbar
-        open={openSuccessSnackbar}
-        onClose={handleCloseSuccessSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={3}
-          severity='success'
-          variant='filled'
-          onClose={handleCloseSuccessSnackbar}
-        >
-          註冊成功！
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={openErrorSnackbar}
-        autoHideDuration={6000} // 6 秒後自動關閉
-        onClose={handleCloseErrorSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          elevation={6}
-          severity='warning'
-          variant='filled'
-          onClose={handleCloseErrorSnackbar}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+      <SuccessSnackbar
+        openSuccessSnackbar={openSuccessSnackbar}
+        autoHideDuration={3000}
+        handleCloseSuccessSnackbar={handleCloseSuccessSnackbar}
+        successMessage={successMessage}
+      />
+      <ErrorSnackbar
+        openErrorSnackbar={openErrorSnackbar}
+        autoHideDuration={3000}
+        handleCloseErrorSnackbar={handleCloseErrorSnackbar}
+        errorMessage={errorMessage}
+      />
       <Box
         sx={{
           display: 'flex',

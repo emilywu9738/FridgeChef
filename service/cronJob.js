@@ -4,7 +4,6 @@ import 'dotenv/config';
 import nodemailer from 'nodemailer';
 
 import Fridge from '../models/fridge.js';
-import User from '../models/user.js';
 import Notification from '../models/notification.js';
 
 mongoose.connect(process.env.MONGOOSE_CONNECT);

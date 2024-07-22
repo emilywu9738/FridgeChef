@@ -5,8 +5,17 @@
     "sourceType": "module"
   },
   "rules": {
-    // 禁用或調整與 `await` 使用相關的 ESLint 警告
-    "no-await-in-loop": "off"
+    "no-await-in-loop": "off",
+    "import/extensions": ["error", "ignorePackages"],
+    "no-underscore-dangle": [
+      "error",
+      { "allow": ["__filename", "__dirname", "_id"] }
+    ],
+    "implicit-arrow-linebreak": "off",
+    "operator-linebreak": "off",
+    "function-paren-newline": "off",
+    "object-curly-newline": "off",
+    "nonblock-statement-body-position": "off"
   },
   "env": {
     "es2022": true

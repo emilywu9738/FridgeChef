@@ -1,16 +1,15 @@
-import { userSchema } from '../schema/schema.js';
-import ExpressError from '../utils/ExpressError.js';
-import 'dotenv/config';
 import multer from 'multer';
 import jwt from 'jsonwebtoken';
+import 'dotenv/config';
+import ExpressError from '../utils/ExpressError.js';
+import userSchema from '../schema/userSchema.js';
 
 export const validateUser = (req, res, next) => {
   const { error } = userSchema.validate(req.body);
   if (error) {
     // eslint-disable-next-line no-console
-    console.log(error);
-    res.status(400).send(error.details[0].message);
-    return;
+    console.error(error);
+    throw new ExpressError(error.details[0].message, 400);
   }
   next();
 };

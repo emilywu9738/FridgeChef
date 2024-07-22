@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-
 import {
   Box,
   Button,
@@ -18,6 +17,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import ErrorSnackbar from '../components/errorSnackbar';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -28,9 +28,15 @@ export default function SearchRecipes() {
   const [result, setResult] = useState([]);
   const [isComposing, setIsComposing] = useState(false);
   const [clickGo, setClickGo] = useState(false);
+  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const handleCloseErrorSnackbar = () => {
+    setOpenErrorSnackbar(false);
+  };
 
   const handleSubmit = () => {
     apiClient(`/fridge/searchRecipe?ingredient=${search}`)
@@ -39,7 +45,10 @@ export default function SearchRecipes() {
         setClickGo(true);
         navigate(`/searchRecipes?ingredient=${search}`);
       })
-      .catch((err) => console.error(err));
+      .catch(() => {
+        setErrorMessage('搜尋失敗，請稍候再試');
+        setOpenErrorSnackbar(true);
+      });
   };
 
   const handleSearchedRecipeDetails = (id) => {
@@ -55,7 +64,10 @@ export default function SearchRecipes() {
           setResult(response.data);
           setClickGo(true);
         })
-        .catch((err) => console.error(err));
+        .catch(() => {
+          setErrorMessage('搜尋失敗，請稍候再試');
+          setOpenErrorSnackbar(true);
+        });
     }
   }, [searchParams]);
 
@@ -69,6 +81,12 @@ export default function SearchRecipes() {
         py: 4,
       }}
     >
+      <ErrorSnackbar
+        openErrorSnackbar={openErrorSnackbar}
+        autoHideDuration={3000}
+        handleCloseErrorSnackbar={handleCloseErrorSnackbar}
+        errorMessage={errorMessage}
+      />
       <Box
         sx={{
           display: 'flex',

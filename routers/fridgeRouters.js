@@ -1,6 +1,6 @@
 import express from 'express';
 
-import * as fridge from '../controllers/fridge.js';
+import * as fridge from '../controllers/fridgeControllers.js';
 import { validateJWT, upload } from '../middleware/userMiddleware.js';
 import catchAsync from '../utils/catchAsync.js';
 
@@ -25,7 +25,7 @@ router.get(
   catchAsync(fridge.recommendRecipeOnDetailPage),
 );
 
-router.post('/:id/deleteItems', validateJWT, catchAsync(fridge.deleteItems));
+router.delete('/:id/deleteItems', validateJWT, catchAsync(fridge.deleteItems));
 
 router.get('/searchRecipe', catchAsync(fridge.searchRecipes));
 

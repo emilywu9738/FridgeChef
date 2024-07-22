@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import BookmarkRoundedIcon from '@mui/icons-material/BookmarkRounded';
 import { useNavigate } from 'react-router-dom';
+import ErrorSnackbar from '../components/errorSnackbar';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -20,20 +21,44 @@ const apiClient = axios.create({
 
 export default function LikedRecipes() {
   const [likedRecipes, setLikedRecipes] = useState([]);
-
+  const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleRecipeDetails = (id) => {
+  const navigateToRecipeDetails = (id) => {
     navigate(`/fridge/recipeDetails?id=${id}`);
   };
 
+  const handleCloseErrorSnackbar = () => {
+    setOpenErrorSnackbar(false);
+  };
+
   useEffect(() => {
-    apiClient('/user/likedRecipes', { withCredentials: true }).then(
-      (response) => {
+    apiClient('/user/likedRecipes', { withCredentials: true })
+      .then((response) => {
         setLikedRecipes(response.data.liked_recipes.reverse());
-      },
-    );
-  }, []);
+      })
+      .catch((err) => {
+        if (err.response && err.response.status === 401) {
+          setErrorMessage('請先登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
+        }
+        if (err.response && err.response.status === 403) {
+          setErrorMessage('請重新登入！將為您導向登入頁面...');
+          setOpenErrorSnackbar(true);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+          return;
+        }
+        setErrorMessage('載入失敗，請稍候再試！');
+        setOpenErrorSnackbar(true);
+      });
+  }, [navigate]);
 
   return (
     <Container
@@ -46,6 +71,12 @@ export default function LikedRecipes() {
         flexGrow: 1,
       }}
     >
+      <ErrorSnackbar
+        openErrorSnackbar={openErrorSnackbar}
+        autoHideDuration={3000}
+        handleCloseErrorSnackbar={handleCloseErrorSnackbar}
+        errorMessage={errorMessage}
+      />
       <Card
         sx={{
           minHeight: '80vh',
@@ -64,7 +95,7 @@ export default function LikedRecipes() {
             {likedRecipes.map((recipe) => (
               <Grid key={recipe._id} item xs={4} xl={3}>
                 <Box
-                  onClick={() => handleRecipeDetails(recipe._id)}
+                  onClick={() => navigateToRecipeDetails(recipe._id)}
                   sx={{
                     position: 'relative',
                     m: '3px',

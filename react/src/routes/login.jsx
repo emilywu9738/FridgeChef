@@ -10,10 +10,10 @@ import {
   TextField,
   Typography,
   Link,
-  Snackbar,
-  Alert,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import SuccessSnackbar from '../components/successSnackbar';
+import ErrorSnackbar from '../components/errorSnackbar';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -26,6 +26,7 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [openSuccessSnackbar, setOpenSuccessSnackbar] = useState(false);
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = (event) => {
@@ -56,18 +57,19 @@ export default function Login() {
           withCredentials: true,
         },
       )
-      .then((response) => {
-        console.log(response.data);
+      .then(() => {
+        setSuccessMessage('登入成功');
         setOpenSuccessSnackbar(true);
+
         if (redirect === 'invitation') {
           setTimeout(() => {
             navigate('/user/invitation');
           }, 2000);
-        } else {
-          setTimeout(() => {
-            navigate('/user/profile');
-          }, 1000);
         }
+
+        setTimeout(() => {
+          navigate('/user/profile');
+        }, 2000);
       })
       .catch((err) => {
         if (err.response && err.response.status === 404) {
@@ -76,11 +78,11 @@ export default function Login() {
           setTimeout(() => {
             navigate('/register');
           }, 2000);
+          return;
         }
         setErrorMessage('登入失敗');
         setOpenErrorSnackbar(true);
         setIsSubmitting(false);
-        console.error(err.message);
       });
   };
 
@@ -98,35 +100,18 @@ export default function Login() {
         maxWidth='md'
         sx={{ display: 'flex', minHeight: '100vh', alignItems: 'center' }}
       >
-        <Snackbar
-          open={openSuccessSnackbar}
-          onClose={handleCloseSuccessSnackbar}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert
-            elevation={6}
-            severity='success'
-            variant='filled'
-            onClose={handleCloseSuccessSnackbar}
-          >
-            登入成功！
-          </Alert>
-        </Snackbar>
-        <Snackbar
-          open={openErrorSnackbar}
+        <SuccessSnackbar
+          openSuccessSnackbar={openSuccessSnackbar}
           autoHideDuration={3000}
-          onClose={handleCloseErrorSnackbar}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert
-            elevation={3}
-            severity='error'
-            variant='filled'
-            onClose={handleCloseErrorSnackbar}
-          >
-            {errorMessage}
-          </Alert>
-        </Snackbar>
+          handleCloseSuccessSnackbar={handleCloseSuccessSnackbar}
+          successMessage={successMessage}
+        />
+        <ErrorSnackbar
+          openErrorSnackbar={openErrorSnackbar}
+          autoHideDuration={3000}
+          handleCloseErrorSnackbar={handleCloseErrorSnackbar}
+          errorMessage={errorMessage}
+        />
         <Box
           sx={{
             display: 'flex',

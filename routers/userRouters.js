@@ -1,6 +1,6 @@
 import express from 'express';
 
-import * as user from '../controllers/user.js';
+import * as user from '../controllers/userControllers.js';
 import { validateJWT, validateUser } from '../middleware/userMiddleware.js';
 import catchAsync from '../utils/catchAsync.js';
 
@@ -12,8 +12,6 @@ router.get('/logout', user.logout);
 
 router.post('/register', validateUser, catchAsync(user.register));
 
-router.get('/search', catchAsync(user.searchUser));
-
 router
   .route('/createGroup')
   .post(validateJWT, catchAsync(user.createGroup))
@@ -22,7 +20,7 @@ router
 router
   .route('/profile')
   .get(validateJWT, catchAsync(user.getProfileData))
-  .post(validateJWT, catchAsync(user.updatePreferenceAndOmit));
+  .put(validateJWT, catchAsync(user.updatePreferenceAndOmit));
 
 router.get('/notifications', validateJWT, catchAsync(user.getNotifications));
 
@@ -36,7 +34,7 @@ router.get(
 
 router.post('/updateLikes', validateJWT, catchAsync(user.updateLikes));
 
-router.post(
+router.put(
   '/updateReceiveNotifications',
   validateJWT,
   catchAsync(user.updateReceiveNotifications),

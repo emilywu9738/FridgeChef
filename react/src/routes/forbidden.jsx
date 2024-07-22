@@ -12,7 +12,7 @@ function ForbiddenPage() {
   const navigate = useNavigate();
 
   const handleBackToHome = () => {
-    navigate('/user/profile');
+    navigate('/user/myFridge');
   };
 
   return (

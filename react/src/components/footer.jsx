@@ -1,10 +1,11 @@
-import { Box, Container, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 const Footer = () => {
   return (
     <Box
       component='footer'
       sx={{
+        width: '100%',
         py: 3,
         mx: 'auto',
         mt: 'auto',

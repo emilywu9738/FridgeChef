@@ -64,7 +64,6 @@ export default function IngredientCard({
   };
 
   const confirmDelete = (fridgeId, reload) => {
-    console.log(fridgeId);
     apiClient
       .delete(`/fridge/${fridgeId}/deleteItems`, {
         data: { ids: itemsToDelete },
@@ -72,7 +71,7 @@ export default function IngredientCard({
       })
       .then((response) => {
         setOpenSuccessSnackbar(true);
-        setSuccessMessage(response.data);
+        setSuccessMessage(response.data.message);
         setReload(!reload);
         setItemsToDelete([]);
         setIsDeleteMode(false);

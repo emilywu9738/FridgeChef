@@ -1,17 +1,18 @@
 name: Deploy to ec2 on merge
-
 on:
   push:
-    branches: -main
+    branches: 
+      -main
     
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
       
-    - name: deploy to ec2
+    - name: Deploy to ec2
       uses: appleboy/ssh-action@master
       with:
         host: '${{ secrets.HOST_DNS }}'

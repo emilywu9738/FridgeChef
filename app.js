@@ -3,8 +3,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 
-import fridge from './routers/fridge.js';
-import user from './routers/user.js';
+import fridge from './routers/fridgeRouters.js';
+import user from './routers/userRouters.js';
 import { initializeSocket } from './utils/socket.js';
 
 const app = express();

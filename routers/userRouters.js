@@ -1,6 +1,6 @@
 import express from 'express';
 
-import * as user from '../controllers/user.js';
+import * as user from '../controllers/userControllers.js';
 import { validateJWT, validateUser } from '../middleware/userMiddleware.js';
 import catchAsync from '../utils/catchAsync.js';
 

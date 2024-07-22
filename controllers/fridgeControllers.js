@@ -23,7 +23,6 @@ const __dirname = dirname(__filename);
 const synonymMap = [
   ['番茄', '蕃茄'],
   ['洋芋', '馬鈴薯'],
-  ['豆腐', '雞蛋豆腐', '板豆腐'],
 ];
 
 const getSynonyms = (ingredient) => {
@@ -79,10 +78,7 @@ export const recommendRecipe = async (req, res) => {
     throw new ExpressError('冰箱無食材，無法推薦食譜', 404);
   }
 
-  const fridgeRegex =
-    fridgeItemNames.length > 0
-      ? generateRegexFromSynonyms(fridgeItemNames)
-      : null;
+  const fridgeRegex = generateRegexFromSynonyms(fridgeItemNames);
 
   const expiringIngredientNames = filterItemsExpiringWithinDays(
     fridgeItemNames,
@@ -122,12 +118,14 @@ export const recommendRecipeOnDetailPage = async (req, res) => {
   }
 
   try {
+    // NEO4J計算後取得食譜id，再到MongoDB搜尋詳細資料
     const recommendedRecipes = await recommendedRecipeOnDetailPage(id);
 
     const recipeIds = recommendedRecipes.map((r) => r.recipe.id);
     const fullRecipes = await Recipe.find({
       _id: { $in: recipeIds },
     });
+
     res.status(200).json(fullRecipes);
   } catch (error) {
     // eslint-disable-next-line no-console

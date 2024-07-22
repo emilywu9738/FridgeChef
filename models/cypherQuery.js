@@ -20,7 +20,7 @@ export const recommendedRecipe = async (
 ) => {
   const cypherQuery = `
     MATCH (r:Recipe)-[:CONTAINS]->(i:Ingredient)
-    WHERE (i.name =~ $fridgeRegex OR $fridgeRegex = '.*')
+    WHERE (i.name =~ $fridgeRegex)
       AND NOT EXISTS {
         MATCH (r)-[:CONTAINS]->(i2:Ingredient)
         WHERE i2.name =~ $omitRegex 
@@ -79,12 +79,13 @@ export const recommendedRecipeOnDetailPage = async (id) => {
           MATCH (currentRecipe:Recipe {id: $id})-[:CONTAINS]->(ingredient:Ingredient)
           WITH currentRecipe, collect(ingredient) AS currentIngredients
 
-        // 取得所有推薦的食譜及其包含的成分，並且這些推薦食譜不應該是當前食譜
+        // 取得所有其他的食譜及其包含的成分，並且去掉當前食譜
           MATCH (recommendedRecipe:Recipe)-[:CONTAINS]->(ingredient:Ingredient)
           WHERE currentRecipe <> recommendedRecipe
+            AND ingredient IN currentIngredients
           WITH recommendedRecipe, currentIngredients, collect(ingredient) AS otherIngredients
 
-        // 計算當前食譜和推薦食譜之間的 Jaccard 相似度指數
+        // 計算當前食譜和推薦食譜之間的 Jaccard Index (計算方式：交集/聯集)
           WITH recommendedRecipe, 
                size(apoc.coll.intersection(currentIngredients, otherIngredients)) AS intersection,
                size(apoc.coll.union(currentIngredients, otherIngredients)) AS union

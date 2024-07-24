@@ -47,7 +47,7 @@ export default function RecipeDetails() {
     const recipeId = searchParams.get('id');
 
     apiClient
-      .post(
+      .put(
         '/user/updateLikes',
         { recipeId, liked: !liked },
         {
@@ -89,14 +89,14 @@ export default function RecipeDetails() {
   };
 
   const handleRecommendedRecipeDetails = (id) => {
-    navigate(`/fridge/recipeDetails?id=${id}`);
+    navigate(`/recipe/details?id=${id}`);
   };
 
   useEffect(() => {
     window.scrollTo(0, 0);
     const recipeId = searchParams.get('id');
     apiClient
-      .get(`/fridge/recipeDetails?id=${recipeId}`)
+      .get(`recipe/details?id=${recipeId}`)
       .then((response) => {
         setRecipe(response.data);
         setRecipeLikes(response.data.likes);

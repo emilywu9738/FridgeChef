@@ -301,16 +301,6 @@ export const renderFridgeById = async (req, res) => {
   res.status(200).json(foundFridge);
 };
 
-export const renderRecipeById = async (req, res) => {
-  const { id } = req.query;
-  if (!id) {
-    throw new ExpressError('Page Not Found', 404);
-  }
-  const foundRecipe = await Recipe.findById(id);
-
-  res.status(200).json(foundRecipe);
-};
-
 export const deleteItems = async (req, res) => {
   const { id } = req.params;
   const ingredientIds = req.body.ids;
@@ -331,13 +321,6 @@ export const deleteItems = async (req, res) => {
   await fridge.save();
 
   return res.status(200).json({ message: '食材已刪除！' });
-};
-
-export const searchRecipes = async (req, res) => {
-  const { ingredient } = req.query;
-
-  const result = await Recipe.find({ ingredients: ingredient });
-  res.status(200).json(result);
 };
 
 export const searchUserForInvite = async (req, res) => {

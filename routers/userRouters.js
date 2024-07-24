@@ -12,10 +12,13 @@ router.get('/logout', user.logout);
 
 router.post('/register', validateUser, catchAsync(user.register));
 
-router
-  .route('/createGroup')
-  .post(validateJWT, catchAsync(user.createGroup))
-  .get(validateJWT, catchAsync(user.validateInvitation));
+router.post('/createGroup', validateJWT, catchAsync(user.createGroup));
+
+router.get(
+  '/validateInvitation',
+  validateJWT,
+  catchAsync(user.validateInvitation),
+);
 
 router
   .route('/profile')
@@ -32,7 +35,7 @@ router.get(
   catchAsync(user.countNotifications),
 );
 
-router.post('/updateLikes', validateJWT, catchAsync(user.updateLikes));
+router.put('/updateLikes', validateJWT, catchAsync(user.updateLikes));
 
 router.put(
   '/updateReceiveNotifications',

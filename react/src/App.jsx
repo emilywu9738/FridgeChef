@@ -87,10 +87,7 @@ function RouteStructure() {
           <Route path='fridge/create' element={<CreateItems />}></Route>
           <Route path='fridge/recipe' element={<ShowFridgeAndRecipe />}></Route>
           <Route path='fridge/addMembers' element={<AddMembers />}></Route>
-          <Route
-            path='fridge/recipeDetails'
-            element={<RecipeDetails />}
-          ></Route>
+          <Route path='recipe/details' element={<RecipeDetails />}></Route>
           <Route path='searchRecipes' element={<SearchRecipes />}></Route>
           <Route path='login' element={<Login />}></Route>
           <Route path='register' element={<Register />}></Route>

@@ -131,7 +131,7 @@ export default function ShowFridgeAndRecipe() {
 
   const navigateToRecipeDetails = (id, event) => {
     event.stopPropagation();
-    navigate(`/fridge/recipeDetails?id=${id}`);
+    navigate(`/recipe/details?id=${id}`);
   };
 
   const navigateToCreateItems = () => {
@@ -166,7 +166,7 @@ export default function ShowFridgeAndRecipe() {
             return;
           }
           if (err.response && err.response.status === 404) {
-            setErrorMessage(err.response.data);
+            setErrorMessage(err.response.data.error);
             setOpenErrorSnackbar(true);
             setTimeout(() => navigate('/user/myFridge'), 2000);
             return;

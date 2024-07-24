@@ -26,7 +26,7 @@ export default function LikedRecipes() {
   const navigate = useNavigate();
 
   const navigateToRecipeDetails = (id) => {
-    navigate(`/fridge/recipeDetails?id=${id}`);
+    navigate(`/recipe/details?id=${id}`);
   };
 
   const handleCloseErrorSnackbar = () => {

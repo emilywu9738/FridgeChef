@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
 import 'dotenv/config';
-import Recipe from '../models/recipe.js'; //
-import User from '../models/user.js';
+import Recipe from '../models/recipeModel.js'; //
+import User from '../models/userModel.js';
 
 mongoose.connect(process.env.MONGOOSE_CONNECT);
 

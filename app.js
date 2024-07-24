@@ -3,8 +3,9 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 
-import fridge from './routers/fridgeRouters.js';
-import user from './routers/userRouters.js';
+import fridgeRouters from './routers/fridgeRouters.js';
+import userRouters from './routers/userRouters.js';
+import recipeRouters from './routers/recipeRouters.js';
 import { initializeSocket } from './utils/socket.js';
 
 const app = express();
@@ -31,8 +32,9 @@ app.use(
   }),
 );
 
-app.use('/fridge', fridge);
-app.use('/user', user);
+app.use('/fridge', fridgeRouters);
+app.use('/user', userRouters);
+app.use('/recipe', recipeRouters);
 
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
@@ -43,7 +45,7 @@ app.use((err, req, res, next) => {
   const { statusCode = 500 } = err;
   // eslint-disable-next-line no-param-reassign
   if (!err.message) err.message = 'Oh No, Something Went Wrong!';
-  res.status(statusCode).send(err.message);
+  res.status(statusCode).json({ error: err.message });
   // eslint-disable-next-line no-console
   console.error(err);
 });

@@ -29,7 +29,7 @@ function Invitation() {
     const id = searchParams.get('id');
     const email = searchParams.get('email');
 
-    apiClient(`/user/createGroup?id=${id}&email=${email}`, {
+    apiClient(`/user/validateInvitation?id=${id}&email=${email}`, {
       withCredentials: true,
     })
       .then((response) => {
@@ -52,7 +52,7 @@ function Invitation() {
           navigate('/forbidden');
           return;
         }
-        setErrorMessage(err.response.data ? err.response.data : '群組加入失敗');
+        setErrorMessage('群組加入失敗');
         setOpenErrorSnackbar(true);
       });
   };

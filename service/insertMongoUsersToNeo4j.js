@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import neo4j from 'neo4j-driver';
 import 'dotenv/config';
-import Recipe from '../models/recipe.js';
-import User from '../models/user.js';
+import Recipe from '../models/recipeModel.js';
+import User from '../models/userModel.js';
 
 // const uri = 'bolt://localhost:7687';
 const uri = 'neo4j+s://aa84db4b.databases.neo4j.io:7687';

@@ -1,14 +1,13 @@
 import neo4j from 'neo4j-driver';
 import 'dotenv/config';
 
-import Recipe from './recipe.js';
+import Recipe from './recipeModel.js';
 
 const uri = 'neo4j+s://aa84db4b.databases.neo4j.io:7687';
 const user = process.env.NEO4J_USER;
 const password = process.env.NEO4J_PASSWORD;
 
 const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
-const session = driver.session();
 
 export const recommendedRecipe = async (
   additionalQuery,
@@ -18,6 +17,7 @@ export const recommendedRecipe = async (
   expiringIngredientNames,
   fridgeItemNames,
 ) => {
+  const session = driver.session();
   const cypherQuery = `
     MATCH (r:Recipe)-[:CONTAINS]->(i:Ingredient)
     WHERE (i.name =~ $fridgeRegex)
@@ -74,6 +74,7 @@ export const recommendedRecipe = async (
 };
 
 export const recommendedRecipeOnDetailPage = async (id) => {
+  const session = driver.session();
   const query = `
         // 取得當前食譜及其包含的所有成分
           MATCH (currentRecipe:Recipe {id: $id})-[:CONTAINS]->(ingredient:Ingredient)

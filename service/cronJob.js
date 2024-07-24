@@ -3,8 +3,8 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 import nodemailer from 'nodemailer';
 
-import Fridge from '../models/fridge.js';
-import Notification from '../models/notification.js';
+import Fridge from '../models/fridgeModel.js';
+import Notification from '../models/notificationModel.js';
 
 mongoose.connect(process.env.MONGOOSE_CONNECT);
 

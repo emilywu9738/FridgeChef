@@ -4,11 +4,11 @@ import 'dotenv/config';
 import { createWorker } from 'tesseract.js';
 import { fileURLToPath } from 'url';
 
-import Fridge from '../models/fridge.js';
-import User from '../models/user.js';
-import Recipe from '../models/recipe.js';
-import Notification from '../models/notification.js';
-import Invitation from '../models/invitation.js';
+import Fridge from '../models/fridgeModel.js';
+import User from '../models/userModel.js';
+import Recipe from '../models/recipeModel.js';
+import Notification from '../models/notificationModel.js';
+import Invitation from '../models/invitationModel.js';
 import ExpressError from '../utils/ExpressError.js';
 import { getOnlineUsers, io } from '../utils/socket.js';
 import sendEmail from '../utils/sendEmail.js';
@@ -301,16 +301,6 @@ export const renderFridgeById = async (req, res) => {
   res.status(200).json(foundFridge);
 };
 
-export const renderRecipeById = async (req, res) => {
-  const { id } = req.query;
-  if (!id) {
-    throw new ExpressError('Page Not Found', 404);
-  }
-  const foundRecipe = await Recipe.findById(id);
-
-  res.status(200).json(foundRecipe);
-};
-
 export const deleteItems = async (req, res) => {
   const { id } = req.params;
   const ingredientIds = req.body.ids;
@@ -331,13 +321,6 @@ export const deleteItems = async (req, res) => {
   await fridge.save();
 
   return res.status(200).json({ message: '食材已刪除！' });
-};
-
-export const searchRecipes = async (req, res) => {
-  const { ingredient } = req.query;
-
-  const result = await Recipe.find({ ingredients: ingredient });
-  res.status(200).json(result);
 };
 
 export const searchUserForInvite = async (req, res) => {

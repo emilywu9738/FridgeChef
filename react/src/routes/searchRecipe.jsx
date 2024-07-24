@@ -39,7 +39,7 @@ export default function SearchRecipes() {
   };
 
   const handleSubmit = () => {
-    apiClient(`/fridge/searchRecipe?ingredient=${search}`)
+    apiClient(`/recipe/search?ingredient=${search}`)
       .then((response) => {
         setResult(response.data);
         setClickGo(true);
@@ -52,14 +52,14 @@ export default function SearchRecipes() {
   };
 
   const handleSearchedRecipeDetails = (id) => {
-    navigate(`/fridge/recipeDetails?id=${id}`);
+    navigate(`/recipe/details?id=${id}`);
   };
 
   useEffect(() => {
     const ingredient = searchParams.get('ingredient');
     if (ingredient) {
       setSearch(ingredient);
-      apiClient(`/fridge/searchRecipe?ingredient=${ingredient}`)
+      apiClient(`/recipe/search?ingredient=${ingredient}`)
         .then((response) => {
           setResult(response.data);
           setClickGo(true);

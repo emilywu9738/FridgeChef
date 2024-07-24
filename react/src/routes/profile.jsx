@@ -127,7 +127,7 @@ export default function Profile() {
           }, 2000);
           return;
         }
-        setErrorMessage(err.response.data || '更新失敗');
+        setErrorMessage(err.response.data.error || '更新失敗');
         setOpenErrorSnackbar(true);
       });
   };

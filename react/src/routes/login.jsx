@@ -86,6 +86,35 @@ export default function Login() {
       });
   };
 
+  const handleDemoLogin = async () => {
+    setIsSubmitting(true);
+
+    apiClient
+      .post(
+        '/user/login',
+        {
+          provider: 'native',
+          email: 'Trevion.Hoppe455677877@gmail.com',
+          password: '123456asdfg',
+        },
+        {
+          withCredentials: true,
+        },
+      )
+      .then(() => {
+        setSuccessMessage('登入成功');
+        setOpenSuccessSnackbar(true);
+        setTimeout(() => {
+          navigate('/user/profile');
+        }, 2000);
+      })
+      .catch(() => {
+        setErrorMessage('登入失敗');
+        setOpenErrorSnackbar(true);
+        setIsSubmitting(false);
+      });
+  };
+
   const handleCloseSuccessSnackbar = () => {
     setOpenSuccessSnackbar(false);
   };
@@ -199,6 +228,21 @@ export default function Login() {
                 }}
               >
                 登入
+              </Button>
+              <Button
+                fullWidth
+                onClick={handleDemoLogin}
+                variant='contained'
+                disabled={isSubmitting}
+                sx={{
+                  mb: 2,
+                  bgcolor: '#E9693C',
+                  ':hover': {
+                    backgroundColor: '#BB4115',
+                  },
+                }}
+              >
+                使用 Demo 帳號登入
               </Button>
               <Typography>
                 <Link

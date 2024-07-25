@@ -52,6 +52,15 @@ function Invitation() {
           navigate('/forbidden');
           return;
         }
+        if (
+          err.response &&
+          (err.response.status === 400 || err.response.status === 404)
+        ) {
+          setErrorMessage(err.response.data.error);
+          setOpenErrorSnackbar(true);
+          return;
+        }
+
         setErrorMessage('群組加入失敗');
         setOpenErrorSnackbar(true);
       });

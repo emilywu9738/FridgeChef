@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
 import { getOnlineUsers, io } from '../utils/socket.js';
 
 import User from '../models/userModel.js';
@@ -240,7 +241,7 @@ export const validateInvitation = async (req, res) => {
   const result = await Fridge.findOneAndUpdate(
     { _id: invitation.groupId },
     {
-      $pull: { inviting: user.id },
+      $pull: { inviting: invitation.id },
       $addToSet: { members: user.id },
     },
   );
@@ -260,7 +261,12 @@ export const validateInvitation = async (req, res) => {
   const groupUserSocketId = groupUsers.map((u) => u.socketId);
 
   groupUserSocketId.forEach((socketId) => {
-    io.to(socketId).emit('notification', 'new notification!');
+    const socket = io.sockets.sockets.get(socketId);
+    if (socket && socket.connected) {
+      io.to(socketId).emit('notification', 'new notification!');
+    } else {
+      console.warn(`Socket ${socketId} not found or disconnected.`);
+    }
   });
 
   return res.status(200).json({ message: '群組加入成功！' });

@@ -305,20 +305,29 @@ export const deleteItems = async (req, res) => {
   const { id } = req.params;
   const ingredientIds = req.body.ids;
 
-  // 確保找到目標冰箱
   const fridge = await Fridge.findOne({ _id: id });
 
   if (!fridge) {
     throw new ExpressError('冰箱不存在！', 404);
   }
 
-  fridge.ingredients.forEach((ingredient) => {
-    ingredient.items = ingredient.items.filter(
-      (item) => !ingredientIds.includes(item._id.toString()),
-    );
-  });
+  await Fridge.updateOne(
+    { _id: id },
+    {
+      $pull: {
+        'ingredients.$[].items': { _id: { $in: ingredientIds } },
+      },
+    },
+  );
 
-  await fridge.save();
+  await Fridge.updateOne(
+    { _id: id },
+    {
+      $pull: {
+        ingredients: { items: { $size: 0 } },
+      },
+    },
+  );
 
   return res.status(200).json({ message: '食材已刪除！' });
 };
@@ -442,5 +451,5 @@ export const inviteMember = async (req, res) => {
     console.log(`User with ID ${userId} is not online.`);
   }
 
-  res.status(200).json({ message: '成員新增成功！' });
+  res.status(200).json({ message: '已送出邀請！' });
 };

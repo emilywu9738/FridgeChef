@@ -1,37 +1,9 @@
 import cron from 'node-cron';
-import mongoose from 'mongoose';
 import 'dotenv/config';
-import nodemailer from 'nodemailer';
 
 import Fridge from '../models/fridgeModel.js';
 import Notification from '../models/notificationModel.js';
-
-mongoose.connect(process.env.MONGOOSE_CONNECT);
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASSWORD,
-  },
-});
-
-const sendEmail = (to, subject, text) => {
-  const mailOptions = {
-    from: process.env.GMAIL_USER,
-    to,
-    subject,
-    text,
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error('Error sending email:', error);
-    } else {
-      console.log('Email sent:', info.response);
-    }
-  });
-};
+import sendEmail from '../utils/sendEmail.js';
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -95,6 +67,7 @@ async function notifyExpiringItems() {
             member.email,
             '【FridgeChef】食材過期通知',
             `【 ${fridge.name} 】\n已過期：${expired}\n即將過期：${expiring}`,
+            false,
           );
         });
 

@@ -3,7 +3,7 @@ import 'dotenv/config';
 
 import Recipe from './recipeModel.js';
 
-const uri = 'neo4j+s://aa84db4b.databases.neo4j.io:7687';
+const uri = process.env.NEO4J_URI;
 const user = process.env.NEO4J_USER;
 const password = process.env.NEO4J_PASSWORD;
 

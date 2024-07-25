@@ -319,6 +319,9 @@ export default function RecipeDetails() {
                               objectFit: 'cover',
                               objectPosition: 'center',
                             }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
                           />
                         )}
                       </Grid>

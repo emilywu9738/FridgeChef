@@ -3,7 +3,7 @@ import path, { dirname } from 'path';
 import 'dotenv/config';
 import { createWorker } from 'tesseract.js';
 import { fileURLToPath } from 'url';
-import sharp from 'sharp';
+import Jimp from 'jimp';
 
 import Fridge from '../models/fridgeModel.js';
 import User from '../models/userModel.js';
@@ -255,17 +255,16 @@ export const createByPhoto = async (req, res) => {
   }
 
   const ingredients = await loadIngredients();
-
-  const preprocessedImage = await sharp(req.file.buffer)
-    .resize(800) // 調整尺寸至800
-    .grayscale() // 轉換為灰階
-    .sharpen() // 銳化圖片，提高邊緣對比
-    .toBuffer();
-
-  const worker = await createWorker('chi_tra');
-
   try {
-    const result = await worker.recognize(preprocessedImage);
+    const image = await Jimp.read(req.file.buffer);
+    const processedImage = await image
+      .resize(800, Jimp.AUTO) // 調整大小為寬度 800 像素，高度自動調整以保持比例
+      .grayscale() // 轉換為灰階，有助於提高 OCR 的準確性
+      .getBufferAsync(Jimp.MIME_PNG);
+
+    const worker = await createWorker('chi_tra');
+
+    const result = await worker.recognize(processedImage);
     await worker.terminate();
 
     const dataWithoutSpace = result.data.text.replace(/\s+/g, '');

@@ -3,6 +3,7 @@ import path, { dirname } from 'path';
 import 'dotenv/config';
 import { createWorker } from 'tesseract.js';
 import { fileURLToPath } from 'url';
+import sharp from 'sharp';
 
 import Fridge from '../models/fridgeModel.js';
 import User from '../models/userModel.js';
@@ -255,10 +256,16 @@ export const createByPhoto = async (req, res) => {
 
   const ingredients = await loadIngredients();
 
+  const preprocessedImage = await sharp(req.file.buffer)
+    .resize(800) // 調整尺寸至800
+    .grayscale() // 轉換為灰階
+    .sharpen() // 銳化圖片，提高邊緣對比
+    .toBuffer();
+
   const worker = await createWorker('chi_tra');
 
   try {
-    const result = await worker.recognize(req.file.buffer);
+    const result = await worker.recognize(preprocessedImage);
     await worker.terminate();
 
     const dataWithoutSpace = result.data.text.replace(/\s+/g, '');

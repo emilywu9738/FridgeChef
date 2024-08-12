@@ -111,6 +111,10 @@ export default function ShowFridgeAndRecipe() {
       const { recipes } = response.data;
       setRecipeData(recipes);
     } catch (err) {
+      if (err.response.status === 404) {
+        setErrorMessage(err.response.data.error);
+        setOpenErrorSnackbar(true);
+      }
       setErrorMessage('食譜推薦失敗，請稍候再試');
       setOpenErrorSnackbar(true);
     }

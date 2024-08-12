@@ -80,16 +80,14 @@ export default function AddMembers() {
       })
       .catch((err) => {
         setUserForInvite('');
-        if (err.response && err.response.status === 409) {
-          setSearchError(err.response.data);
-          return;
+        if (err.response) {
+          if (err.response.status === 409 || err.response.status === 404) {
+            setSearchError(err.response.data.error);
+          } else {
+            setErrorMessage('搜尋失敗，請稍候再試');
+            setOpenErrorSnackbar(true);
+          }
         }
-        if (err.response && err.response.status === 404) {
-          setSearchError(err.response.data);
-          return;
-        }
-        setErrorMessage('搜尋失敗，請稍候再試');
-        setOpenErrorSnackbar(true);
       });
   };
 

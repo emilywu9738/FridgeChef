@@ -85,7 +85,7 @@ export const updatePreferenceAndOmit = async (req, res) => {
 
 export const getProfileData = async (req, res) => {
   const { id } = req.user;
-  const userData = await User.findById(id);
+  const userData = await User.findById(id).select('-password');
   if (!userData) {
     throw new ExpressError('未找到用戶', 404);
   }

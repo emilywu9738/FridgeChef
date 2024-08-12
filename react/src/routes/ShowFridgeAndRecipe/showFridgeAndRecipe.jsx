@@ -111,8 +111,14 @@ export default function ShowFridgeAndRecipe() {
       const { recipes } = response.data;
       setRecipeData(recipes);
     } catch (err) {
-      setErrorMessage('食譜推薦失敗，請稍候再試');
-      setOpenErrorSnackbar(true);
+      if (err.response.status === 404) {
+        setErrorMessage('冰箱無食材，無法推薦食譜');
+        setOpenErrorSnackbar(true);
+        return;
+      } else {
+        setErrorMessage('食譜推薦失敗，請稍候再試');
+        setOpenErrorSnackbar(true);
+      }
     }
   };
 

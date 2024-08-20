@@ -1,13 +1,50 @@
-import cron from 'node-cron';
-import 'dotenv/config';
 import mongoose from 'mongoose';
+import nodemailer from 'nodemailer';
+import Fridge from './models/fridge.js';
+import User from './models/user.js';
+import Notification from './models/notification.js';
+import 'dotenv/config';
 
-import Fridge from '../models/fridgeModel.js';
-import User from '../models/userModel.js';
-import Notification from '../models/notificationModel.js';
-import sendEmail from '../utils/sendEmail.js';
+let isConnected;
 
-mongoose.connect(process.env.MONGOOSE_CONNECT);
+const connectToDatabase = async () => {
+  if (isConnected) {
+    return;
+  }
+
+  try {
+    await mongoose.connect(process.env.MONGOOSE_CONNECT);
+    isConnected = mongoose.connection.readyState;
+    console.log('DB connection successful!');
+  } catch (error) {
+    console.error('Error connecting to database:', error);
+  }
+};
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASSWORD,
+  },
+});
+
+const sendEmail = (to, subject, text) => {
+  const mailOptions = {
+    from: process.env.GMAIL_USER,
+    to,
+    subject,
+    text,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Error sending email:', error);
+    } else {
+      console.log('Email sent:', info.response);
+    }
+  });
+};
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -23,9 +60,12 @@ const dateForDisplay = today.toLocaleDateString('zh-TW', {
 
 async function notifyExpiringItems() {
   try {
+    console.log('hi');
+    await connectToDatabase();
+
     const allFridge = await Fridge.find().populate({
       path: 'members',
-      select: 'email',
+      select: 'email receiveNotifications',
     });
 
     const ingredientsForNotify = allFridge.map((fridge) => {
@@ -67,12 +107,13 @@ async function notifyExpiringItems() {
         await notification.save();
 
         fridge.members.forEach((member) => {
-          sendEmail(
-            member.email,
-            '【FridgeChef】食材過期通知',
-            `【 ${fridge.name} 】\n已過期：${expired}\n即將過期：${expiring}`,
-            false,
-          );
+          if (member.receiveNotifications) {
+            sendEmail(
+              member.email,
+              '【FridgeChef】食材過期通知',
+              `【 ${fridge.name} 】\n已過期：${expired}\n即將過期：${expiring}`,
+            );
+          }
         });
 
         console.log('Notification saved and email sent successfully!');
@@ -83,18 +124,15 @@ async function notifyExpiringItems() {
   }
 }
 
-const scheduleTasks = () => {
-  cron.schedule(
-    '0 5 * * *',
-    () => {
-      notifyExpiringItems();
-    },
-    {
-      scheduled: true,
-      timezone: 'Asia/Taipei',
-    },
-  );
+export const handler = async (event) => {
+  console.log('start');
+  try {
+    await notifyExpiringItems();
+  } catch (err) {
+    console.error(err);
+  }
+  return {
+    statusCode: 200,
+    body: JSON.stringify('Notification process completed successfully!'),
+  };
 };
-
-// scheduleTasks();
-notifyExpiringItems();
